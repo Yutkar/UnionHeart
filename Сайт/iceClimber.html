@@ -1,0 +1,61 @@
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Union Heart</title>
+  <link rel="apple-touch-icon" href="images/favicon.png">
+  <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="game-style.css">
+</head>
+<body>
+  <header>
+    <div class="logo">❤ UNION HEART</div>
+    <nav>
+      <a href="Menu.html">Главная</a>
+      <a href="Katalog.html">Каталог</a>
+      <a href="rating.html">Рейтинг</a>
+      <a href="oProecte.html">О проекте</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="game-container">
+      <h1>🧊⛰️ Покоритель льда </h1>
+      <p>
+          Игрок карабкается вверх по ледяной горе, разбивая блоки и избегая врагов.
+        </p>
+      <canvas id="game" width="400" height="400"></canvas>
+      <p id="gameOverMessage" class="game-over" style="display:none;"></p>
+      <div class="controls">
+        <button id="startBtn">▶ Старт</button>
+        <button id="pauseBtn">⏸ Пауза</button>
+        <button id="restartBtn">🔄 Перезапуск</button>
+      </div>
+      <div class="game-info">
+        <h2>Управление</h2>
+        <ul>
+          <li>A — перемещение влево</li>
+          <li>D — перемещение вправо</li>
+          <li>S — перемещение вниз</li>
+          <li>W — перемещение вверх</li>
+          <li>📱 На телефоне: свайпы для движения.</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="oProecte.html">О проекте</a>
+      <a href="#">Соцсети</a>
+    </div>
+    <p>© 2025 Union Heart – Игры с душой</p>
+  </footer>
+
+  <!-- Логика игры -->
+  <script src="Games/Arcade/iceClimber.js"></script>
+  <!-- Общие кнопки -->
+  <script src="gameControls.js"></script>
+  <script type="module" src="firebase-init.js"></script>
+</body>
+</html>
