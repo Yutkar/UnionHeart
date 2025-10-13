@@ -1,0 +1,380 @@
+/* === Общие стили === */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #A4D7D5; /* фон вокруг белого блока */
+  color: #333;
+}
+
+/* === Шапка === */
+header {
+  background: #A4D7D5;
+  color: #446874;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header .logo {
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+nav a {
+  margin-left: 15px;
+  color: #446874;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+nav a:hover {
+  text-decoration: underline;
+  color: #364fc7;
+}
+
+/* === Белый блок контента === */
+.content-box {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+/* === Hero-блок === */
+.hero h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: #1e3d59;
+}
+
+.hero p {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #4a5d68;
+}
+
+/* Главная кнопка */
+.main-btn {
+  background: #ffffff;
+  color: #446874;
+  border: 2px solid #A4D7D5;
+  padding: 14px 28px;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-btn:hover {
+  background: #A4D7D5;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* === Категории === */
+.categories {
+  margin-top: 30px;
+}
+
+.category-button {
+  margin: 8px;
+  padding: 12px 22px;
+  background: #ffffff;
+  border: 1px solid #cfdfe0;
+  color: #446874;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.category-button:hover {
+  background: #A4D7D5;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* === Подвал === */
+footer {
+  text-align: center;
+  padding: 15px;
+  background: #A4D7D5;
+  margin-top: 20px;
+  color: #ffffff;
+}
+
+footer a {
+  color: #ffffff;
+  text-decoration: none;
+  margin: 0 8px;
+}
+
+footer a:hover {
+  color: #364fc7;
+  text-decoration: underline;
+}
+
+
+
+/* === Поиск === */
+.search-bar {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.search-bar input {
+  padding: 8px;
+  width: 220px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #E9F6F6;
+}
+
+.search-bar button {
+  margin-left: 5px;
+  padding: 8px 12px;
+  border: none;
+  background: #A4D7D5;
+  color: #446874;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.search-bar button:hover {
+  background: #446874;
+  color: #fff;
+}
+
+.search-bar button.active {
+  background: #446874;
+  color: #fff;
+}
+
+
+
+
+
+
+/* Каталог игр */
+.catalog {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.game-card {
+  background: #E9F6F6;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  width: 180px;              /* фиксированная ширина */
+  min-height: 200px;         /* чтобы все были ровные */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;             /* добавляем flex */
+  flex-direction: column;    /* вертикальное расположение */
+  justify-content: space-between; /* равномерное распределение */
+}
+
+.game-card img.game-icon {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin: 0 auto 10px;
+  display: block;
+}
+
+.game-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.game-card h3 {
+  margin: 10px 0;
+  font-size: 18px;
+  color: #446874;
+}
+
+/* Кнопка в карточке */
+.game-card button {
+  padding: 8px 14px;
+  border: none;
+  background: #A4D7D5;
+  color: #446874;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+.game-card button:hover {
+  background: #364fc7;
+  color: #fff;
+}
+
+
+
+/* Кнопка случайной игры */
+.random-game {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.random-btn {
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  background-color: #A4D7D5; /* цвет из шапки */
+  background-image: url("images/random.png"); /* путь к картинке */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 60%; /* чтобы картинка красиво вписывалась */
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.random-btn:hover {
+  background-color: #8C52FF;
+}
+
+
+
+
+
+
+
+/* страница о проекте */
+.about-section, .team-section, .reviews-section {
+  background: #fff;
+  padding: 30px;
+  margin: 20px auto;
+  border-radius: 10px;
+  max-width: 900px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.team {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.team-member {
+  text-align: center;
+  width: 200px;
+}
+
+.team-photo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.review {
+  background: #f7f8fa;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 10px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.review span {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.9em;
+  color: #555;
+}
+
+#reviewForm {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#reviewForm textarea,
+#reviewForm input {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+#reviewForm button {
+  padding: 10px;
+  border: none;
+  background: #A4D7D5;
+  color: #446874;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#reviewForm button:hover {
+  background: #364fc7;
+  color: white;
+}
+
+
+
+
+
+
+/* Рейтинг */
+.rating-card {
+  background: #E9F6F6;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  width: 200px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+
+.rating-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+}
+
+.rating-card h3 {
+  margin-bottom: 10px;
+  font-size: 1.2em;
+  color: #446874;
+}
+
+.stars {
+  direction: rtl;
+  unicode-bidi: bidi-override;
+  margin: 10px 0;
+}
+
+.stars span {
+  font-size: 25px;
+  cursor: pointer;
+  color: #ccc;
+  transition: 0.2s;
+}
+
+.stars span:hover,
+.stars span:hover ~ span,
+.stars span.active {
+  color: gold;
+}
+
+.avg {
+  font-size: 0.9em;
+  color: #446874;
+  margin-top: 8px;
+}
