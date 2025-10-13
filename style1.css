@@ -378,3 +378,44 @@ footer a:hover {
   color: #446874;
   margin-top: 8px;
 }
+
+
+/* Стиль кнопки входа */
+#user-panel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 20px;
+  background: #f0f4f7;
+  border-bottom: 2px solid #cbd5e1;
+}
+
+#loginBtn, #logoutBtn {
+  background-color: #4285F4;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+#logoutBtn {
+  background-color: #db4437;
+}
+
+#loginBtn:hover, #logoutBtn:hover {
+  transform: scale(1.05);
+}
+
+#userInfo {
+  font-weight: bold;
+  color: #333;
+}
+
+#authMessage {
+  color: #555;
+  font-size: 14px;
+}
