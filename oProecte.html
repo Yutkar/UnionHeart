@@ -53,18 +53,18 @@
   <!-- Отзывы игроков -->
   <section class="reviews-section">
   <h2>Отзывы игроков</h2>
-  
-  <div id="reviews-list">
-    <!-- отзывы будут подгружаться отсюда -->
-  </div>
+
+  <div id="reviewsList"></div>
 
   <form id="reviewForm">
-    <textarea id="reviewText" placeholder="Напишите свой отзыв..."></textarea>
-    <input type="text" id="reviewAuthor" placeholder="Ваше имя">
-    <button type="submit">Оставить отзыв</button>
+    <textarea id="reviewText" placeholder="Оставьте отзыв..." required></textarea>
+    <button type="submit">Отправить</button>
   </form>
-</section>
 
+  <p id="loginNotice" style="color:#555; display:none;">
+    ✨ Только авторизованные пользователи могут оставлять отзывы.
+  </p>
+</section>
 
 
 
@@ -77,7 +77,8 @@
     <p>© 2025 Union Heart – Игры с душой</p>
   </footer>
 
- <script src="script1.js"></script>
- <script type="module" src="firebase-init.js"></script>
+<script src="script1.js"></script>
+<script type="module" src="firebase-init.js"></script>
+<script type="module" src="reviews.js"></script>
 </body>
 </html>
