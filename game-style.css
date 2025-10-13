@@ -204,3 +204,31 @@ canvas {
 .game-info li {
   margin-bottom: 5px;
 }
+
+
+/* === Рейтинг игр === */
+.rating-section {
+  margin-top: 25px;
+  background: #E9F6F6;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.stars {
+  direction: rtl;
+  unicode-bidi: bidi-override;
+}
+
+.stars span {
+  font-size: 30px;
+  cursor: pointer;
+  color: #ccc;
+  transition: 0.2s;
+}
+
+.stars span:hover,
+.stars span:hover ~ span {
+  color: gold;
+}
