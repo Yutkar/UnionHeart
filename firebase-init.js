@@ -1,11 +1,9 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+// firebase-init.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Конфигурация из твоего Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyAidL-8CTSIQw-wkiV_puD-DS-dQWX5u0Q",
   authDomain: "union-heart-games.firebaseapp.com",
@@ -16,6 +14,10 @@ const firebaseConfig = {
   measurementId: "G-FZ637PG68T"
 };
 
-// Initialize Firebase
+// Инициализация
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+// Экспортируем для других файлов
+export const auth = getAuth(app);
+export const provider = new GoogleAuthProvider();
+export const db = getFirestore(app);

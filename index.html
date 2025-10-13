@@ -15,11 +15,16 @@
       <span class="icon">❤</span> UNION HEART
     </div>
     <nav>
-	<a href="index.html" class="active">Главная</a>
-	<a href="Katalog.html">Каталог</a>
-	<a href="rating.html" class="active">Рейтинг</a>
-	<a href="oProecte.html">О проекте</a>
+	    <a href="index.html" class="active">Главная</a>
+	    <a href="Katalog.html">Каталог</a>
+	    <a href="rating.html">Рейтинг</a>
+      <a href="oProecte.html">О проекте</a>
     </nav>
+    <div id="user-panel">
+      <button id="loginBtn">🔑 Войти через Google</button>
+      <button id="logoutBtn" style="display:none;">🚪 Выйти</button>
+      <span id="userInfo"></span>
+    </div>
   </header>
 
   <!-- Основной блок сайта -->
@@ -31,13 +36,6 @@
         <h1><span class="icon">❤️</span> UNION HEART</h1>
         <p>Игры, которые объединяют</p>
         <button id="openCatalog" class="main-btn" aria-label="Случайная игра">ВЫБЕРИ ИГРУ</button>
-      </section>
-
-      <!-- Категории -->
-      <section class="categories">
-        <button class="category-button">ПОПУЛЯРНЫЕ</button>
-        <button class="category-button">НОВИНКИ</button>
-        <button class="category-button">ДЛЯ РЕЛАКСА</button>
       </section>
 
 	<section class="random-game">
@@ -58,5 +56,6 @@
 
   <script src="script1.js"></script>
   <script type="module" src="firebase-init.js"></script>
+  <script type="module" src="auth.js"></script>
 </body>
 </html>
