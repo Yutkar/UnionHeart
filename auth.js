@@ -7,7 +7,6 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
-// === Инициализация провайдера Google ===
 const provider = new GoogleAuthProvider();
 
 const loginBtn = document.getElementById("loginBtn");
@@ -21,18 +20,17 @@ loginBtn.addEventListener("click", async () => {
     authMessage.textContent = "Открывается окно входа...";
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
-
     userInfo.textContent = `👤 ${user.displayName}`;
-    authMessage.textContent = "Вы успешно вошли через Google ✅";
+    authMessage.textContent = "Вы вошли через Google ✅";
     loginBtn.style.display = "none";
     logoutBtn.style.display = "inline-block";
   } catch (error) {
     console.error("Ошибка входа:", error);
-    authMessage.textContent = "Ошибка при входе. Проверьте разрешённые домены в Firebase.";
+    authMessage.textContent = "Ошибка при входе. Проверь разрешённые домены.";
   }
 });
 
-// === Проверка состояния авторизации ===
+// === Проверяем состояние при загрузке ===
 onAuthStateChanged(auth, (user) => {
   if (user) {
     userInfo.textContent = `👤 ${user.displayName}`;

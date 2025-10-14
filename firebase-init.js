@@ -8,7 +8,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyAidL-8CTSIQw-wkiV_puD-DS-dQWX5u0Q",
   authDomain: "union-heart-games.firebaseapp.com",
   projectId: "union-heart-games",
-  storageBucket: "union-heart-games.firebasestorage.app",
+  storageBucket: "union-heart-games.appspot.com",
   messagingSenderId: "56294430695",
   appId: "1:56294430695:web:962127cd9a2bc83d8dcf42",
   measurementId: "G-FZ637PG68T"
