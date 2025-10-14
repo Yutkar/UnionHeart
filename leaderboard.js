@@ -1,38 +1,36 @@
 import { db } from "./firebase-init.js";
-import { collection, query, where, orderBy, limit, getDocs } 
-  from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-const leaderboardBody = document.getElementById("leaderboardBody");
-const gameId = document.body.dataset.gameId || "snake"; // можно брать из атрибута
+const leaderboardTable = document.getElementById("leaderboardTable");
 
-async function loadLeaderboard() {
-  const q = query(
-    collection(db, "scores"),
-    where("gameId", "==", gameId),
-    orderBy("score", "desc"),
-    limit(10)
-  );
+// Функция для отображения данных
+function renderLeaderboard(players) {
+  leaderboardTable.innerHTML = `
+    <tr>
+      <th>Место</th>
+      <th>Игрок</th>
+      <th>Очки</th>
+    </tr>
+  `;
 
-  const snapshot = await getDocs(q);
-
-  leaderboardBody.innerHTML = "";
-  let rank = 1;
-
-  snapshot.forEach((doc) => {
-    const data = doc.data();
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${rank}</td>
-      <td>${data.userName}</td>
-      <td>${data.score}</td>
+  players.forEach((player, index) => {
+    leaderboardTable.innerHTML += `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${player.name}</td>
+        <td>${player.score}</td>
+      </tr>
     `;
-    leaderboardBody.appendChild(row);
-    rank++;
   });
-
-  if (rank === 1) {
-    leaderboardBody.innerHTML = "<tr><td colspan='3'>Пока нет результатов 😔</td></tr>";
-  }
 }
 
-loadLeaderboard();
+// Подключаем "живую" подписку
+const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(10));
+
+onSnapshot(q, (snapshot) => {
+  const players = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+  renderLeaderboard(players);
+});

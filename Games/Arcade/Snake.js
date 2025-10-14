@@ -82,24 +82,28 @@ function drawGame() {
     const newHead = { x: snakeX, y: snakeY };
 
     // проверка на смерть
-    if (
-        snakeX < 0 || snakeY < 0 ||
-        snakeX >= canvas.width || snakeY >= canvas.height ||
-        collision(newHead, snake)
-    ) {
-        clearInterval(gameInterval);
+if (
+    snakeX < 0 || snakeY < 0 ||
+    snakeX >= canvas.width || snakeY >= canvas.height ||
+    collision(newHead, snake)
+) {
+    clearInterval(gameInterval);
 
-        // показываем надпись о конце игры
-        const message = document.getElementById("gameOverMessage");
-        if (message) {
-            message.textContent = "Игра окончена! Очки: " + score;
-            message.style.display = "block";
-        }
-        saveScore("snake", currentScore);
+    // показываем надпись о конце игры
+    const message = document.getElementById("gameOverMessage");
+    if (message) {
+        message.textContent = "Игра окончена! Очки: " + score;
+        message.style.display = "block";
+    }
 
+    // сохраняем результат в Firestore
+    if (typeof saveScore === "function") {
+        saveScore("snake", score);
+    }
 
-        return; // выходим, чтобы не отрисовывать дальше
+    return; // выходим, чтобы не отрисовывать дальше
 }
+
 
 
 
