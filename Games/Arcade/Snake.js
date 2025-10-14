@@ -95,6 +95,8 @@ function drawGame() {
             message.textContent = "Игра окончена! Очки: " + score;
             message.style.display = "block";
         }
+        saveScore("snake", currentScore);
+
 
         return; // выходим, чтобы не отрисовывать дальше
 }
