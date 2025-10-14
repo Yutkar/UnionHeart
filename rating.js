@@ -1,3 +1,4 @@
+// === rating.js ===
 import { db, auth } from "./firebase-init.js";
 import {
   collection,
@@ -15,12 +16,15 @@ const ratingSection = document.querySelector(".rating-section");
 const stars = ratingSection.querySelectorAll(".stars span");
 const avgRatingEl = document.getElementById("avgRating");
 const userRatingEl = document.getElementById("userRating");
-const gameId = ratingSection.dataset.gameId; // исправлено
+const gameId = ratingSection.dataset.gameId;
 let currentUser = null;
+
+// === Делаем порядок звёзд правильным (чтобы правая была 5 ⭐) ===
+const starsArray = Array.from(stars).reverse();
 
 // === Подсветка звёзд ===
 function updateStars(rating) {
-  stars.forEach((star, i) => {
+  starsArray.forEach((star, i) => {
     star.style.color = i < rating ? "#ffc107" : "#ccc";
   });
 }
@@ -69,18 +73,30 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // === Сохранение рейтинга ===
-stars.forEach((star, index) => {
+starsArray.forEach((star, index) => {
   star.addEventListener("click", async () => {
     if (!currentUser) {
       alert("Пожалуйста, войдите, чтобы поставить оценку.");
       return;
     }
 
-    const rating = index + 1; // исправлено
+    const rating = index + 1;
     const userId = currentUser.uid;
     const userName = currentUser.displayName || "Аноним";
+    const docRef = doc(db, "ratings", `${gameId}_${userId}`);
+    const docSnap = await getDoc(docRef);
 
-    await setDoc(doc(db, "ratings", `${gameId}_${userId}`), {
+    // Если пользователь кликнул по своей текущей оценке — удаляем
+    if (docSnap.exists() && docSnap.data().rating === rating) {
+      await deleteDoc(docRef);
+      userRatingEl.textContent = `Ваша оценка: —`;
+      updateStars(0);
+      loadAverageRating();
+      return;
+    }
+
+    // Иначе сохраняем новую оценку
+    await setDoc(docRef, {
       gameId,
       userId,
       userName,
@@ -93,3 +109,4 @@ stars.forEach((star, index) => {
     loadAverageRating();
   });
 });
+
