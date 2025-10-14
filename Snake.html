@@ -45,20 +45,7 @@
     </div>
   </main>
 
-  <div class="rating-section" data-game-id="snake">
-  <h2>⭐ Рейтинг игры</h2>
-  <div class="stars">
-    <span>★</span>
-    <span>★</span>
-    <span>★</span>
-    <span>★</span>
-    <span>★</span>
-  </div>
-  <p id="userRating">Ваша оценка: —</p>
-  <p id="avgRating">Средняя оценка: —</p>
-</div>
-
-<div id="leaderboard">
+  <div id="leaderboard">
   <h2>🏆 Таблица лидеров</h2>
   <table>
     <thead>
@@ -74,8 +61,21 @@
   </table>
 </div>
 
-<script type="module" src="leaderboard.js"></script>
 
+
+
+  <div class="rating-section" data-game-id="snake">
+  <h2>⭐ Рейтинг игры</h2>
+  <div class="stars">
+    <span>★</span>
+    <span>★</span>
+    <span>★</span>
+    <span>★</span>
+    <span>★</span>
+  </div>
+  <p id="userRating">Ваша оценка: —</p>
+  <p id="avgRating">Средняя оценка: —</p>
+</div>
 
 <script type="module" src="rating.js"></script>
 
@@ -93,5 +93,6 @@
   <!-- Общие кнопки -->
   <script src="gameControls.js"></script>
   <script type="module" src="firebase-init.js"></script>
+  <script type="module" src="leaderboard.js"></script>
 </body>
 </html>
