@@ -6,7 +6,7 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.1/firebas
 
 const firebaseConfig = {
   apiKey: "AIzaSyAidL-8CTSIQw-wkiV_puD-DS-dQWX5u0Q",
-  authDomain: "union-heart-games.firebaseapp.com",
+  authDomain: "yutkar.github.io",
   projectId: "union-heart-games",
   storageBucket: "union-heart-games.firebasestorage.app",
   messagingSenderId: "56294430695",
