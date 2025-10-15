@@ -168,31 +168,4 @@ window.restartGame = restartGame;
 
 
 
-import { db } from "./firebase-init.js";
-import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-import { auth } from "./firebase-init.js"; // если используешь авторизацию
 
-async function saveScore(gameName, score) {
-  const user = auth.currentUser;
-
-  if (!user) {
-    alert("Нужно авторизоваться, чтобы сохранить результат!");
-    return;
-  }
-
-  try {
-    await addDoc(collection(db, "leaderboard"), {
-      userId: user.uid,
-      name: user.displayName || "Аноним",
-      score: score,
-      gameName: gameName, // ← имя игры, чтобы рейтинг был отдельный
-      timestamp: serverTimestamp(),
-    });
-    console.log("Результат сохранён!");
-  } catch (e) {
-    console.error("Ошибка при сохранении:", e);
-  }
-}
-
-// Делаем функцию глобальной, чтобы её могла вызвать игра
-window.saveScore = saveScore;
