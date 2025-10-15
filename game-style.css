@@ -255,55 +255,64 @@ canvas {
 }
 
 /* === Таблица === */
-.leaderboard-table {
+#leaderboardTable {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
   border-radius: 10px;
   overflow: hidden;
+  font-size: 15px;
 }
 
 /* Заголовки */
-.leaderboard-table thead {
+#leaderboardTable tr:first-child {
   background: #A4D7D5;
   color: #fff;
-}
-
-.leaderboard-table th {
-  padding: 12px;
-  font-size: 15px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-/* Строки таблицы */
-.leaderboard-table td {
+#leaderboardTable th {
+  padding: 12px;
+  font-weight: bold;
+}
+
+/* Ячейки */
+#leaderboardTable td {
   padding: 12px;
   border-bottom: 1px solid #e0e0e0;
   color: #333;
-  font-size: 15px;
+  text-align: center;
 }
 
 /* Чередование строк */
-.leaderboard-table tbody tr:nth-child(even) {
+#leaderboardTable tr:nth-child(even) {
   background: #f7f8fa;
 }
 
 /* Эффект при наведении */
-.leaderboard-table tbody tr:hover {
+#leaderboardTable tr:hover {
   background: #E9F6F6;
   transition: 0.2s;
 }
 
 /* Первые 3 места */
-.leaderboard-table tbody tr:nth-child(1) td:first-child::before {
+#leaderboardTable tr:nth-child(2) td:first-child::before {
   content: "🥇 ";
 }
-.leaderboard-table tbody tr:nth-child(2) td:first-child::before {
+#leaderboardTable tr:nth-child(3) td:first-child::before {
   content: "🥈 ";
 }
-.leaderboard-table tbody tr:nth-child(3) td:first-child::before {
+#leaderboardTable tr:nth-child(4) td:first-child::before {
   content: "🥉 ";
+}
+
+/* Состояние "Загрузка..." */
+#leaderboardTable.loading td {
+  text-align: center;
+  font-size: 16px;
+  color: #888;
+  padding: 20px;
 }
 
 /* Кнопка обновления таблицы */
