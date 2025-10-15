@@ -283,49 +283,46 @@ footer a:hover {
   margin-bottom: 10px;
 }
 
-.review {
-  background: #f7f8fa;
-  padding: 12px;
-  border-radius: 6px;
-  margin: 10px 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.reviews-section {
+  background: #f9f9f9;
+  padding: 30px;
+  max-width: 800px;
+  margin: 40px auto;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
-.review span {
-  display: block;
-  margin-top: 5px;
-  font-size: 0.9em;
-  color: #555;
-}
-
-#reviewForm {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-#reviewForm textarea,
-#reviewForm input {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-#reviewForm button {
-  padding: 10px;
-  border: none;
-  background: #A4D7D5;
+.reviews-section h2 {
+  text-align: center;
   color: #446874;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
+  margin-bottom: 20px;
 }
 
-#reviewForm button:hover {
-  background: #364fc7;
-  color: white;
+#reviewsList {
+  margin-bottom: 20px;
 }
+
+.review-item {
+  background: #ffffff;
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.review-item p {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.review-item .author {
+  font-weight: bold;
+  color: #446874;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
 
 
 
