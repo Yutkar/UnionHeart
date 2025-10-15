@@ -45,12 +45,27 @@
     </div>
   </main>
 
-<section class="leaderboard-section">
-  <h2>🏆 Таблица лидеров</h2>
-  <table id="leaderboardTable" class="leaderboard-table">
+  <div class="leaderboard-controls">
+  <label for="gameSelect">Выбери игру:</label>
+  <select id="gameSelect">
+    <option value="snake">🐍 Змейка</option>
+    <option value="flappy">🐤 Flappy</option>
+    <option value="tetris">🧱 Тетрис</option>
+  </select>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Место</th>
+      <th>Игрок</th>
+      <th>Очки</th>
+    </tr>
+  </thead>
+  <tbody id="leaderboardBody">
     <tr><td colspan="3">Загрузка...</td></tr>
-  </table>
-</section>
+  </tbody>
+</table>
 
 
 

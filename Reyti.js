@@ -1,48 +1,41 @@
-import { db, auth } from "./firebase-init.js";
-import {
-  doc,
-  setDoc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { db } from "./firebase-init.js";
+import { collection, query, where, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-let currentUser = null;
+const leaderboardBody = document.getElementById("leaderboardBody");
+const gameSelect = document.getElementById("gameSelect"); // выпадающий список
 
-// === Отслеживаем авторизацию ===
-onAuthStateChanged(auth, (user) => {
-  currentUser = user;
+function renderLeaderboard(players) {
+  leaderboardBody.innerHTML = "";
+  players.forEach((player, index) => {
+    leaderboardBody.innerHTML += `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${player.name}</td>
+        <td>${player.score}</td>
+      </tr>
+    `;
+  });
+}
+
+// Функция загрузки рейтинга по выбранной игре
+function loadLeaderboard(gameName) {
+  const q = query(
+    collection(db, "leaderboard"),
+    where("gameName", "==", gameName),
+    orderBy("score", "desc"),
+    limit(10)
+  );
+
+  onSnapshot(q, (snapshot) => {
+    const players = snapshot.docs.map(doc => doc.data());
+    renderLeaderboard(players);
+  });
+}
+
+// Обновляем при выборе другой игры
+gameSelect.addEventListener("change", (e) => {
+  loadLeaderboard(e.target.value);
 });
 
-// === Сохранение результата игры ===
-export async function saveScore(gameId, score) {
-  if (!currentUser) {
-    alert("Войдите, чтобы сохранить свой результат!");
-    return;
-  }
-
-  const userId = currentUser.uid;
-  const userName = currentUser.displayName || "Аноним";
-  const docRef = doc(db, "scores", `${gameId}_${userId}`);
-
-  try {
-    const oldData = await getDoc(docRef);
-    const bestScore = oldData.exists()
-      ? Math.max(oldData.data().score, score)
-      : score;
-
-    await setDoc(docRef, {
-      gameId,
-      userId,
-      userName,
-      score: bestScore,
-      lastScore: score,
-      timestamp: new Date(),
-    });
-
-    console.log(`✅ Результат сохранён: ${bestScore}`);
-  } catch (error) {
-    console.error("Ошибка при сохранении результата:", error);
-  }
-}
+// Загружаем при открытии страницы (например, по умолчанию — змейку)
+loadLeaderboard("snake");
