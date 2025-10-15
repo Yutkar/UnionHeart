@@ -409,3 +409,105 @@ footer a:hover {
   color: #555;
   font-size: 14px;
 }
+
+
+
+
+/* === Таблица лидеров === */
+.leaderboard-section {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  text-align: center;
+}
+
+.leaderboard-section h2 {
+  color: #446874;
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* === Таблица === */
+#leaderboardTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 15px;
+}
+
+/* Заголовки */
+#leaderboardTable tr:first-child {
+  background: #A4D7D5;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#leaderboardTable th {
+  padding: 12px;
+  font-weight: bold;
+}
+
+/* Ячейки */
+#leaderboardTable td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  color: #333;
+  text-align: center;
+}
+
+/* Чередование строк */
+#leaderboardTable tr:nth-child(even) {
+  background: #f7f8fa;
+}
+
+/* Эффект при наведении */
+#leaderboardTable tr:hover {
+  background: #E9F6F6;
+  transition: 0.2s;
+}
+
+/* Первые 3 места */
+#leaderboardTable tr:nth-child(2) td:first-child::before {
+  content: "🥇 ";
+}
+#leaderboardTable tr:nth-child(3) td:first-child::before {
+  content: "🥈 ";
+}
+#leaderboardTable tr:nth-child(4) td:first-child::before {
+  content: "🥉 ";
+}
+
+/* Состояние "Загрузка..." */
+#leaderboardTable.loading td {
+  text-align: center;
+  font-size: 16px;
+  color: #888;
+  padding: 20px;
+}
+
+/* Кнопка обновления таблицы */
+.refresh-btn {
+  background: #A4D7D5;
+  color: #446874;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-top: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.refresh-btn:hover {
+  background: #364fc7;
+  color: #fff;
+  transform: translateY(-2px);
+}
