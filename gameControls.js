@@ -21,3 +21,44 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+
+// ======== Блокировка прокрутки во время игры ========
+
+function disableScroll() {
+  document.body.style.overflow = "hidden";
+  document.addEventListener("touchmove", preventScroll, { passive: false });
+}
+
+function enableScroll() {
+  document.body.style.overflow = "";
+  document.removeEventListener("touchmove", preventScroll);
+}
+
+function preventScroll(e) {
+  e.preventDefault();
+}
+
+// Отключаем прокрутку, когда игра запущена
+window.startGame = (function(originalStartGame) {
+  return function() {
+    originalStartGame();
+    disableScroll(); // блокируем прокрутку
+  };
+})(window.startGame);
+
+// Включаем обратно при паузе или перезапуске
+window.pauseGame = (function(originalPauseGame) {
+  return function() {
+    originalPauseGame();
+    enableScroll(); // разрешаем прокрутку
+  };
+})(window.pauseGame);
+
+window.restartGame = (function(originalRestartGame) {
+  return function() {
+    originalRestartGame();
+    enableScroll(); // разрешаем прокрутку
+  };
+})(window.restartGame);
+
