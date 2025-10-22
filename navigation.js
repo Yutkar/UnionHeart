@@ -179,10 +179,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-// ===== Переход к игре 'MelstroyGame' =====
-  const openMelstroyGame = document.getElementById("openMelstroyGame");
-  if (openMelstroyGame) {
-    openMelstroyGame.addEventListener("click", () => {
+// ===== Переход к игре 'MellstroyGame' =====
+  const openMellstroyGame = document.getElementById("openMellstroyGame");
+  if (openMellstroyGame) {
+    openMellstroyGame.addEventListener("click", () => {
       window.location.href = "MellstroyGame.html";
     });
   }

@@ -74,6 +74,55 @@ function collide(a, b) {
          a.y + a.height > b.y;
 }
 
+// ======== УПРАВЛЕНИЕ ДЛЯ ТЕЛЕФОНОВ ========
+
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+canvas.addEventListener("touchstart", e => {
+  const touch = e.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+});
+
+canvas.addEventListener("touchend", e => {
+  const touch = e.changedTouches[0];
+  touchEndX = touch.clientX;
+  touchEndY = touch.clientY;
+
+  handleSwipe();
+});
+
+function handleSwipe() {
+  const diffX = touchEndX - touchStartX;
+  const diffY = touchEndY - touchStartY;
+
+  // Проверяем, по какой оси движение больше
+  if (Math.abs(diffX) > Math.abs(diffY)) {
+    // Горизонтальный свайп
+    if (diffX > 30) {
+      ship.x += ship.speed * 10; // вправо
+    } else if (diffX < -30) {
+      ship.x -= ship.speed * 10; // влево
+    }
+  } else {
+    // Вертикальный свайп
+    if (diffY > 30) {
+      ship.y += ship.speed * 10; // вниз
+    } else if (diffY < -30) {
+      ship.y -= ship.speed * 10; // вверх
+    }
+  }
+
+  // Ограничиваем движение за границы
+  if (ship.x < 0) ship.x = 0;
+  if (ship.x + ship.width > canvas.width) ship.x = canvas.width - ship.width;
+  if (ship.y < 0) ship.y = 0;
+  if (ship.y + ship.height > canvas.height) ship.y = canvas.height - ship.height;
+}
+
 // ===== Создание денег =====
 function spawnMoney() {
   const img = new Image();
