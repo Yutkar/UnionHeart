@@ -164,8 +164,3 @@ function pauseGame() {
 window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
-
-
-
-
-
