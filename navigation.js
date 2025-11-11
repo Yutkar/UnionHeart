@@ -177,13 +177,4 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "SimpleRacing.html";
     });
   }
-
-
-// ===== Переход к игре 'MellstroyGame' =====
-  const openMellstroyGame = document.getElementById("openMellstroyGame");
-  if (openMellstroyGame) {
-    openMellstroyGame.addEventListener("click", () => {
-      window.location.href = "MellstroyGame.html";
-    });
-  }
 });
