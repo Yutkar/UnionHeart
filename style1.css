@@ -2,13 +2,13 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #A4D7D5; /* фон вокруг белого блока */
+  background: #7B03C4; /* фон вокруг белого блока */
   color: #333;
 }
 
 /* === Шапка === */
 header {
-  background: #A4D7D5;
+  background: #7B03C4;
   color: #446874;
   padding: 15px 20px;
   display: flex;
@@ -61,7 +61,7 @@ nav a:hover {
 .main-btn {
   background: #ffffff;
   color: #446874;
-  border: 2px solid #A4D7D5;
+  border: 2px solid #7B03C4;
   padding: 14px 28px;
   font-weight: bold;
   border-radius: 10px;
@@ -72,7 +72,7 @@ nav a:hover {
 }
 
 .main-btn:hover {
-  background: #A4D7D5;
+  background: #7B03C4;
   color: #ffffff;
   transform: translateY(-2px);
 }
@@ -95,7 +95,7 @@ nav a:hover {
 }
 
 .category-button:hover {
-  background: #A4D7D5;
+  background: #7B03C4;
   color: #fff;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
@@ -104,7 +104,7 @@ nav a:hover {
 footer {
   text-align: center;
   padding: 15px;
-  background: #A4D7D5;
+  background: #7B03C4;
   margin-top: 20px;
   color: #ffffff;
 }
@@ -140,7 +140,7 @@ footer a:hover {
   margin-left: 5px;
   padding: 8px 12px;
   border: none;
-  background: #A4D7D5;
+  background: #7B03C4;
   color: #446874;
   border-radius: 6px;
   cursor: pointer;
@@ -209,7 +209,7 @@ footer a:hover {
 .game-card button {
   padding: 8px 14px;
   border: none;
-  background: #A4D7D5;
+  background: #7B03C4;
   color: #446874;
   border-radius: 8px;
   cursor: pointer;
@@ -235,7 +235,7 @@ footer a:hover {
   height: 60px;
   border: none;
   border-radius: 50%;
-  background-color: #A4D7D5; /* цвет из шапки */
+  background-color: #7B03C4; /* цвет из шапки */
   background-image: url("images/random.png"); /* путь к картинке */
   background-repeat: no-repeat;
   background-position: center;
@@ -441,7 +441,7 @@ footer a:hover {
 
 /* Заголовки */
 #leaderboardTable tr:first-child {
-  background: #A4D7D5;
+  background: #7B03C4;
   color: #fff;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -492,7 +492,7 @@ footer a:hover {
 
 /* Кнопка обновления таблицы */
 .refresh-btn {
-  background: #A4D7D5;
+  background: #7B03C4;
   color: #446874;
   border: none;
   border-radius: 8px;
