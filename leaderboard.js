@@ -18,7 +18,6 @@ function renderLeaderboard(players) {
       <tr>
         <td>${index + 1}</td>
         <td>${player.userName}</td>
-        <td>${player.gameId}</td>
         <td>${player.score}</td>
       </tr>
     `;
