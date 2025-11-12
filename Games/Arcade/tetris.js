@@ -227,27 +227,44 @@ function restartGame() {
 }
 
 // ===== Подключение кнопок для телефона =====
-document.getElementById("btnLeft")?.addEventListener("click", () => {
+function handleTouchMove(e, action) {
+  e.preventDefault();
   if (gameOver || isPaused) return;
+  action();
+}
+
+// Лево
+const btnLeft = document.getElementById("btnLeft");
+btnLeft?.addEventListener("touchstart", e => handleTouchMove(e, () => {
   current.x--;
   if (collide(board, current)) current.x++;
-});
-document.getElementById("btnRight")?.addEventListener("click", () => {
-  if (gameOver || isPaused) return;
+}));
+
+// Право
+const btnRight = document.getElementById("btnRight");
+btnRight?.addEventListener("touchstart", e => handleTouchMove(e, () => {
   current.x++;
   if (collide(board, current)) current.x--;
-});
-document.getElementById("btnDown")?.addEventListener("click", () => {
-  if (gameOver || isPaused) return;
-  playerDrop();
-});
-document.getElementById("btnRotate")?.addEventListener("click", () => {
-  if (gameOver || isPaused) return;
+}));
+
+// Вниз
+const btnDown = document.getElementById("btnDown");
+btnDown?.addEventListener("touchstart", e => handleTouchMove(e, playerDrop));
+
+// Вращение
+const btnRotate = document.getElementById("btnRotate");
+btnRotate?.addEventListener("touchstart", e => handleTouchMove(e, () => {
   const rotated = rotate(current.shape);
   const oldShape = current.shape;
   current.shape = rotated;
   if (collide(board, current)) current.shape = oldShape;
-});
+}));
+  const rotated = rotate(current.shape);
+  const oldShape = current.shape;
+  current.shape = rotated;
+  if (collide(board, current)) current.shape = oldShape;
+
+
 
 // ===== Глобальные вызовы =====
 window.startGame = startGame;

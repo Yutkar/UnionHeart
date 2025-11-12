@@ -62,21 +62,35 @@ document.addEventListener("keyup", e => {
     if (["w", "ц"].includes(key)) upPressed = false;
 });
 
-// ===== Сенсорное управление =====
-let touchStartX = 0, touchStartY = 0;
-canvas.addEventListener("touchstart", e => {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-});
-canvas.addEventListener("touchmove", e => {
-    let dx = e.touches[0].clientX - touchStartX;
-    let dy = e.touches[0].clientY - touchStartY;
-    ship.angle += dx * 0.002;
-    ship.speed = -dy * 0.05;
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-});
-canvas.addEventListener("touchend", shoot);
+// ===== Сенсорные кнопки =====
+function touchAction(e, action) {
+    e.preventDefault();
+    if (isPaused || isGameOver) return;
+    action();
+}
+
+// Лево
+document.getElementById("btnLeft")?.addEventListener("touchstart", e => 
+    touchAction(e, () => { ship.angle -= 0.05; })
+);
+
+// Право
+document.getElementById("btnRight")?.addEventListener("touchstart", e => 
+    touchAction(e, () => { ship.angle += 0.05; })
+);
+
+// Вперед
+document.getElementById("btnUp")?.addEventListener("touchstart", e => 
+    touchAction(e, () => { 
+        ship.x += Math.cos(ship.angle) * 2;
+        ship.y += Math.sin(ship.angle) * 2;
+    })
+);
+
+// Стрельба
+document.getElementById("btnShoot")?.addEventListener("touchstart", e => 
+    touchAction(e, shoot)
+);
 
 // ===== Стрельба =====
 function shoot() {
