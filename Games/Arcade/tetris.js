@@ -1,5 +1,6 @@
 // ===== TETRIS =====
 
+// Настройка холста
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -10,28 +11,31 @@ const BLOCK_SIZE = 30;
 canvas.width = COLS * BLOCK_SIZE;
 canvas.height = ROWS * BLOCK_SIZE;
 
+// Игровое поле
 let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 
+// Цвета фигур
 const COLORS = [
   null,
-  "cyan", // I
-  "blue", // J
+  "cyan",   // I
+  "blue",   // J
   "orange", // L
   "yellow", // O
-  "green", // S
+  "green",  // S
   "purple", // T
-  "red" // Z
+  "red"     // Z
 ];
 
+// Формы фигур
 const SHAPES = [
   [],
-  [[1, 1, 1, 1]], // I
-  [[2, 0, 0], [2, 2, 2]], // J
-  [[0, 0, 3], [3, 3, 3]], // L
-  [[4, 4], [4, 4]], // O
-  [[0, 5, 5], [5, 5, 0]], // S
-  [[0, 6, 0], [6, 6, 6]], // T
-  [[7, 7, 0], [0, 7, 7]] // Z
+  [[1, 1, 1, 1]],              // I
+  [[2, 0, 0], [2, 2, 2]],      // J
+  [[0, 0, 3], [3, 3, 3]],      // L
+  [[4, 4], [4, 4]],            // O
+  [[0, 5, 5], [5, 5, 0]],      // S
+  [[0, 6, 0], [6, 6, 6]],      // T
+  [[7, 7, 0], [0, 7, 7]]       // Z
 ];
 
 let current = createPiece();
@@ -43,12 +47,13 @@ let score = 0;
 let gameOver = false;
 let isPaused = false;
 
+// ===== Создание фигуры =====
 function createPiece() {
   const type = Math.floor(Math.random() * 7) + 1;
   return {
-    shape: SHAPES[type],
+    shape: SHAPES[type].map(r => [...r]),
     color: COLORS[type],
-    x: Math.floor(COLS / 2) - 1,
+    x: Math.floor(COLS / 2) - Math.ceil(SHAPES[type][0].length / 2),
     y: 0
   };
 }
@@ -67,47 +72,27 @@ function draw() {
 }
 
 function drawMatrix(matrix, offset) {
-  matrix.shape
-    ? matrix.shape.forEach((row, y) => {
-        row.forEach((value, x) => {
-          if (value) {
-            ctx.fillStyle = COLORS[value];
-            ctx.fillRect(
-              (x + offset.x) * BLOCK_SIZE,
-              (y + offset.y) * BLOCK_SIZE,
-              BLOCK_SIZE,
-              BLOCK_SIZE
-            );
-            ctx.strokeStyle = "#111";
-            ctx.strokeRect(
-              (x + offset.x) * BLOCK_SIZE,
-              (y + offset.y) * BLOCK_SIZE,
-              BLOCK_SIZE,
-              BLOCK_SIZE
-            );
-          }
-        });
-      })
-    : matrix.forEach((row, y) => {
-        row.forEach((value, x) => {
-          if (value) {
-            ctx.fillStyle = COLORS[value];
-            ctx.fillRect(
-              (x + offset.x) * BLOCK_SIZE,
-              (y + offset.y) * BLOCK_SIZE,
-              BLOCK_SIZE,
-              BLOCK_SIZE
-            );
-            ctx.strokeStyle = "#111";
-            ctx.strokeRect(
-              (x + offset.x) * BLOCK_SIZE,
-              (y + offset.y) * BLOCK_SIZE,
-              BLOCK_SIZE,
-              BLOCK_SIZE
-            );
-          }
-        });
-      });
+  const shape = matrix.shape ? matrix.shape : matrix;
+  shape.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value) {
+        ctx.fillStyle = COLORS[value];
+        ctx.fillRect(
+          (x + offset.x) * BLOCK_SIZE,
+          (y + offset.y) * BLOCK_SIZE,
+          BLOCK_SIZE,
+          BLOCK_SIZE
+        );
+        ctx.strokeStyle = "#111";
+        ctx.strokeRect(
+          (x + offset.x) * BLOCK_SIZE,
+          (y + offset.y) * BLOCK_SIZE,
+          BLOCK_SIZE,
+          BLOCK_SIZE
+        );
+      }
+    });
+  });
 }
 
 // ===== Игровая логика =====
@@ -133,17 +118,21 @@ function collide(board, piece) {
   return false;
 }
 
+// ===== Вращение =====
 function rotate(matrix) {
-  const N = matrix.length;
-  const result = Array.from({ length: N }, () => Array(N).fill(0));
-  for (let y = 0; y < N; y++) {
-    for (let x = 0; x < N; x++) {
-      result[x][N - 1 - y] = matrix[y][x];
+  const rows = matrix.length;
+  const cols = matrix[0].length;
+  const rotated = Array.from({ length: cols }, () => Array(rows).fill(0));
+
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      rotated[x][rows - 1 - y] = matrix[y][x];
     }
   }
-  return result;
+  return rotated;
 }
 
+// ===== Падение и очистка =====
 function playerDrop() {
   current.y++;
   if (collide(board, current)) {
@@ -169,29 +158,30 @@ function sweep() {
   }
 }
 
-// ===== Управление =====
+// ===== Управление с клавиатуры =====
 document.addEventListener("keydown", (e) => {
   if (gameOver || isPaused) return;
 
-  if (e.key === "A" || e.key === "a" || e.key === "ф" || e.key === "Ф") {
+  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a" || e.key === "ф") {
     current.x--;
     if (collide(board, current)) current.x++;
   }
-  if (e.key === "d" || e.key === "D" || e.key === "В" || e.key === "в") {
+  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d" || e.key === "в") {
     current.x++;
     if (collide(board, current)) current.x--;
   }
-  if (e.key === "Ы" || e.key === "ы" || e.key === "S" || e.key === "s") 
+  if (e.key === "ArrowDown" || e.key.toLowerCase() === "s" || e.key === "ы") {
     playerDrop();
-  if (e.key === " ") {
+  }
+  if (e.key === " " || e.key === "ArrowUp") {
     const rotated = rotate(current.shape);
-    const oldX = current.x;
+    const oldShape = current.shape;
     current.shape = rotated;
-    if (collide(board, current)) current.x = oldX;
+    if (collide(board, current)) current.shape = oldShape;
   }
 });
 
-// ===== Главный цикл =====
+// ===== Главное обновление =====
 function update(time = 0) {
   if (isPaused) return;
 
@@ -211,7 +201,7 @@ function update(time = 0) {
   }
 }
 
-// ===== Управление кнопками =====
+// ===== Кнопки управления =====
 function startGame() {
   if (gameOver) {
     restartGame();
@@ -236,7 +226,32 @@ function restartGame() {
   update();
 }
 
-// ===== Для вызова из gameControls.js =====
+// ===== Подключение кнопок для телефона =====
+document.getElementById("btnLeft")?.addEventListener("click", () => {
+  if (gameOver || isPaused) return;
+  current.x--;
+  if (collide(board, current)) current.x++;
+});
+document.getElementById("btnRight")?.addEventListener("click", () => {
+  if (gameOver || isPaused) return;
+  current.x++;
+  if (collide(board, current)) current.x--;
+});
+document.getElementById("btnDown")?.addEventListener("click", () => {
+  if (gameOver || isPaused) return;
+  playerDrop();
+});
+document.getElementById("btnRotate")?.addEventListener("click", () => {
+  if (gameOver || isPaused) return;
+  const rotated = rotate(current.shape);
+  const oldShape = current.shape;
+  current.shape = rotated;
+  if (collide(board, current)) current.shape = oldShape;
+});
+
+// ===== Глобальные вызовы =====
 window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
+
+update();

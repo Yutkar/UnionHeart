@@ -9,7 +9,7 @@ const leaderboardBody = document.getElementById("leaderboardBody");
 // Функция для отображения таблицы
 function renderLeaderboard(players) {
   if (!players || players.length === 0) {
-    leaderboardBody.innerHTML = `<tr><td colspan="4">Нет данных</td></tr>`;
+    leaderboardBody.innerHTML = `<tr><td colspan="3">Нет данных</td></tr>`;
     return;
   }
 

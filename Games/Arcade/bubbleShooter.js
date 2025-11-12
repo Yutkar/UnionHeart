@@ -24,15 +24,20 @@ let bullet = null;
 let shooting = false;
 let currentBubble = { color: colors[Math.floor(Math.random() * colors.length)] };
 
-// ===== Инициализация поля =====
+// ===== Инициализация поля (нижние ряды пустые) =====
 function initGrid() {
   grid = [];
   for (let r = 0; r < rows; r++) {
     const row = [];
     for (let c = 0; c < cols; c++) {
-      row.push({
-        color: Math.random() < 0.8 ? colors[Math.floor(Math.random() * colors.length)] : null
-      });
+      // Нижние 4 ряда пустые
+      if (r >= rows - 4) {
+        row.push({ color: null });
+      } else {
+        row.push({
+          color: Math.random() < 0.8 ? colors[Math.floor(Math.random() * colors.length)] : null
+        });
+      }
     }
     grid.push(row);
   }
@@ -138,14 +143,20 @@ function updateBullet() {
 
 // ===== Прикрепление пузыря =====
 function attachBubble(x, y, color) {
-  const c = Math.round((x - bubbleRadius) / (bubbleRadius * 2));
-  const r = Math.round((y - bubbleRadius) / (bubbleRadius * 2));
+  let c = Math.round((x - bubbleRadius) / (bubbleRadius * 2));
+  let r = Math.round((y - bubbleRadius) / (bubbleRadius * 2));
 
-  if (r < 0 || r >= rows || c < 0 || c >= cols) return;
-  if (grid[r][c].color) return;
+  c = Math.max(0, Math.min(cols - 1, c));
+  r = Math.max(0, Math.min(rows - 1, r));
 
-  grid[r][c].color = color;
-  checkForMatches(r, c, color);
+  // ищем ближайшую пустую клетку сверху
+  let finalR = r;
+  while (finalR > 0 && grid[finalR][c].color) {
+    finalR--;
+  }
+
+  grid[finalR][c].color = color;
+  checkForMatches(finalR, c, color);
 }
 
 // ===== Проверка совпадений =====
@@ -192,7 +203,7 @@ function gameLoop() {
   draw();
 }
 
-// ===== Управление =====
+// ===== Управление мышью и клавиатурой =====
 document.addEventListener("mousemove", e => {
   const rect = canvas.getBoundingClientRect();
   const mx = e.clientX - rect.left;
@@ -207,6 +218,30 @@ document.addEventListener("keydown", e => {
 });
 
 canvas.addEventListener("click", shootBubble);
+
+// ===== Сенсорное управление =====
+canvas.addEventListener("touchstart", e => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const tx = touch.clientX - rect.left;
+  const ty = touch.clientY - rect.top;
+  player.angle = Math.atan2(ty - player.y, tx - player.x);
+});
+
+canvas.addEventListener("touchmove", e => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const tx = touch.clientX - rect.left;
+  const ty = touch.clientY - rect.top;
+  player.angle = Math.atan2(ty - player.y, tx - player.x);
+});
+
+canvas.addEventListener("touchend", e => {
+  e.preventDefault();
+  shootBubble();
+});
 
 // ===== Управление игрой =====
 function startGame() {

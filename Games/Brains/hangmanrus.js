@@ -4,11 +4,11 @@ canvas.width = 600;
 canvas.height = 300;
 
 const wordCategories = {
-  food: ["PIZZA","BURGER","SUSHI","PASTA","APPLE","BANANA","CHOCOLATE","BREAD","SALAD","STEAK"],
-  school: ["BOOK","PENCIL","NOTEBOOK","TEACHER","CLASSROOM","EXAM","STUDENT","UNIVERSITY","LABORATORY","PROJECT"],
-  animals: ["ELEPHANT","TIGER","DOG","CAT","MONKEY","KANGAROO","LION","GIRAFFE","PENGUIN","DOLPHIN"],
-  tech: ["COMPUTER","KEYBOARD","INTERNET","SOFTWARE","PROGRAMMING","ROBOT","SMARTPHONE","NETWORK","APPLICATION","DATABASE"],
-  countries: ["CANADA","FRANCE","BRAZIL","JAPAN","CHINA","AUSTRALIA","EGYPT","RUSSIA","INDIA","SPAIN"]
+  еда: ["ПИЦЦА","БУРГЕР","СУШИ","ПАСТА","ЯБЛОКО","БАНАН","ШАШЛЫК","ХЛЕБ","САЛАТ","СТЕЙК"],
+  школа: ["КНИГА","РУЧКА","ТЕТРАДЬ","УЧИТЕЛЬ","КЛАСС","ЭКЗАМЕН","СТУДЕНТ","УНИВЕРСИТЕТ","ЛАБОРАТОРИЯ","ПРОЕКТ"],
+  животные: ["СЛОН","ТИГР","СОБАКА","КОШКА","ОБЕЗЬЯНА","КЕНГУРУ","ЛЕВ","ЖИРАФ","ПИНГВИН","ДЕЛЬФИН"],
+  техника: ["КОМПЬЮТЕР","КЛАВИАТУРА","ИНТЕРНЕТ","ПРОГРАММА","РОБОТ","ТЕЛЕФОН","СЕТЬ","ПРИЛОЖЕНИЕ","БАЗАДАННЫХ","ПРОЦЕССОР"],
+  страны: ["КАЗАХСТАН","РОССИЯ","ФРАНЦИЯ","БРАЗИЛИЯ","ЯПОНИЯ","КИТАЙ","АВСТРАЛИЯ","ЕГИПЕТ","ИНДИЯ","ИСПАНИЯ"]
 };
 
 let word = "";
@@ -19,7 +19,7 @@ let gameInterval = null;
 let isPaused = false;
 let gameOver = false;
 
-// ===== Выбор случайного слова =====
+// ===== Случайное слово =====
 function getRandomWord(){
   const categories = Object.keys(wordCategories);
   const category = categories[Math.floor(Math.random()*categories.length)];
@@ -177,7 +177,7 @@ document.addEventListener("keydown", e => {
 
 function handleLetterInput(letter){
   if (gameOver || isPaused) return;
-  if (/^[A-ZА-ЯЁ]$/.test(letter) && !guessedLetters.includes(letter)) {
+  if (/^[А-ЯЁ]$/.test(letter) && !guessedLetters.includes(letter)) {
     guessedLetters.push(letter);
     const button = document.querySelector(`.key[data-letter="${letter}"]`);
     if (button) button.disabled = true;
@@ -195,7 +195,7 @@ function enableKeyboard(){
   document.querySelectorAll(".key").forEach(b => b.disabled = false);
 }
 
-// ===== Создаём виртуальную клавиатуру =====
+// ===== Создание виртуальной клавиатуры =====
 function createKeyboard(){
   const keyboardContainer = document.createElement("div");
   keyboardContainer.className = "keyboard";
@@ -205,7 +205,7 @@ function createKeyboard(){
   keyboardContainer.style.maxWidth = "600px";
   keyboardContainer.style.margin = "20px auto";
 
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ".split("");
   letters.forEach(l => {
     const btn = document.createElement("button");
     btn.className = "key";
@@ -213,7 +213,7 @@ function createKeyboard(){
     btn.textContent = l;
     btn.style.width = "40px";
     btn.style.height = "40px";
-    btn.style.margin = "5px";
+    btn.style.margin = "4px";
     btn.style.fontSize = "18px";
     btn.style.border = "none";
     btn.style.background = "#ddd";
@@ -227,7 +227,7 @@ function createKeyboard(){
   document.body.appendChild(keyboardContainer);
 }
 
-// ===== Добавляем кнопки управления =====
+// ===== Кнопки управления =====
 function createControls(){
   const controls = document.createElement("div");
   controls.className = "controls";

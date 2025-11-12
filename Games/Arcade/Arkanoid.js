@@ -1,212 +1,175 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const tileSize = 20;
-const rows = 20;
-const cols = 20;
+let paddle = { x: canvas.width / 2 - 40, y: canvas.height - 20, w: 80, h: 10, speed: 6 };
+let balls = [{ x: canvas.width / 2, y: canvas.height - 30, dx: 3, dy: -3, r: 6 }];
+let bricks = [];
+let bonuses = [];
+let rows = 5, cols = 8;
+let brickW = 50, brickH = 20, brickPadding = 10, offsetTop = 30, offsetLeft = 30;
 
-let map = [];
-let pacman = { x: 1, y: 1 };
-let direction = "RIGHT";
-let score = 0;
+let rightPressed = false, leftPressed = false;
+let gameRunning = false;
+let gamePaused = false;
 
-// призраки
-let ghosts = [
-    { x: cols - 2, y: rows - 2, color: "red" },
-    { x: cols - 2, y: 1, color: "pink" },
-    { x: 1, y: rows - 2, color: "cyan" }
-];
-
-// ===== Генерация карты =====
-function generateMap() {
-    map = [];
-    for (let y = 0; y < rows; y++) {
-        let row = [];
-        for (let x = 0; x < cols; x++) {
-            if (y === 0 || x === 0 || y === rows - 1 || x === cols - 1) {
-                row.push(1); // стены по краям
-            } else {
-                row.push(Math.random() < 0.2 ? 1 : 2); // стена или точка
-            }
-        }
-        map.push(row);
+function initBricks() {
+  bricks = [];
+  for (let r = 0; r < rows; r++) {
+    bricks[r] = [];
+    for (let c = 0; c < cols; c++) {
+      bricks[r][c] = { x: 0, y: 0, status: 1 };
     }
-    map[pacman.y][pacman.x] = 0; // стартовое место
+  }
 }
-generateMap();
+initBricks();
 
-// ===== Управление (ПК) =====
 document.addEventListener("keydown", e => {
-    if (e.key === "ArrowLeft") direction = "LEFT";
-    if (e.key === "ArrowUp") direction = "UP";
-    if (e.key === "ArrowRight") direction = "RIGHT";
-    if (e.key === "ArrowDown") direction = "DOWN";
+  if (e.key === "ArrowRight") rightPressed = true;
+  if (e.key === "ArrowLeft") leftPressed = true;
+});
+document.addEventListener("keyup", e => {
+  if (e.key === "ArrowRight") rightPressed = false;
+  if (e.key === "ArrowLeft") leftPressed = false;
 });
 
-// ===== Управление (телефон, свайпы) =====
-let startX, startY;
-canvas.addEventListener("touchstart", e => {
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-});
-canvas.addEventListener("touchend", e => {
-    let dx = e.changedTouches[0].clientX - startX;
-    let dy = e.changedTouches[0].clientY - startY;
-    if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 0) direction = "RIGHT";
-        else direction = "LEFT";
-    } else {
-        if (dy > 0) direction = "DOWN";
-        else direction = "UP";
+// Сенсорное управление
+document.getElementById("leftBtn")?.addEventListener("touchstart", () => leftPressed = true);
+document.getElementById("leftBtn")?.addEventListener("touchend", () => leftPressed = false);
+document.getElementById("rightBtn")?.addEventListener("touchstart", () => rightPressed = true);
+document.getElementById("rightBtn")?.addEventListener("touchend", () => rightPressed = false);
+
+// Кнопки управления игрой
+document.getElementById("startBtn")?.addEventListener("click", () => { gameRunning = true; gamePaused = false; });
+document.getElementById("pauseBtn")?.addEventListener("click", () => { gamePaused = !gamePaused; });
+document.getElementById("restartBtn")?.addEventListener("click", () => restartGame());
+
+function restartGame() {
+  gameRunning = false;
+  gamePaused = false;
+  paddle = { x: canvas.width / 2 - 40, y: canvas.height - 20, w: 80, h: 10, speed: 6 };
+  balls = [{ x: canvas.width / 2, y: canvas.height - 30, dx: 3, dy: -3, r: 6 }];
+  bonuses = [];
+  initBricks();
+  gameRunning = true;
+}
+
+function drawBricks() {
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      let b = bricks[r][c];
+      if (b.status === 1) {
+        let brickX = c * (brickW + brickPadding) + offsetLeft;
+        let brickY = r * (brickH + brickPadding) + offsetTop;
+        b.x = brickX; b.y = brickY;
+        ctx.fillStyle = "#0ff";
+        ctx.fillRect(brickX, brickY, brickW, brickH);
+      }
     }
-});
+  }
+}
 
-// ===== Отрисовка =====
-function draw() {
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // карта
-    for (let y = 0; y < rows; y++) {
-        for (let x = 0; x < cols; x++) {
-            if (map[y][x] === 1) {
-                ctx.fillStyle = "blue";
-                ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-            } else if (map[y][x] === 2) {
-                ctx.fillStyle = "white";
-                ctx.beginPath();
-                ctx.arc(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2, 3, 0, 2 * Math.PI);
-                ctx.fill();
-            }
-        }
-    }
-
-    // pacman
-    ctx.fillStyle = "yellow";
+function drawBonuses() {
+  bonuses.forEach(b => {
+    ctx.fillStyle = b.color;
     ctx.beginPath();
-    ctx.arc(
-        pacman.x * tileSize + tileSize / 2,
-        pacman.y * tileSize + tileSize / 2,
-        tileSize / 2 - 2,
-        0,
-        2 * Math.PI
-    );
+    ctx.arc(b.x, b.y, 8, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+function updateBonuses() {
+  bonuses.forEach((b, i) => {
+    b.y += 2;
+    if (b.y > paddle.y && b.y < paddle.y + paddle.h &&
+        b.x > paddle.x && b.x < paddle.x + paddle.w) {
+      applyBonus(b.type);
+      bonuses.splice(i, 1);
+    } else if (b.y > canvas.height) {
+      bonuses.splice(i, 1);
+    }
+  });
+}
+
+function applyBonus(type) {
+  switch (type) {
+    case "expand":
+      paddle.w += 30;
+      break;
+    case "slow":
+      balls.forEach(ball => { ball.dx *= 0.7; ball.dy *= 0.7; });
+      break;
+    case "fast":
+      balls.forEach(ball => { ball.dx *= 1.3; ball.dy *= 1.3; });
+      break;
+    case "multi":
+      balls.push({ ...balls[0], dx: -balls[0].dx });
+      break;
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBricks();
+  drawBonuses();
+
+  // Рисуем шарики
+  balls.forEach(ball => {
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+    ctx.fillStyle = "#fff";
     ctx.fill();
 
-    // ghosts
-    ghosts.forEach(g => {
-        ctx.fillStyle = g.color;
-        ctx.beginPath();
-        ctx.arc(
-            g.x * tileSize + tileSize / 2,
-            g.y * tileSize + tileSize / 2,
-            tileSize / 2 - 2,
-            0,
-            2 * Math.PI
-        );
-        ctx.fill();
-    });
+    ball.x += ball.dx;
+    ball.y += ball.dy;
 
-    // score
-    ctx.fillStyle = "white";
-    ctx.font = "16px Arial";
-    ctx.fillText("Очки: " + score, 10, canvas.height - 10);
-}
-
-// ===== Логика Pac-Man =====
-function updatePacman() {
-    let newX = pacman.x;
-    let newY = pacman.y;
-
-    if (direction === "LEFT") newX--;
-    if (direction === "UP") newY--;
-    if (direction === "RIGHT") newX++;
-    if (direction === "DOWN") newY++;
-
-    if (map[newY][newX] !== 1) {
-        pacman.x = newX;
-        pacman.y = newY;
-
-        if (map[newY][newX] === 2) {
-            score++;
-            map[newY][newX] = 0;
-        }
+    if (ball.x + ball.dx > canvas.width - ball.r || ball.x + ball.dx < ball.r)
+      ball.dx = -ball.dx;
+    if (ball.y + ball.dy < ball.r)
+      ball.dy = -ball.dy;
+    else if (ball.y + ball.dy > canvas.height - ball.r) {
+      if (ball.x > paddle.x && ball.x < paddle.x + paddle.w) {
+        ball.dy = -ball.dy;
+      } else {
+        balls.splice(balls.indexOf(ball), 1);
+        if (balls.length === 0) restartGame();
+      }
     }
-}
 
-// ===== Логика Ghosts =====
-function updateGhosts() {
-    ghosts.forEach(g => {
-        let moves = [];
-        if (map[g.y][g.x - 1] !== 1) moves.push({ x: g.x - 1, y: g.y });
-        if (map[g.y][g.x + 1] !== 1) moves.push({ x: g.x + 1, y: g.y });
-        if (map[g.y - 1][g.x] !== 1) moves.push({ x: g.x, y: g.y - 1 });
-        if (map[g.y + 1][g.x] !== 1) moves.push({ x: g.x, y: g.y + 1 });
-
-        if (moves.length > 0) {
-            // иногда идёт за Pac-Man
-            if (Math.random() < 0.4) {
-                moves.sort((a, b) => {
-                    let da = Math.abs(a.x - pacman.x) + Math.abs(a.y - pacman.y);
-                    let db = Math.abs(b.x - pacman.x) + Math.abs(b.y - pacman.y);
-                    return da - db;
-                });
-                g.x = moves[0].x;
-                g.y = moves[0].y;
-            } else {
-                let choice = moves[Math.floor(Math.random() * moves.length)];
-                g.x = choice.x;
-                g.y = choice.y;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        let b = bricks[r][c];
+        if (b.status === 1) {
+          if (ball.x > b.x && ball.x < b.x + brickW && ball.y > b.y && ball.y < b.y + brickH) {
+            ball.dy = -ball.dy;
+            b.status = 0;
+            if (Math.random() < 0.3) {
+              const types = ["expand", "slow", "fast", "multi"];
+              const type = types[Math.floor(Math.random() * types.length)];
+              bonuses.push({
+                x: b.x + brickW / 2, y: b.y, type,
+                color: type === "expand" ? "#0f0" :
+                        type === "slow" ? "#00f" :
+                        type === "fast" ? "#f00" : "#ff0"
+              });
             }
+          }
         }
-
-        // проверка столкновения
-        if (g.x === pacman.x && g.y === pacman.y) {
-            clearInterval(gameLoopInterval);
-            alert("Игра окончена! Очки: " + score);
-        }
-    });
-}
-
-// ===== Основной цикл =====
-function gameLoop() {
-    updatePacman();
-    updateGhosts();
-    draw();
-}
-
-// Запуск игры
-function startGame() {
-    if (!gameInterval) {
-        gameInterval = setInterval(drawGame, 200);
+      }
     }
+  });
+
+  ctx.fillStyle = "#0f0";
+  ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+
+  if (rightPressed && paddle.x < canvas.width - paddle.w) paddle.x += paddle.speed;
+  if (leftPressed && paddle.x > 0) paddle.x -= paddle.speed;
+
+  updateBonuses();
 }
 
-// Пауза / продолжение
-function pauseGame() {
-    if (isPaused) {
-        gameInterval = setInterval(drawGame, 200);
-        isPaused = false;
-    } else {
-        clearInterval(gameInterval);
-        gameInterval = null;
-        isPaused = true;
-    }
+function loop() {
+  if (gameRunning && !gamePaused) draw();
+  requestAnimationFrame(loop);
 }
 
-// Перезапуск
-function restartGame() {
-    clearInterval(gameInterval);
-    gameInterval = null;
-    isPaused = false;
-    score = 0;
-    direction = "RIGHT";
-    snake = [{ x: 9 * box, y: 9 * box }];
-    food = spawnFood();
-    startGame();
-}
-
-// Делаем функции глобальными, чтобы другой файл (gameСontrols.js) мог их вызывать
-window.startGame = startGame;
-window.pauseGame = pauseGame;
-window.restartGame = restartGame;
+loop();
