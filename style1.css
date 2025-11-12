@@ -318,37 +318,53 @@ footer a:hover {
   background: #E9D5FF;
 }
 
-/* === Таблица рейтинга === */
+/* === Таблица рейтинга игр === */
 #leaderboardTable {
   width: 90%;
   max-width: 900px;
-  margin: 20px auto 40px;
+  margin: 30px auto 50px;
   border-collapse: collapse;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-  background: #EDE9FE;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  background: #EDE9FE; /* светлый фиолетовый фон */
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
+/* Заголовок таблицы */
 #leaderboardTable thead {
-  background: #6B21A8;
-  color: #fff;
+  background: #6B21A8; /* тёмно-фиолетовый */
+  color: #F3E8FF;      /* светлый текст */
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-weight: bold;
 }
 
+/* Ячейки заголовка и тела таблицы */
 #leaderboardTable th,
 #leaderboardTable td {
-  padding: 14px;
+  padding: 14px 10px;
   text-align: center;
+  font-weight: 500;
+  color: #3A0057; /* тёмный фиолетовый для текста */
 }
 
+/* Чётные строки таблицы */
 #leaderboardTable tbody tr:nth-child(even) {
-  background: #F3E8FF;
+  background: #F3E8FF; /* светлый фон */
+  color: #3A0057;      /* тёмный текст */
 }
 
+/* Не чётные строки */
+#leaderboardTable tbody tr:nth-child(odd) {
+  background: #EDE9FE;
+  color: #3A0057;
+}
+
+/* Hover эффект */
 #leaderboardTable tbody tr:hover {
-  background: #D8B4FE;
+  background: #D8B4FE; /* яркий фиолетовый при наведении */
+  color: #3A0057;      /* текст остаётся читаемым */
   transition: 0.2s;
 }
 
@@ -363,24 +379,50 @@ footer a:hover {
   content: "🥉 ";
 }
 
+/* Адаптивность для мобильных */
+@media (max-width: 600px) {
+  #leaderboardTable th,
+  #leaderboardTable td {
+    padding: 10px 6px;
+    font-size: 12px;
+  }
+}
 
-/* Кнопка обновления */
-.refresh-btn {
-  background: #7D1BB3;
-  color: #F3E8FF;
+/* Заголовки и селект выбора игры */
+.leaderboard-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 20px auto 10px;
+  background: #B794F4;
+  padding: 12px 20px;
+  border-radius: 10px;
+  max-width: 500px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  color: #fff;
+}
+
+.leaderboard-controls label {
+  font-weight: bold;
+  color: #fff;
+}
+
+.leaderboard-controls select {
+  padding: 8px 12px;
   border: none;
   border-radius: 8px;
-  padding: 10px 16px;
-  margin-top: 20px;
-  font-weight: bold;
+  background: #fff;
+  color: #6B21A8;
+  font-weight: 500;
   cursor: pointer;
   transition: 0.3s;
 }
 
-.refresh-btn:hover {
-  background: #A254C4;
-  box-shadow: 0 0 12px rgba(162,84,196,0.6);
+.leaderboard-controls select:hover {
+  background: #E9D5FF;
 }
+
 
 
 
