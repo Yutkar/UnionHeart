@@ -292,7 +292,7 @@ footer a:hover {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  background: #6B21A8; /* темный фиолетовый фон для всей таблицы */
+  background: #6B21A8; /* темный фиолетовый фон всей таблицы */
   font-family: 'Segoe UI', Arial, sans-serif;
   color: #F3E8FF; /* светлый текст по умолчанию */
 }
@@ -312,7 +312,7 @@ footer a:hover {
   padding: 14px 10px;
   text-align: center;
   font-weight: 500;
-  color: #F3E8FF; /* текст всегда светлый, читаемый на фиолетовом фоне */
+  color: #F3E8FF; /* текст всегда виден */
 }
 
 /* Строки таблицы */
@@ -328,14 +328,14 @@ footer a:hover {
   color: #FFF;         /* текст белый для контраста */
 }
 
-/* Иконки медалей */
-#leaderboardTable tr:nth-child(2) td:first-child::before {
+/* Иконки медалей в первой колонке */
+#leaderboardTable tbody tr:nth-child(1) td:first-child::before {
   content: "🥇 ";
 }
-#leaderboardTable tr:nth-child(3) td:first-child::before {
+#leaderboardTable tbody tr:nth-child(2) td:first-child::before {
   content: "🥈 ";
 }
-#leaderboardTable tr:nth-child(4) td:first-child::before {
+#leaderboardTable tbody tr:nth-child(3) td:first-child::before {
   content: "🥉 ";
 }
 
@@ -400,6 +400,7 @@ footer a:hover {
   background: #A254C4;
   box-shadow: 0 0 12px rgba(162,84,196,0.6);
 }
+
 
 
 
