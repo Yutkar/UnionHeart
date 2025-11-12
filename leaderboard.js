@@ -20,7 +20,6 @@ function renderLeaderboard(players) {
       <tr>
         <td>${index + 1}</td>
         <td>${player.userName || "—"}</td>
-        <td>${player.gameName || "—"}</td>
         <td>${player.score ?? 0}</td>
       </tr>
     `;
