@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const openMenu = document.getElementById("openTetris");
   if (openTetris) {
     openMenu.addEventListener("click", () => {
-      window.location.href = "Tetris.html";
+      window.location.href = "tetris.html";
     });
   }
 

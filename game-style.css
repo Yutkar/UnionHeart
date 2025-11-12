@@ -1,61 +1,65 @@
 /* === Общие стили страниц игр === */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #7B03C4;
-  color: #333;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg, #3D1A63, #5B2A86);
+  color: #F5EFFF;
 }
 
 /* === Шапка === */
 header {
-  background: #7B03C4;
-  color: #446874;
-  padding: 15px 20px;
+  background: #5B2A86;
+  color: #E8DFF5;
+  padding: 15px 25px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
 }
 
 header .logo {
-  font-size: 1.3em;
+  font-size: 1.4em;
   font-weight: bold;
+  color: #F5EFFF;
+  letter-spacing: 1px;
 }
 
 nav a {
-  margin-left: 15px;
-  color: #446874;
+  margin-left: 20px;
+  color: #C39BD3;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
+  transition: 0.3s;
 }
 
 nav a:hover {
-  text-decoration: underline;
-  color: #364fc7;
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
 }
 
 /* === Игровое поле === */
 .game-container {
   max-width: 900px;
   margin: 40px auto;
-  background: #ffffff;
-  border-radius: 12px;
+  background: #E8DFF5;
+  border-radius: 14px;
   padding: 30px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-
+  box-shadow: 0 6px 20px rgba(91, 42, 134, 0.4);
   display: flex;
   flex-direction: column;
-  align-items: center;  /* Центрирует всё внутри по горизонтали */
+  align-items: center;
+  color: #3D1A63;
 }
 
 /* === Поле игры (canvas) === */
 canvas {
-  background: #1e1e1e;
-  border: 3px solid #7B03C4;
-  border-radius: 10px;
-  margin: 20px 0;
+  background: #1F102E;
+  border: 3px solid #7D3C98;
+  border-radius: 12px;
+  margin: 25px 0;
   display: block;
+  box-shadow: 0 0 15px rgba(91, 42, 134, 0.6);
 }
-
 
 /* === Кнопки управления === */
 .controls {
@@ -66,133 +70,97 @@ canvas {
 }
 
 .controls button {
-  background: #7B03C4;
-  color: #446874;
+  background: linear-gradient(145deg, #7D3C98, #9C6AD3);
+  color: #F5EFFF;
   border: none;
-  padding: 10px 20px;
+  padding: 10px 25px;
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: 0.3s;
+  box-shadow: 0 4px 10px rgba(91, 42, 134, 0.4);
 }
 
 .controls button:hover {
-  background: #364fc7;
-  color: white;
+  background: linear-gradient(145deg, #9C6AD3, #C39BD3);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(124, 60, 152, 0.7);
 }
 
 /* === Подвал === */
 footer {
   text-align: center;
-  padding: 15px;
-  background: #7B03C4;
-  margin-top: 30px;
-  color: #ffffff;
+  padding: 20px;
+  background: #3D1A63;
+  margin-top: 40px;
+  color: #E8DFF5;
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.2);
 }
 
 footer a {
-  color: #ffffff;
+  color: #C39BD3;
   text-decoration: none;
-  margin: 0 8px;
+  margin: 0 10px;
+  transition: 0.3s;
 }
 
 footer a:hover {
-  color: #364fc7;
-  text-decoration: underline;
+  color: #fff;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
 }
 
-
-
-
+/* === Сообщение Game Over === */
 .game-over {
   margin-top: 15px;
-  font-size: 18px;
-  color: #b91c1c;
+  font-size: 20px;
+  color: #ff4b4b;
   font-weight: bold;
   text-align: center;
+  text-shadow: 0 0 10px rgba(255, 0, 60, 0.5);
 }
 
-
-
-/* Заголовок */
+/* === Заголовок === */
 .game-header h1 {
   font-size: 28px;
-  color: #446874;
+  color: #7D3C98;
   margin: 0;
   white-space: nowrap;
+  text-shadow: 0 0 8px rgba(124, 60, 152, 0.3);
 }
-
 
 /* ===== Страница игры ===== */
-.game-container {
-  max-width: 900px;
-  margin: 40px auto;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  text-align: center;
-}
-
 .game-header {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 15px;
-  margin-bottom: 15px;
-}
-
-.game-header h1 {
-  font-size: 2em;
-  color: #446874;
+  margin-bottom: 20px;
 }
 
 .game-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 10px;
-}
-
-canvas {
-  border: 3px solid #7B03C4;
-  border-radius: 8px;
-  background: #1e1e1e;
-  margin: 20px 0;
-  align-items: center;
-}
-
-.controls {
-  margin: 15px 0;
-}
-
-.controls button {
-  margin: 5px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  background: #A4D7D5;
-  color: #446874;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
+  width: 55px;
+  height: 55px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(91, 42, 134, 0.4);
 }
 
 /* === Блок описания управления и информации === */
 .game-info {
-  max-width: 700px;          /* чтобы не растягивался слишком широко */
-  margin: 25px auto 0;       /* по центру страницы */
-  text-align: left;          /* выравнивание текста по левому краю */
-  background: #E9F6F6;       /* нежный фон */
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  max-width: 700px;
+  margin: 25px auto 0;
+  text-align: left;
+  background: #F5EFFF;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(91, 42, 134, 0.3);
   line-height: 1.6;
-  color: #446874;
+  color: #3D1A63;
 }
 
 .game-info h2 {
   margin-bottom: 10px;
-  color: #1e3d59;
+  color: #5B2A86;
 }
 
 .game-info ul {
@@ -202,18 +170,18 @@ canvas {
 }
 
 .game-info li {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
 }
-
 
 /* === Рейтинг игр === */
 .rating-section {
-  margin-top: 25px;
-  background: #E9F6F6;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  margin-top: 30px;
+  background: #E8DFF5;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(91, 42, 134, 0.3);
   text-align: center;
+  color: #3D1A63;
 }
 
 .stars {
@@ -222,16 +190,14 @@ canvas {
 }
 
 .stars span {
-  font-size: 30px;
+  font-size: 35px;
   cursor: pointer;
-  color: #ccc;
-  transition: 0.2s;
+  color: #bca9d5;
+  transition: 0.3s;
 }
 
 .stars span:hover,
 .stars span:hover ~ span {
-  color: gold;
+  color: #FFD700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
 }
-
-
-

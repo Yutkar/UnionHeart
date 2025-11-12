@@ -1,67 +1,71 @@
 /* === Общие стили === */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #7B03C4; /* фон вокруг белого блока */
-  color: #333;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #3a0057, #7d1bb3);
+  color: #EAE2FF;
 }
 
 /* === Шапка === */
 header {
-  background: #7B03C4;
-  color: #446874;
+  background: #4A007A;
+  color: #DDB6FF;
   padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
 }
 
 header .logo {
-  font-size: 1.3em;
+  font-size: 1.4em;
   font-weight: bold;
+  letter-spacing: 1px;
 }
 
 nav a {
   margin-left: 15px;
-  color: #446874;
+  color: #E7D1FF;
   text-decoration: none;
   font-weight: 500;
+  transition: 0.3s;
 }
 
 nav a:hover {
-  text-decoration: underline;
-  color: #364fc7;
+  color: #CBA2FF;
+  text-shadow: 0 0 8px #CBA2FF;
 }
 
-/* === Белый блок контента === */
+/* === Белый (светлый) блок контента === */
 .content-box {
   max-width: 900px;
   margin: 40px auto;
-  background: #ffffff;
-  border-radius: 12px;
+  background: #E9D9F2;
+  border-radius: 14px;
   padding: 40px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
   text-align: center;
+  color: #3A0057;
 }
 
 /* === Hero-блок === */
 .hero h1 {
-  font-size: 32px;
-  margin-bottom: 10px;
-  color: #1e3d59;
+  font-size: 36px;
+  margin-bottom: 12px;
+  color: #5A007F;
 }
 
 .hero p {
   font-size: 18px;
-  margin-bottom: 20px;
-  color: #4a5d68;
+  margin-bottom: 25px;
+  color: #5f4087;
 }
 
 /* Главная кнопка */
 .main-btn {
-  background: #ffffff;
-  color: #446874;
-  border: 2px solid #7B03C4;
+  background: #7D1BB3;
+  color: #F3E8FF;
+  border: none;
   padding: 14px 28px;
   font-weight: bold;
   border-radius: 10px;
@@ -69,12 +73,14 @@ nav a:hover {
   transition: 0.3s;
   text-transform: uppercase;
   letter-spacing: 1px;
+  box-shadow: 0 0 10px rgba(125, 27, 179, 0.4);
 }
 
 .main-btn:hover {
-  background: #7B03C4;
-  color: #ffffff;
-  transform: translateY(-2px);
+  background: #A254C4;
+  color: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 0 15px rgba(162, 84, 196, 0.6);
 }
 
 /* === Категории === */
@@ -85,9 +91,9 @@ nav a:hover {
 .category-button {
   margin: 8px;
   padding: 12px 22px;
-  background: #ffffff;
-  border: 1px solid #cfdfe0;
-  color: #446874;
+  background: #D9C2F0;
+  border: none;
+  color: #3A0057;
   border-radius: 10px;
   font-weight: bold;
   cursor: pointer;
@@ -95,32 +101,32 @@ nav a:hover {
 }
 
 .category-button:hover {
-  background: #7B03C4;
+  background: #A254C4;
   color: #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 0 10px rgba(162,84,196,0.5);
 }
 
 /* === Подвал === */
 footer {
   text-align: center;
   padding: 15px;
-  background: #7B03C4;
-  margin-top: 20px;
-  color: #ffffff;
+  background: #4A007A;
+  margin-top: 40px;
+  color: #E9D9F2;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
 }
 
 footer a {
-  color: #ffffff;
+  color: #E9D9F2;
   text-decoration: none;
   margin: 0 8px;
+  transition: 0.3s;
 }
 
 footer a:hover {
-  color: #364fc7;
-  text-decoration: underline;
+  color: #CBA2FF;
+  text-shadow: 0 0 6px #CBA2FF;
 }
-
-
 
 /* === Поиск === */
 .search-bar {
@@ -129,40 +135,31 @@ footer a:hover {
 }
 
 .search-bar input {
-  padding: 8px;
+  padding: 8px 12px;
   width: 220px;
-  border: 1px solid #ccc;
+  border: 2px solid #CBA2FF;
   border-radius: 6px;
-  background: #E9F6F6;
+  background: #F6EEFF;
+  color: #3A0057;
 }
 
 .search-bar button {
   margin-left: 5px;
   padding: 8px 12px;
   border: none;
-  background: #7B03C4;
-  color: #446874;
+  background: #7D1BB3;
+  color: #F3E8FF;
   border-radius: 6px;
   cursor: pointer;
   transition: 0.3s;
 }
 
 .search-bar button:hover {
-  background: #446874;
-  color: #fff;
+  background: #A254C4;
+  box-shadow: 0 0 8px rgba(162,84,196,0.6);
 }
 
-.search-bar button.active {
-  background: #446874;
-  color: #fff;
-}
-
-
-
-
-
-
-/* Каталог игр */
+/* === Каталог игр === */
 .catalog {
   display: flex;
   justify-content: center;
@@ -172,62 +169,48 @@ footer a:hover {
 }
 
 .game-card {
-  background: #E9F6F6;
-  border-radius: 12px;
+  background: #EBD9FF;
+  border-radius: 14px;
   padding: 20px;
   text-align: center;
-  width: 180px;              /* фиксированная ширина */
-  min-height: 200px;         /* чтобы все были ровные */
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-  display: flex;             /* добавляем flex */
-  flex-direction: column;    /* вертикальное расположение */
-  justify-content: space-between; /* равномерное распределение */
-}
-
-.game-card img.game-icon {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 10px;
-  margin: 0 auto 10px;
-  display: block;
+  width: 180px;
+  min-height: 200px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .game-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 20px rgba(125, 27, 179, 0.4);
 }
 
 .game-card h3 {
-  margin: 10px 0;
-  font-size: 18px;
-  color: #446874;
+  color: #4A007A;
 }
 
-/* Кнопка в карточке */
 .game-card button {
-  padding: 8px 14px;
+  background: #7D1BB3;
+  color: #F3E8FF;
   border: none;
-  background: #7B03C4;
-  color: #446874;
   border-radius: 8px;
+  padding: 8px 14px;
   cursor: pointer;
-  transition: 0.3s;
   font-weight: bold;
+  transition: 0.3s;
 }
 
 .game-card button:hover {
-  background: #364fc7;
-  color: #fff;
+  background: #A254C4;
+  box-shadow: 0 0 10px rgba(162,84,196,0.6);
 }
 
-
-
-/* Кнопка случайной игры */
+/* === Случайная игра === */
 .random-game {
   text-align: center;
-  margin: 20px 0;
+  margin: 25px 0;
 }
 
 .random-btn {
@@ -235,35 +218,31 @@ footer a:hover {
   height: 60px;
   border: none;
   border-radius: 50%;
-  background-color: #7B03C4; /* цвет из шапки */
-  background-image: url("images/random.png"); /* путь к картинке */
+  background-color: #A254C4;
+  background-image: url("images/random.png");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 60%; /* чтобы картинка красиво вписывалась */
+  background-size: 60%;
   cursor: pointer;
   transition: 0.3s;
 }
 
 .random-btn:hover {
-  background-color: #8C52FF;
+  background-color: #CBA2FF;
 }
 
-
-
-
-
-
-
-/* страница о проекте */
+/* === О проекте / команда === */
 .about-section, .team-section, .reviews-section {
-  background: #fff;
+  background: #E9D9F2;
   padding: 30px;
-  margin: 20px auto;
-  border-radius: 10px;
+  margin: 30px auto;
+  border-radius: 12px;
   max-width: 900px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  color: #3A0057;
 }
 
+/* === Команда === */
 .team {
   display: flex;
   gap: 20px;
@@ -281,197 +260,99 @@ footer a:hover {
   height: 100px;
   border-radius: 50%;
   margin-bottom: 10px;
+  border: 3px solid #A254C4;
+  box-shadow: 0 0 10px rgba(162,84,196,0.4);
 }
 
+/* === Отзывы === */
 .reviews-section {
-  background: #f9f9f9;
-  padding: 30px;
-  max-width: 800px;
-  margin: 40px auto;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-}
-
-.reviews-section h2 {
-  text-align: center;
-  color: #446874;
-  margin-bottom: 20px;
-}
-
-#reviewsList {
-  margin-bottom: 20px;
+  background: #F3E8FF;
 }
 
 .review-item {
-  background: #ffffff;
+  background: #fff;
   padding: 12px 15px;
   margin-bottom: 10px;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-
-.review-item p {
-  margin: 0;
-  font-size: 14px;
-  color: #333;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  color: #3A0057;
 }
 
 .review-item .author {
   font-weight: bold;
-  color: #446874;
-  margin-bottom: 4px;
-  font-size: 13px;
+  color: #7D1BB3;
 }
 
-
-
-
-
-
-
-/* Рейтинг */
-.rating-card {
-  background: #E9F6F6;
+/* === Управление рейтингом и таблица === */
+.leaderboard-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 30px auto 10px;
+  background: #B794F4;
+  padding: 12px 20px;
   border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  width: 200px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  max-width: 500px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  color: #fff;
+}
+
+.leaderboard-controls label {
+  font-weight: bold;
+  color: #fff;
+}
+
+.leaderboard-controls select {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: #fff;
+  color: #6B21A8;
+  font-weight: 500;
+  cursor: pointer;
   transition: 0.3s;
 }
 
-.rating-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+.leaderboard-controls select:hover {
+  background: #E9D5FF;
 }
 
-.rating-card h3 {
-  margin-bottom: 10px;
-  font-size: 1.2em;
-  color: #446874;
-}
-
-.stars {
-  direction: rtl;
-  unicode-bidi: bidi-override;
-  margin: 10px 0;
-}
-
-.stars span {
-  font-size: 25px;
-  cursor: pointer;
-  color: #ccc;
-  transition: 0.2s;
-}
-
-.stars span:hover,
-.stars span:hover ~ span,
-.stars span.active {
-  color: gold;
-}
-
-.avg {
-  font-size: 0.9em;
-  color: #446874;
-  margin-top: 8px;
-}
-
-
-/* Стиль кнопки входа */
-#loginBtn, #logoutBtn {
-  background-color: #446874;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: 0.2s;
-}
-
-#logoutBtn {
-  background-color: #db4437;
-}
-
-#loginBtn:hover, #logoutBtn:hover {
-  transform: scale(1.05);
-}
-
-#userInfo {
-  font-weight: bold;
-  color: #333;
-}
-
-#authMessage {
-  color: #555;
-  font-size: 14px;
-}
-
-
-
-
-/* === Таблица лидеров === */
-.leaderboard-section {
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 30px;
-  text-align: center;
-}
-
-.leaderboard-section h2 {
-  color: #446874;
-  margin-bottom: 20px;
-  font-size: 24px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-/* === Таблица === */
+/* === Таблица рейтинга === */
 #leaderboardTable {
-  width: 100%;
+  width: 90%;
+  max-width: 900px;
+  margin: 20px auto 40px;
   border-collapse: collapse;
-  margin-top: 10px;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
-  font-size: 15px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  background: #EDE9FE;
 }
 
-/* Заголовки */
-#leaderboardTable tr:first-child {
-  background: #7B03C4;
+#leaderboardTable thead {
+  background: #6B21A8;
   color: #fff;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-#leaderboardTable th {
-  padding: 12px;
-  font-weight: bold;
-}
-
-/* Ячейки */
+#leaderboardTable th,
 #leaderboardTable td {
-  padding: 12px;
-  border-bottom: 1px solid #e0e0e0;
-  color: #333;
+  padding: 14px;
   text-align: center;
 }
 
-/* Чередование строк */
-#leaderboardTable tr:nth-child(even) {
-  background: #f7f8fa;
+#leaderboardTable tbody tr:nth-child(even) {
+  background: #F3E8FF;
 }
 
-/* Эффект при наведении */
-#leaderboardTable tr:hover {
-  background: #E9F6F6;
+#leaderboardTable tbody tr:hover {
+  background: #D8B4FE;
   transition: 0.2s;
 }
 
-/* Первые 3 места */
+/* Иконки медалей */
 #leaderboardTable tr:nth-child(2) td:first-child::before {
   content: "🥇 ";
 }
@@ -482,18 +363,11 @@ footer a:hover {
   content: "🥉 ";
 }
 
-/* Состояние "Загрузка..." */
-#leaderboardTable.loading td {
-  text-align: center;
-  font-size: 16px;
-  color: #888;
-  padding: 20px;
-}
 
-/* Кнопка обновления таблицы */
+/* Кнопка обновления */
 .refresh-btn {
-  background: #7B03C4;
-  color: #446874;
+  background: #7D1BB3;
+  color: #F3E8FF;
   border: none;
   border-radius: 8px;
   padding: 10px 16px;
@@ -504,7 +378,52 @@ footer a:hover {
 }
 
 .refresh-btn:hover {
-  background: #364fc7;
-  color: #fff;
+  background: #A254C4;
+  box-shadow: 0 0 12px rgba(162,84,196,0.6);
+}
+
+
+
+/* === Кнопки входа/выход на главной === */
+#loginBtn, #logoutBtn {
+  background: linear-gradient(135deg, #7D1BB3, #A254C4);
+  color: #F3E8FF;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(125, 27, 179, 0.4);
+}
+
+#loginBtn:hover {
+  background: linear-gradient(135deg, #A254C4, #CBA2FF);
   transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(162, 84, 196, 0.5);
+}
+
+#logoutBtn {
+  background: linear-gradient(135deg, #DB4437, #FF6B6B);
+  box-shadow: 0 4px 10px rgba(219, 68, 55, 0.4);
+}
+
+#logoutBtn:hover {
+  background: linear-gradient(135deg, #FF6B6B, #FF4D4D);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(255, 77, 77, 0.5);
+}
+
+/* Стиль текста рядом с кнопками */
+#userInfo {
+  font-weight: bold;
+  color: #F3E8FF;
+  margin-right: 10px;
+}
+
+#authMessage {
+  color: #E0D4FF;
+  font-size: 13px;
+  margin-left: 8px;
 }
