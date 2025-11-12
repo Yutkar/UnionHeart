@@ -8,7 +8,8 @@ const laneWidth = 100;
 const obstacleWidth = 50;
 const obstacleHeight = 50;
 
-let car = { x: canvas.width / 2 - 25, y: canvas.height - 80, width: 50, height: 80 };
+// ===== Игровые объекты =====
+let car = { x: canvas.width / 2 - 25, y: canvas.height - 120, width: 50, height: 100 };
 let obstacles = [];
 let score = 0;
 let frameCount = 0;
@@ -16,54 +17,80 @@ let gameOver = false;
 let gameRunning = false;
 let isPaused = false;
 
+// ===== Скорость =====
+let baseSpeed = 5;
+let speed = baseSpeed;
+
+// ===== Загрузка изображений =====
+const carImage = new Image();
+carImage.src = "car.png"; // изображение главной машины
+
+const obstacleImages = ["car1.png", "car2.png", "car3.png"].map(src => {
+    const img = new Image();
+    img.src = src;
+    return img;
+});
+
 // ===== Управление ПК =====
 document.addEventListener("keydown", e => {
     const key = e.key.toLowerCase();
-
-    if (["a", "ф"].includes(key)) {
-        // Влево
-        car.x = Math.max(0, car.x - laneWidth);
-    }
-    if (["d", "в"].includes(key)) {
-        // Вправо
-        car.x = Math.min(canvas.width - car.width, car.x + laneWidth);
-    }
+    if (["a", "ф"].includes(key)) car.x = Math.max(0, car.x - laneWidth);
+    if (["d", "в"].includes(key)) car.x = Math.min(canvas.width - car.width, car.x + laneWidth);
 });
 
+// ===== Управление телефоном =====
+let touchX = null;
+let isTouching = false;
 
-// ===== Управление телефона =====
-let startX = 0;
 canvas.addEventListener("touchstart", e => {
-    startX = e.touches[0].clientX;
+    isTouching = true;
+    touchX = e.touches[0].clientX;
 });
+
+canvas.addEventListener("touchmove", e => {
+    if (!isTouching || isPaused || gameOver) return;
+
+    let currentX = e.touches[0].clientX;
+    let dx = currentX - touchX;
+
+    car.x += dx;
+
+    if (car.x < 0) car.x = 0;
+    if (car.x + car.width > canvas.width) car.x = canvas.width - car.width;
+
+    touchX = currentX;
+});
+
 canvas.addEventListener("touchend", e => {
-    if (isPaused || gameOver) return;
-    let dx = e.changedTouches[0].clientX - startX;
-    if (dx > 30 && car.x + car.width < canvas.width) car.x += laneWidth;
-    else if (dx < -30 && car.x > 0) car.x -= laneWidth;
+    isTouching = false;
+    touchX = null;
 });
 
 // ===== Создание препятствий =====
 function createObstacle() {
     let lane = Math.floor(Math.random() * (canvas.width / laneWidth));
+    let img = obstacleImages[Math.floor(Math.random() * obstacleImages.length)];
     obstacles.push({
         x: lane * laneWidth + (laneWidth - obstacleWidth) / 2,
-        y: -obstacleHeight
+        y: -obstacleHeight,
+        img: img
     });
 }
 
-// ===== Логика =====
+// ===== Логика игры =====
 function update() {
     if (isPaused || !gameRunning) return;
 
     frameCount++;
+
     if (frameCount % 90 === 0) createObstacle();
 
-    obstacles.forEach(o => o.y += 5);
+    obstacles.forEach(o => o.y += speed);
 
     obstacles = obstacles.filter(o => {
         if (o.y > canvas.height) {
             score++;
+            if (score % 5 === 0) speed += 0.5; // ускорение каждые 5 очков
             return false;
         }
         return true;
@@ -86,9 +113,11 @@ function update() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Дорога
     ctx.fillStyle = "gray";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Полосы
     ctx.strokeStyle = "white";
     ctx.lineWidth = 5;
     for (let i = 1; i < canvas.width / laneWidth; i++) {
@@ -98,18 +127,20 @@ function draw() {
         ctx.stroke();
     }
 
-    ctx.fillStyle = "red";
-    ctx.fillRect(car.x, car.y, car.width, car.height);
+    // Главная машина
+    ctx.drawImage(carImage, car.x, car.y, car.width, car.height);
 
-    ctx.fillStyle = "black";
+    // Препятствия
     obstacles.forEach(o => {
-        ctx.fillRect(o.x, o.y, obstacleWidth, obstacleHeight);
+        ctx.drawImage(o.img, o.x, o.y, obstacleWidth, obstacleHeight);
     });
 
+    // Счет
     ctx.fillStyle = "white";
     ctx.font = "20px Arial";
     ctx.fillText("Score: " + score, 10, 30);
 
+    // Game Over
     if (gameOver) {
         ctx.fillStyle = "yellow";
         ctx.font = "40px Arial";
@@ -143,6 +174,7 @@ function restartGame() {
     score = 0;
     frameCount = 0;
     car.x = canvas.width / 2 - 25;
+    speed = baseSpeed;
     gameOver = false;
     gameRunning = true;
     isPaused = false;
@@ -156,4 +188,3 @@ window.restartGame = restartGame;
 
 // ===== Автозапуск =====
 startGame();
-
