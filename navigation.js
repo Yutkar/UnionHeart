@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-// ===== Переход к игре 'Астероиды' =====
+// ===== Переход к игре 'Бомберман' =====
   const openBomberman = document.getElementById("openBomberman");
   if (openBomberman) {
     openBomberman.addEventListener("click", () => {
@@ -95,14 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (openShootingGallery) {
     openShootingGallery.addEventListener("click", () => {
       window.location.href = "shootingGallery.html";
-    });
-  }
-
-// ===== Переход к игре 'Космические захватчики' =====
-  const openSpaceInvaders = document.getElementById("openSpaceInvaders");
-  if (openSpaceInvaders) {
-    openSpaceInvaders.addEventListener("click", () => {
-      window.location.href = "spaceInvaders.html";
     });
   }
 
@@ -177,4 +169,30 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "SimpleRacing.html";
     });
   }
+
+// ===== Переход к игре 'Понг' =====
+  const openPong = document.getElementById("openPong");
+  if (openPong) {
+    openPong.addEventListener("click", () => {
+      window.location.href = "Pong.html";
+    });
+  }
+
+// ===== Переход к игре 'Понг кооп' =====
+  const openPongCoop = document.getElementById("openPongCoop");
+  if (openPongCoop) {
+    openPongCoop.addEventListener("click", () => {
+      window.location.href = "PongCoop.html";
+    });
+  }
+
+// ===== Переход к игре 'Висельница русская' =====
+  const openHangmanRus = document.getElementById("openHangmanRus");
+  if (openHangmanRus) {
+    openHangmanRus.addEventListener("click", () => {
+      window.location.href = "hangmanRus.html";
+    });
+  }
+
+
 });
