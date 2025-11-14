@@ -19,12 +19,11 @@ let gameOver = false;
 let gameInterval = null;
 let isPaused = false;
 
-// ===== Управление =====
+// ===== Управление (ЦЫФВ / WASD / пробел / тап) =====
 document.addEventListener("keydown", e => {
   const key = e.key.toLowerCase();
   if (["w", "ц", " "].includes(key)) bird.dy = jump;
 });
-
 canvas.addEventListener("touchstart", () => {
   bird.dy = jump;
 });
@@ -64,7 +63,6 @@ function update() {
         endGame();
       }
     }
-
     if (!p.passed && bird.x > p.x + p.width) {
       score++;
       p.passed = true;
@@ -93,7 +91,6 @@ function draw() {
   ctx.fillText("Очки: " + score, 10, 30);
 }
 
-// ===== Завершение игры =====
 function endGame() {
   if (gameOver) return;
 
@@ -110,6 +107,28 @@ function endGame() {
   saveScore("flappy", score);
 }
 
+
+  // фон
+  ctx.fillStyle = "skyblue";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // птица
+  ctx.fillStyle = "yellow";
+  ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
+
+  // трубы
+  ctx.fillStyle = "green";
+  pipes.forEach(p => {
+    ctx.fillRect(p.x, 0, p.width, p.top);
+    ctx.fillRect(p.x, canvas.height - p.bottom, p.width, p.bottom);
+  });
+
+  // счёт
+  ctx.fillStyle = "black";
+  ctx.font = "20px Arial";
+  ctx.fillText("Очки: " + score, 10, 30);
+
+
 // ===== Основной цикл =====
 function gameLoop() {
   update();
@@ -118,22 +137,29 @@ function gameLoop() {
 
 // ===== Управление игрой =====
 function startGame() {
-  clearInterval(gameInterval);
-  gameOver = false;
-  isPaused = false;
-  score = 0;
-  pipes = [];
-  frameCount = 0;
-  bird = { x: 80, y: 300, width: 30, height: 30, dy: 0 };
+  // Если игра идёт и не на паузе — не делаем ничего
+  if (gameInterval !== null && !isPaused) return;
 
-  createPipe();
-
-  const gameOverMessage = document.getElementById("gameOverMessage");
-  if (gameOverMessage) {
-    gameOverMessage.style.display = "none";
+  // Если игра на паузе — просто продолжаем
+  if (isPaused) {
+    gameInterval = setInterval(gameLoop, 30);
+    isPaused = false;
+    return;
   }
 
-  gameInterval = setInterval(gameLoop, 30);
+  // Если игра была окончена или ещё не запускалась — начинаем заново
+  if (gameOver || gameInterval === null) {
+    clearInterval(gameInterval);
+    score = 0;
+    pipes = [];
+    frameCount = 0;
+    bird = { x: 80, y: 300, width: 30, height: 30, dy: 0 };
+    gameOver = false;
+    isPaused = false;
+    document.getElementById("gameOverMessage").style.display = "none";
+    createPipe();
+    gameInterval = setInterval(gameLoop, 30);
+  }
 }
 
 function pauseGame() {
@@ -148,7 +174,16 @@ function pauseGame() {
 }
 
 function restartGame() {
-  startGame();
+  clearInterval(gameInterval);
+  score = 0;
+  pipes = [];
+  frameCount = 0;
+  bird = { x: 80, y: 300, width: 30, height: 30, dy: 0 };
+  gameOver = false;
+  isPaused = false;
+  document.getElementById("gameOverMessage").style.display = "none";
+  createPipe();
+  gameInterval = setInterval(gameLoop, 30);
 }
 
 // ===== Глобальный доступ =====
