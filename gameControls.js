@@ -3,62 +3,41 @@ document.addEventListener("DOMContentLoaded", () => {
   const pauseBtn = document.getElementById("pauseBtn");
   const restartBtn = document.getElementById("restartBtn");
 
-  if (startBtn) {
-    startBtn.addEventListener("click", () => {
-      window.startGame?.();
-    });
+  // ======== Блокировка прокрутки во время игры ========
+  function disableScroll() {
+    document.body.style.overflow = "hidden";
+    document.addEventListener("touchmove", preventScroll, { passive: false });
   }
 
-  if (pauseBtn) {
-    pauseBtn.addEventListener("click", () => {
-      window.pauseGame?.();
-    });
+  function enableScroll() {
+    document.body.style.overflow = "";
+    document.removeEventListener("touchmove", preventScroll, { passive: false });
   }
 
-  if (restartBtn) {
-    restartBtn.addEventListener("click", () => {
-      window.restartGame?.();
-    });
+  function preventScroll(e) {
+    e.preventDefault();
   }
+
+  // ======== Обёртка для безопасного подключения к игровым функциям ========
+  function wrapGameFunction(func, afterCallback) {
+    if (!func) return undefined;
+    return function() {
+      func();
+      if (afterCallback) afterCallback();
+    };
+  }
+
+  // Навешиваем кнопки, если глобальные функции уже существуют
+  if (window.startGame) window.startGame = wrapGameFunction(window.startGame, disableScroll);
+  if (window.pauseGame) window.pauseGame = wrapGameFunction(window.pauseGame, enableScroll);
+  if (window.restartGame) window.restartGame = wrapGameFunction(window.restartGame, enableScroll);
+
+  // Кнопки управления
+  if (startBtn) startBtn.addEventListener("click", () => window.startGame?.());
+  if (pauseBtn) pauseBtn.addEventListener("click", () => window.pauseGame?.());
+  if (restartBtn) restartBtn.addEventListener("click", () => window.restartGame?.());
+
+  // Скрываем сообщение об окончании игры при загрузке
+  const gameOverMessage = document.getElementById("gameOverMessage");
+  if (gameOverMessage) gameOverMessage.style.display = "none";
 });
-
-
-// ======== Блокировка прокрутки во время игры ========
-
-function disableScroll() {
-  document.body.style.overflow = "hidden";
-  document.addEventListener("touchmove", preventScroll, { passive: false });
-}
-
-function enableScroll() {
-  document.body.style.overflow = "";
-  document.removeEventListener("touchmove", preventScroll);
-}
-
-function preventScroll(e) {
-  e.preventDefault();
-}
-
-// Отключаем прокрутку, когда игра запущена
-window.startGame = (function(originalStartGame) {
-  return function() {
-    originalStartGame();
-    disableScroll(); // блокируем прокрутку
-  };
-})(window.startGame);
-
-// Включаем обратно при паузе или перезапуске
-window.pauseGame = (function(originalPauseGame) {
-  return function() {
-    originalPauseGame();
-    enableScroll(); // разрешаем прокрутку
-  };
-})(window.pauseGame);
-
-window.restartGame = (function(originalRestartGame) {
-  return function() {
-    originalRestartGame();
-    enableScroll(); // разрешаем прокрутку
-  };
-})(window.restartGame);
-

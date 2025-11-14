@@ -125,10 +125,23 @@ function hideGameOverMessage() {
 
 function startGame() {
     hideGameOverMessage();
+
+    // Если игра уже идёт и не на паузе — не делаем ничего
+    if (gameInterval && !isPaused) return;
+
+    // Если игра на паузе — продолжаем
+    if (isPaused) {
+        gameInterval = setInterval(drawGame, 250);
+        isPaused = false;
+        return;
+    }
+
+    // Если игра ещё не запускалась или была окончена — стартуем заново
     if (!gameInterval) {
         gameInterval = setInterval(drawGame, 250);
     }
 }
+
 
 function restartGame() {
     clearInterval(gameInterval);
