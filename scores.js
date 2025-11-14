@@ -1,39 +1,42 @@
-import { db, auth } from "./firebase-init.js";
-import { collection, addDoc, serverTimestamp } 
-  from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { db } from "./firebase-init.js";
+import {
+  doc,
+  getDoc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Текущий пользователь
-let currentUser = null;
-
-onAuthStateChanged(auth, (user) => {
-  currentUser = user;
-});
-
-/**
- * Сохраняет очки игры в Firebase
- * @param {string} gameName - название игры
- * @param {number} score - количество очков
- */
-export async function saveScore(gameName, score) {
+export async function saveScore(playerName, gameName, score) {
   try {
-    // Если пользователь авторизован, берём его имя и UID
-    const userId = currentUser ? currentUser.uid : "guest";
-    const userName = currentUser ? currentUser.displayName || "Игрок" : "Гость";
+    const docId = `${playerName}_${gameName}`; // уникальный документ
+    const docRef = doc(db, "scores", docId);
+    const docSnap = await getDoc(docRef);
 
-    await addDoc(collection(db, "scores"), {
-      userId,
-      userName,
+    if (docSnap.exists()) {
+      const oldScore = docSnap.data().score || 0;
+
+      // Если новый счет хуже — ничего не делаем
+      if (oldScore >= score) {
+        console.log("У игрока уже есть лучший результат. Не обновляю.");
+        return;
+      }
+    }
+
+    // Обновляем только если результат лучше
+    await setDoc(docRef, {
+      name: playerName,
       game: gameName,
-      score,
-      date: serverTimestamp()
-    });
+      score: score,
+      timestamp: Date.now(),
+    }, { merge: true });
 
-    console.log("Результат сохранён:", gameName, score, "от", userName);
+    console.log("Рекорд обновлен:", score);
+
   } catch (error) {
-    console.error("Ошибка записи результата:", error);
+    console.error("Ошибка сохранения очков:", error);
   }
 }
+
+
 
 
 // Делаем функцию глобальной
