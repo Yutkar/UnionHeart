@@ -1,39 +1,31 @@
-import { db, auth } from "./firebase-init.js";
+import { db } from "./firebase-init.js";
 import { addDoc, collection, serverTimestamp } 
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-/**
- * Сохраняет результат игры в Firestore
- * @param {string} gameName - название игры ("Snake", "Flappy", "Tetris")
- * @param {number} score - количество очков
- */
+// ------- Функция сохранения результата игры -------
 export async function saveScore(gameName, score) {
-  const user = auth.currentUser;
+    // Если есть авторизованный пользователь — берём его данные
+    let userId = "guest_" + Math.floor(Math.random() * 1000000); // случайный ID для гостя
+    let userName = "Гость";
 
-  if (!user) {
-    console.warn("Игрок не авторизован — результат не записан.");
-    return;
-  }
+    try {
+        // Если auth.currentUser существует, заменяем данные
+        if (typeof auth !== "undefined" && auth.currentUser) {
+            userId = auth.currentUser.uid;
+            userName = auth.currentUser.displayName || "Игрок";
+        }
 
-  if (typeof score !== "number" || score < 0) {
-    console.warn("Некорректный счёт:", score);
-    return;
-  }
+        await addDoc(collection(db, "scores"), {
+            userId: userId,
+            userName: userName,
+            game: gameName,    // название игры
+            score: score,      // очки
+            date: serverTimestamp() // серверная дата
+        });
 
-  const scoreData = {
-    userId: user.uid,
-    userName: user.displayName || "Игрок",
-    game: gameName,
-    score: score,
-    date: serverTimestamp()
-  };
+        console.log("Результат сохранён:", gameName, score, "Пользователь:", userName);
 
-  console.log("Попытка сохранить очки:", scoreData);
-
-  try {
-    await addDoc(collection(db, "scores"), scoreData);
-    console.log("Результат успешно сохранён:", scoreData);
-  } catch (error) {
-    console.error("Ошибка при записи результата:", error);
-  }
+    } catch (error) {
+        console.error("Ошибка записи результата:", error);
+    }
 }
