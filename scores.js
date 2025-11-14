@@ -34,3 +34,7 @@ export async function saveScore(gameName, score) {
     console.error("Ошибка записи результата:", error);
   }
 }
+
+
+// Делаем функцию глобальной
+window.saveScore = saveScore;
