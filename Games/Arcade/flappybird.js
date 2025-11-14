@@ -19,11 +19,12 @@ let gameOver = false;
 let gameInterval = null;
 let isPaused = false;
 
-// ===== Управление (ЦЫФВ / WASD / пробел / тап) =====
+// ===== Управление =====
 document.addEventListener("keydown", e => {
   const key = e.key.toLowerCase();
   if (["w", "ц", " "].includes(key)) bird.dy = jump;
 });
+
 canvas.addEventListener("touchstart", () => {
   bird.dy = jump;
 });
@@ -63,6 +64,7 @@ function update() {
         endGame();
       }
     }
+
     if (!p.passed && bird.x > p.x + p.width) {
       score++;
       p.passed = true;
@@ -91,6 +93,7 @@ function draw() {
   ctx.fillText("Очки: " + score, 10, 30);
 }
 
+// ===== Завершение игры =====
 function endGame() {
   if (gameOver) return;
 
@@ -107,52 +110,14 @@ function endGame() {
   saveScore("flappy", score);
 }
 
-// ===== Управление игрой =====
-function startGame() {
-  clearInterval(gameInterval);
-  gameOver = false;
-  isPaused = false;
-  score = 0;
-  pipes = [];
-  frameCount = 0;
-  bird = { x: 80, y: 300, width: 30, height: 30, dy: 0 };
-  createPipe();
-  document.getElementById("gameOverMessage").style.display = "none"; // скрываем надпись
-  gameInterval = setInterval(gameLoop, 30);
-}
-
-
-  // фон
-  ctx.fillStyle = "skyblue";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // птица
-  ctx.fillStyle = "yellow";
-  ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
-
-  // трубы
-  ctx.fillStyle = "green";
-  pipes.forEach(p => {
-    ctx.fillRect(p.x, 0, p.width, p.top);
-    ctx.fillRect(p.x, canvas.height - p.bottom, p.width, p.bottom);
-  });
-
-  // счёт
-  ctx.fillStyle = "black";
-  ctx.font = "20px Arial";
-  ctx.fillText("Очки: " + score, 10, 30);
-
-
 // ===== Основной цикл =====
 function gameLoop() {
   update();
   draw();
 }
 
-
 // ===== Управление игрой =====
 function startGame() {
-  // всегда начинаем заново
   clearInterval(gameInterval);
   gameOver = false;
   isPaused = false;
@@ -160,7 +125,14 @@ function startGame() {
   pipes = [];
   frameCount = 0;
   bird = { x: 80, y: 300, width: 30, height: 30, dy: 0 };
+
   createPipe();
+
+  const gameOverMessage = document.getElementById("gameOverMessage");
+  if (gameOverMessage) {
+    gameOverMessage.style.display = "none";
+  }
+
   gameInterval = setInterval(gameLoop, 30);
 }
 
@@ -176,7 +148,7 @@ function pauseGame() {
 }
 
 function restartGame() {
-  startGame(); // теперь просто вызывает startGame()
+  startGame();
 }
 
 // ===== Глобальный доступ =====
