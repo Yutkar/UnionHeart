@@ -91,23 +91,20 @@ function draw() {
   ctx.fillText("Очки: " + score, 10, 30);
 }
 
-// ===== Завершение игры =====
 function endGame() {
+  if (gameOver) return;
+
   gameOver = true;
   clearInterval(gameInterval);
   gameInterval = null;
 
-  if (gameOver) {
-    clearInterval(gameInterval);
-    gameInterval = null;
-
-    // ✅ Сохраняем очки через Firestore
-    saveScore("flappy", score);
-    const gameOverMessage = document.getElementById("gameOverMessage");
+  const gameOverMessage = document.getElementById("gameOverMessage");
+  if (gameOverMessage) {
     gameOverMessage.textContent = "Игра окончена! Очки: " + score;
     gameOverMessage.style.display = "block";
-}
+  }
 
+  saveScore("flappy", score);
 }
 
 // ===== Управление игрой =====
@@ -152,12 +149,6 @@ function gameLoop() {
   draw();
 }
 
-// ===== Завершение игры =====
-function endGame() {
-  gameOver = true;
-  clearInterval(gameInterval);
-  gameInterval = null;
-}
 
 // ===== Управление игрой =====
 function startGame() {
