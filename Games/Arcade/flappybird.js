@@ -101,6 +101,8 @@ function endGame() {
     clearInterval(gameInterval);
     gameInterval = null;
 
+    // ✅ Сохраняем очки через Firestore
+    saveScore("flappy", score);
     const gameOverMessage = document.getElementById("gameOverMessage");
     gameOverMessage.textContent = "Игра окончена! Очки: " + score;
     gameOverMessage.style.display = "block";

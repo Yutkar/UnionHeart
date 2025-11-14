@@ -1,7 +1,9 @@
+import { saveScore } from "../../scores.js";
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const box = 20; // размер клетки
+const box = 20; 
 let snake = [{ x: 9 * box, y: 9 * box }];
 let direction = "RIGHT";
 let food = spawnFood();
@@ -9,10 +11,10 @@ let score = 0;
 
 // ====== Управление для ПК ======
 document.addEventListener("keydown", event => {
-    if (event.key === "A" || event.key ==="a" || event.key === "Ф" || event.key ==="ф" && direction !== "RIGHT") direction = "LEFT";
-    if (event.key === "W" || event.key ==="w" || event.key === "Ц" || event.key ==="ц" && direction !== "DOWN") direction = "UP";
-    if (event.key === "D" || event.key ==="d" || event.key === "В" || event.key ==="в" && direction !== "LEFT") direction = "RIGHT";
-    if (event.key === "S" || event.key ==="s" || event.key === "Ы" || event.key ==="ы" && direction !== "UP") direction = "DOWN";
+    if ((event.key === "A" || event.key ==="a" || event.key === "Ф" || event.key ==="ф") && direction !== "RIGHT") direction = "LEFT";
+    if ((event.key === "W" || event.key ==="w" || event.key === "Ц" || event.key ==="ц") && direction !== "DOWN") direction = "UP";
+    if ((event.key === "D" || event.key ==="d" || event.key === "В" || event.key ==="в") && direction !== "LEFT") direction = "RIGHT";
+    if ((event.key === "S" || event.key ==="s" || event.key === "Ы" || event.key ==="ы") && direction !== "UP") direction = "DOWN";
 });
 
 // ====== Управление для телефонов (свайпы) ======
@@ -76,36 +78,30 @@ function drawGame() {
         score++;
         food = spawnFood();
     } else {
-        snake.pop(); // убираем хвост
+        snake.pop();
     }
 
     const newHead = { x: snakeX, y: snakeY };
 
     // проверка на смерть
-if (
-    snakeX < 0 || snakeY < 0 ||
-    snakeX >= canvas.width || snakeY >= canvas.height ||
-    collision(newHead, snake)
-) {
-    clearInterval(gameInterval);
+    if (
+        snakeX < 0 || snakeY < 0 ||
+        snakeX >= canvas.width || snakeY >= canvas.height ||
+        collision(newHead, snake)
+    ) {
+        clearInterval(gameInterval);
 
-    // показываем надпись о конце игры
-    const message = document.getElementById("gameOverMessage");
-    if (message) {
-        message.textContent = "Игра окончена! Очки: " + score;
-        message.style.display = "block";
-    }
+        const message = document.getElementById("gameOverMessage");
+        if (message) {
+            message.textContent = "Игра окончена! Очки: " + score;
+            message.style.display = "block";
+        }
 
-    // сохраняем результат в Firestore
-    if (typeof saveScore === "function") {
+        // ✅ Сохраняем очки через Firestore
         saveScore("snake", score);
+
+        return;
     }
-
-    return; // выходим, чтобы не отрисовывать дальше
-}
-
-
-
 
     snake.unshift(newHead);
 
@@ -127,15 +123,13 @@ function hideGameOverMessage() {
     if (message) message.style.display = "none";
 }
 
-// обновлённый запуск
 function startGame() {
     hideGameOverMessage();
     if (!gameInterval) {
-        gameInterval = setInterval(drawGame, 250); 
+        gameInterval = setInterval(drawGame, 250);
     }
 }
 
-// обновлённый перезапуск
 function restartGame() {
     clearInterval(gameInterval);
     gameInterval = null;
@@ -148,7 +142,6 @@ function restartGame() {
     startGame();
 }
 
-// Пауза / продолжение
 function pauseGame() {
     if (isPaused) {
         gameInterval = setInterval(drawGame, 250);
@@ -160,7 +153,7 @@ function pauseGame() {
     }
 }
 
-// Делаем функции глобальными, чтобы другой файл (gameСontrols.js) мог их вызывать
+// Делаем функции глобальными
 window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
