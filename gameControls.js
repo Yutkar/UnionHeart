@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const pauseBtn = document.getElementById("pauseBtn");
   const restartBtn = document.getElementById("restartBtn");
 
+  // ======== Блокировка/разблокировка скролла ========
   function disableScroll() {
     document.body.style.overflow = "hidden";
     document.addEventListener("touchmove", preventScroll, { passive: false });
@@ -17,28 +18,31 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
   }
 
-  // ======== Глобальные функции, которые ИГРА может вызывать ========
+  // ======== Глобальный объект, с которым будет работать игра ========
   window.scrollBlock = {
-    onStart() { disableScroll(); },
-    onStop() { enableScroll(); }
+    block() { disableScroll(); },
+    unblock() { enableScroll(); }
   };
 
-  // ======== Подключение кнопок ========
-  if (startBtn) startBtn.addEventListener("click", () => {
-    window.startGame?.();
-    window.scrollBlock.onStart();
-  });
+  // ======== КНОПКИ ========
+  if (startBtn) {
+    startBtn.addEventListener("click", () => {
+      window.startGame?.();
+      window.scrollBlock.block();
+    });
+  }
 
-  if (pauseBtn) pauseBtn.addEventListener("click", () => {
-    window.pauseGame?.();
-    window.scrollBlock.onStop();
-  });
+  if (pauseBtn) {
+    pauseBtn.addEventListener("click", () => {
+      window.pauseGame?.();
+      window.scrollBlock.unblock();
+    });
+  }
 
-  if (restartBtn) restartBtn.addEventListener("click", () => {
-    window.restartGame?.();
-    window.scrollBlock.onStart();
-  });
-
-  const gameOverMessage = document.getElementById("gameOverMessage");
-  if (gameOverMessage) gameOverMessage.style.display = "none";
+  if (restartBtn) {
+    restartBtn.addEventListener("click", () => {
+      window.restartGame?.();
+      window.scrollBlock.block();
+    });
+  }
 });

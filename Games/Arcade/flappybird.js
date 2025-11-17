@@ -106,7 +106,7 @@ function endGame() {
 
   saveScore("flappy", score);
 
-  if (window.onGameOver) window.onGameOver();
+  window.scrollBlock?.unblock();
 }
 
 
