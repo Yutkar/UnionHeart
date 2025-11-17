@@ -1,23 +1,36 @@
 import { saveScore } from "../../scores.js";
+import { scrollBlock } from "../../gameControls.js"; // модуль с блокировкой скролла
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const box = 20; 
+const box = 20;
 let snake = [{ x: 9 * box, y: 9 * box }];
 let direction = "RIGHT";
 let food = spawnFood();
 let score = 0;
 
+let gameInterval;
+let isPaused = false;
+
+// ====== Вспомогательные функции ======
+function safeBlock() { scrollBlock?.block(); }
+function safeUnblock() { scrollBlock?.unblock(); }
+
+function hideGameOverMessage() {
+    const message = document.getElementById("gameOverMessage");
+    if (message) message.style.display = "none";
+}
+
 // ====== Управление для ПК ======
 document.addEventListener("keydown", event => {
-    if ((event.key === "A" || event.key ==="a" || event.key === "Ф" || event.key ==="ф") && direction !== "RIGHT") direction = "LEFT";
-    if ((event.key === "W" || event.key ==="w" || event.key === "Ц" || event.key ==="ц") && direction !== "DOWN") direction = "UP";
-    if ((event.key === "D" || event.key ==="d" || event.key === "В" || event.key ==="в") && direction !== "LEFT") direction = "RIGHT";
-    if ((event.key === "S" || event.key ==="s" || event.key === "Ы" || event.key ==="ы") && direction !== "UP") direction = "DOWN";
+    if ((event.key === "A" || event.key === "a" || event.key === "Ф" || event.key === "ф") && direction !== "RIGHT") direction = "LEFT";
+    if ((event.key === "W" || event.key === "w" || event.key === "Ц" || event.key === "ц") && direction !== "DOWN") direction = "UP";
+    if ((event.key === "D" || event.key === "d" || event.key === "В" || event.key === "в") && direction !== "LEFT") direction = "RIGHT";
+    if ((event.key === "S" || event.key === "s" || event.key === "Ы" || event.key === "ы") && direction !== "UP") direction = "DOWN";
 });
 
-// ====== Управление для телефонов (свайпы) ======
+// ====== Управление для мобильных (свайпы) ======
 let touchStartX = 0;
 let touchStartY = 0;
 
@@ -49,22 +62,26 @@ function spawnFood() {
     };
 }
 
-// ====== Отрисовка ======
+// ====== Проверка столкновения ======
+function collision(head, array) {
+    return array.some(segment => head.x === segment.x && head.y === segment.y);
+}
+
+// ====== Основная отрисовка ======
 function drawGame() {
     ctx.fillStyle = "#1e1e1e";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // змейка
-    for (let i = 0; i < snake.length; i++) {
+    snake.forEach((seg, i) => {
         ctx.fillStyle = i === 0 ? "lime" : "green";
-        ctx.fillRect(snake[i].x, snake[i].y, box, box);
-    }
+        ctx.fillRect(seg.x, seg.y, box, box);
+    });
 
     // еда
     ctx.fillStyle = "red";
     ctx.fillRect(food.x, food.y, box, box);
 
-    // движение
     let snakeX = snake[0].x;
     let snakeY = snake[0].y;
 
@@ -73,7 +90,7 @@ function drawGame() {
     if (direction === "RIGHT") snakeX += box;
     if (direction === "DOWN") snakeY += box;
 
-    // проверка на еду
+    // проверка еды
     if (snakeX === food.x && snakeY === food.y) {
         score++;
         food = spawnFood();
@@ -83,13 +100,10 @@ function drawGame() {
 
     const newHead = { x: snakeX, y: snakeY };
 
-    // проверка на смерть
-    if (
-        snakeX < 0 || snakeY < 0 ||
-        snakeX >= canvas.width || snakeY >= canvas.height ||
-        collision(newHead, snake)
-    ) {
+    // проверка смерти
+    if (snakeX < 0 || snakeY < 0 || snakeX >= canvas.width || snakeY >= canvas.height || collision(newHead, snake)) {
         clearInterval(gameInterval);
+        gameInterval = null;
 
         const message = document.getElementById("gameOverMessage");
         if (message) {
@@ -97,51 +111,38 @@ function drawGame() {
             message.style.display = "block";
         }
 
-        // ✅ Сохраняем очки через Firestore
         saveScore("snake", score);
 
+        // разблокируем скролл при проигрыше
+        safeUnblock();
         return;
     }
 
     snake.unshift(newHead);
 
-    // очки
     ctx.fillStyle = "white";
     ctx.font = "20px Arial";
     ctx.fillText("Очки: " + score, 10, 20);
 }
 
-function collision(head, array) {
-    return array.some(segment => head.x === segment.x && head.y === segment.y);
-}
-
-let gameInterval;
-let isPaused = false;
-
-function hideGameOverMessage() {
-    const message = document.getElementById("gameOverMessage");
-    if (message) message.style.display = "none";
-}
-
+// ====== Игровые функции ======
 function startGame() {
     hideGameOverMessage();
 
-    // Если игра уже идёт и не на паузе — не делаем ничего
     if (gameInterval && !isPaused) return;
 
-    // Если игра на паузе — продолжаем
     if (isPaused) {
         gameInterval = setInterval(drawGame, 250);
         isPaused = false;
+        safeBlock();
         return;
     }
 
-    // Если игра ещё не запускалась или была окончена — стартуем заново
     if (!gameInterval) {
         gameInterval = setInterval(drawGame, 250);
+        safeBlock();
     }
 }
-
 
 function restartGame() {
     clearInterval(gameInterval);
@@ -152,6 +153,10 @@ function restartGame() {
     snake = [{ x: 9 * box, y: 9 * box }];
     food = spawnFood();
     hideGameOverMessage();
+
+    // блокируем скролл при рестарте
+    safeBlock();
+
     startGame();
 }
 
@@ -159,14 +164,16 @@ function pauseGame() {
     if (isPaused) {
         gameInterval = setInterval(drawGame, 250);
         isPaused = false;
+        safeBlock();
     } else {
         clearInterval(gameInterval);
         gameInterval = null;
         isPaused = true;
+        safeUnblock();
     }
 }
 
-// Делаем функции глобальными
+// ====== Глобальный доступ ======
 window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
