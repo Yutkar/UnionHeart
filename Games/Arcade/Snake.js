@@ -1,5 +1,5 @@
 import { saveScore } from "../../scores.js";
-import { scrollBlock } from "../../gameControls.js"; // модуль с блокировкой скролла
+import { scrollBlock } from "../../gameControls.js"; // убедись, что этот файл экспортирует объект scrollBlock
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -113,7 +113,7 @@ function drawGame() {
 
         saveScore("snake", score);
 
-        // разблокируем скролл при проигрыше
+        // разблокировка скролла
         safeUnblock();
         return;
     }
@@ -154,9 +154,7 @@ function restartGame() {
     food = spawnFood();
     hideGameOverMessage();
 
-    // блокируем скролл при рестарте
     safeBlock();
-
     startGame();
 }
 
