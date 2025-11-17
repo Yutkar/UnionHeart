@@ -15,11 +15,17 @@
       <a href="Katalog.html">Каталог</a>
       <a href="oProecte.html">О проекте</a>
     </nav>
+    <div id="user-panel">
+      <span id="userInfo"></span>
+      <button id="loginBtn">Войти через Google</button>
+      <button id="logoutBtn" style="display:none;">Выйти</button>
+      <span id="authMessage"></span>
+    </div>
   </header>
 
   <main>
     <div class="game-container">
-      <h1>🔤🪢 Виселица </h1>
+      <h1>🔤🪢 Виселица на русском</h1>
         <p>
           Игра на угадывание слов.
         </p>
@@ -39,7 +45,7 @@
     </div>
   </main>
 
-  <div class="rating-section" data-game-id="hangman">
+  <div class="rating-section" data-game-id="hangmanrus">
   <h2>⭐ Рейтинг игры</h2>
   <div class="stars">
     <span>★</span>
@@ -64,9 +70,11 @@
   </footer>
 
   <!-- Логика игры -->
+   <script type="module" src="firebase-init.js"></script>
+  <script type="module" src="auth.js"></script>
+  <script type="module" src="scores.js"></script>
   <script src="Games/Brains/hangmanrus.js"></script>
   <!-- Общие кнопки -->
   <script src="gameControls.js"></script>
-  <script type="module" src="firebase-init.js"></script>
 </body>
 </html>

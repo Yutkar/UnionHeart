@@ -15,6 +15,12 @@
       <a href="Katalog.html">Каталог</a>
       <a href="oProecte.html">О проекте</a>
     </nav>
+    <div id="user-panel">
+      <span id="userInfo"></span>
+      <button id="loginBtn">Войти через Google</button>
+      <button id="logoutBtn" style="display:none;">Выйти</button>
+      <span id="authMessage"></span>
+    </div>
   </header>
 
   <main>
@@ -68,9 +74,11 @@
   </footer>
 
   <!-- Логика игры -->
+   <script type="module" src="firebase-init.js"></script>
+  <script type="module" src="auth.js"></script>
+  <script type="module" src="scores.js"></script>
   <script src="Games/Brains/catchFallingObjects.js"></script>
   <!-- Общие кнопки -->
   <script src="gameControls.js"></script>
-  <script type="module" src="firebase-init.js"></script>
 </body>
 </html>
