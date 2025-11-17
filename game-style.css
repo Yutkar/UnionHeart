@@ -201,3 +201,51 @@ footer a:hover {
   color: #FFD700;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
 }
+
+
+
+
+
+/* === Кнопки входа/выход === */
+#loginBtn, #logoutBtn {
+  background: linear-gradient(135deg, #7D1BB3, #A254C4);
+  color: #F3E8FF;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(125, 27, 179, 0.4);
+}
+
+#loginBtn:hover {
+  background: linear-gradient(135deg, #A254C4, #CBA2FF);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(162, 84, 196, 0.5);
+}
+
+#logoutBtn {
+  background: linear-gradient(135deg, #DB4437, #FF6B6B);
+  box-shadow: 0 4px 10px rgba(219, 68, 55, 0.4);
+}
+
+#logoutBtn:hover {
+  background: linear-gradient(135deg, #FF6B6B, #FF4D4D);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(255, 77, 77, 0.5);
+}
+
+/* Стиль текста рядом с кнопками */
+#userInfo {
+  font-weight: bold;
+  color: #F3E8FF;
+  margin-right: 10px;
+}
+
+#authMessage {
+  color: #E0D4FF;
+  font-size: 13px;
+  margin-left: 8px;
+}

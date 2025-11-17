@@ -406,7 +406,7 @@ footer a:hover {
 
 
 
-/* === Кнопки входа/выход на главной === */
+/* === Кнопки входа/выход === */
 #loginBtn, #logoutBtn {
   background: linear-gradient(135deg, #7D1BB3, #A254C4);
   color: #F3E8FF;
