@@ -1,274 +1,298 @@
-// ===== TETRIS =====
+import { scrollBlock } from "../../gameControls.js";
 
-// Настройка холста
+// ===== НАСТРОЙКА CANVAS =====
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 const COLS = 10;
 const ROWS = 20;
-const BLOCK_SIZE = 30;
+const BLOCK = 30;
 
-canvas.width = COLS * BLOCK_SIZE;
-canvas.height = ROWS * BLOCK_SIZE;
+canvas.width = COLS * BLOCK;
+canvas.height = ROWS * BLOCK;
 
-// Игровое поле
+// ===== ФОН =====
+function drawBackground() {
+    const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    grad.addColorStop(0, "#26233a");
+    grad.addColorStop(1, "#1a1826");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+// ===== СЕТКА =====
+function drawGrid() {
+    ctx.strokeStyle = "rgba(255,255,255,0.05)";
+    for (let x = 0; x < COLS; x++) {
+        ctx.beginPath();
+        ctx.moveTo(x * BLOCK, 0);
+        ctx.lineTo(x * BLOCK, canvas.height);
+        ctx.stroke();
+    }
+    for (let y = 0; y < ROWS; y++) {
+        ctx.beginPath();
+        ctx.moveTo(0, y * BLOCK);
+        ctx.lineTo(canvas.width, y * BLOCK);
+        ctx.stroke();
+    }
+}
+
+// ===== ПОЛЕ =====
 let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 
-// Цвета фигур
 const COLORS = [
-  null,
-  "cyan",   // I
-  "blue",   // J
-  "orange", // L
-  "yellow", // O
-  "green",  // S
-  "purple", // T
-  "red"     // Z
+    null,
+    "#00f0f0", // I
+    "#0000f0", // J
+    "#f0a000", // L
+    "#f0f000", // O
+    "#00f000", // S
+    "#a000f0", // T
+    "#f00000"  // Z
 ];
 
-// Формы фигур
 const SHAPES = [
-  [],
-  [[1, 1, 1, 1]],              // I
-  [[2, 0, 0], [2, 2, 2]],      // J
-  [[0, 0, 3], [3, 3, 3]],      // L
-  [[4, 4], [4, 4]],            // O
-  [[0, 5, 5], [5, 5, 0]],      // S
-  [[0, 6, 0], [6, 6, 6]],      // T
-  [[7, 7, 0], [0, 7, 7]]       // Z
+    [],
+    [[1,1,1,1]],
+    [[2,0,0],[2,2,2]],
+    [[0,0,3],[3,3,3]],
+    [[4,4],[4,4]],
+    [[0,5,5],[5,5,0]],
+    [[0,6,0],[6,6,6]],
+    [[7,7,0],[0,7,7]]
 ];
+
+// ===== ФИГУРА =====
+function createPiece() {
+    const type = Math.floor(Math.random() * 7) + 1;
+    return {
+        shape: SHAPES[type].map(r => [...r]),
+        color: COLORS[type],
+        x: Math.floor(COLS / 2) - Math.ceil(SHAPES[type][0].length / 2),
+        y: 0
+    };
+}
 
 let current = createPiece();
 let next = createPiece();
+let score = 0;
+let level = 1;
+let clearedLines = 0;
+
 let dropCounter = 0;
 let dropInterval = 800;
 let lastTime = 0;
-let score = 0;
-let gameOver = false;
 let isPaused = false;
+let gameOver = false;
 
-// ===== Создание фигуры =====
-function createPiece() {
-  const type = Math.floor(Math.random() * 7) + 1;
-  return {
-    shape: SHAPES[type].map(r => [...r]),
-    color: COLORS[type],
-    x: Math.floor(COLS / 2) - Math.ceil(SHAPES[type][0].length / 2),
-    y: 0
-  };
+// ===== ТЕНЬ-ФАНТОМ =====
+function getGhost() {
+    const ghost = JSON.parse(JSON.stringify(current));
+    while (!collide(board, ghost)) ghost.y++;
+    ghost.y--;
+    return ghost;
 }
 
-// ===== Отрисовка =====
+// ===== ОТРИСОВКА =====
+function drawBlock(x, y, color, alpha = 1) {
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    ctx.fillRect(x * BLOCK, y * BLOCK, BLOCK, BLOCK);
+    ctx.strokeStyle = "rgba(0,0,0,0.3)";
+    ctx.strokeRect(x * BLOCK, y * BLOCK, BLOCK, BLOCK);
+    ctx.globalAlpha = 1;
+}
+
+function drawMatrix(piece) {
+    piece.shape.forEach((row, y) => {
+        row.forEach((v, x) => {
+            if (v) drawBlock(x + piece.x, y + piece.y, COLORS[v]);
+        });
+    });
+}
+
+function drawGhostPiece() {
+    const g = getGhost();
+    g.shape.forEach((row, y) => {
+        row.forEach((v, x) => {
+            if (v) drawBlock(x + g.x, y + g.y, COLORS[v], 0.2);
+        });
+    });
+}
+
 function draw() {
-  ctx.fillStyle = "#1e1e1e";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawBackground();
+    drawGrid();
 
-  drawMatrix(board, { x: 0, y: 0 });
-  drawMatrix(current, { x: current.x, y: current.y });
+    drawGhostPiece();
+    drawMatrix(current);
 
-  ctx.fillStyle = "white";
-  ctx.font = "20px Arial";
-  ctx.fillText("Очки: " + score, 10, 25);
-}
-
-function drawMatrix(matrix, offset) {
-  const shape = matrix.shape ? matrix.shape : matrix;
-  shape.forEach((row, y) => {
-    row.forEach((value, x) => {
-      if (value) {
-        ctx.fillStyle = COLORS[value];
-        ctx.fillRect(
-          (x + offset.x) * BLOCK_SIZE,
-          (y + offset.y) * BLOCK_SIZE,
-          BLOCK_SIZE,
-          BLOCK_SIZE
-        );
-        ctx.strokeStyle = "#111";
-        ctx.strokeRect(
-          (x + offset.x) * BLOCK_SIZE,
-          (y + offset.y) * BLOCK_SIZE,
-          BLOCK_SIZE,
-          BLOCK_SIZE
-        );
-      }
+    // поле
+    board.forEach((row, y) => {
+        row.forEach((v, x) => {
+            if (v) drawBlock(x, y, COLORS[v]);
+        });
     });
-  });
+
+    ctx.fillStyle = "white";
+    ctx.font = "18px Arial";
+    ctx.fillText(`Очки: ${score}`, 10, 25);
+    ctx.fillText(`Уровень: ${level}`, 10, 45);
 }
 
-// ===== Игровая логика =====
-function merge(board, piece) {
-  piece.shape.forEach((row, y) => {
-    row.forEach((value, x) => {
-      if (value) board[y + piece.y][x + piece.x] = value;
-    });
-  });
-}
-
+// ===== КОЛЛИЗИИ =====
 function collide(board, piece) {
-  for (let y = 0; y < piece.shape.length; y++) {
-    for (let x = 0; x < piece.shape[y].length; x++) {
-      if (
-        piece.shape[y][x] &&
-        (board[y + piece.y] && board[y + piece.y][x + piece.x]) !== 0
-      ) {
-        return true;
-      }
+    for (let y = 0; y < piece.shape.length; y++) {
+        for (let x = 0; x < piece.shape[y].length; x++) {
+            if (
+                piece.shape[y][x] &&
+                (board[piece.y + y] &&
+                 board[piece.y + y][piece.x + x]) !== 0
+            ) return true;
+        }
     }
-  }
-  return false;
+    return false;
 }
 
-// ===== Вращение =====
-function rotate(matrix) {
-  const rows = matrix.length;
-  const cols = matrix[0].length;
-  const rotated = Array.from({ length: cols }, () => Array(rows).fill(0));
-
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      rotated[x][rows - 1 - y] = matrix[y][x];
-    }
-  }
-  return rotated;
+function merge(board, p) {
+    p.shape.forEach((row, y) =>
+        row.forEach((v, x) => {
+            if (v) board[p.y + y][p.x + x] = v;
+        })
+    );
 }
 
-// ===== Падение и очистка =====
-function playerDrop() {
-  current.y++;
-  if (collide(board, current)) {
-    current.y--;
-    merge(board, current);
-    sweep();
-    current = next;
-    next = createPiece();
-    if (collide(board, current)) gameOver = true;
-  }
-  dropCounter = 0;
-}
-
+// ===== ОЧИСТКА ЛИНИЙ =====
 function sweep() {
-  outer: for (let y = ROWS - 1; y >= 0; y--) {
-    for (let x = 0; x < COLS; x++) {
-      if (board[y][x] === 0) continue outer;
+    let lines = 0;
+
+    outer: for (let y = ROWS - 1; y >= 0; y--) {
+        for (let x = 0; x < COLS; x++) {
+            if (board[y][x] === 0) continue outer;
+        }
+        board.splice(y, 1);
+        board.unshift(Array(COLS).fill(0));
+        score += 10;
+        lines++;
+        y++;
     }
-    const row = board.splice(y, 1)[0].fill(0);
-    board.unshift(row);
-    score += 10;
-    y++;
-  }
+
+    clearedLines += lines;
+
+    if (clearedLines >= 12) {
+        clearedLines = 0;
+        level++;
+        dropInterval = Math.max(200, dropInterval - 80);
+    }
 }
 
-// ===== Управление с клавиатуры =====
-document.addEventListener("keydown", (e) => {
-  if (gameOver || isPaused) return;
+// ===== ОБНОВЛЕНИЕ =====
+function update(time = 0) {
+    if (isPaused || gameOver) return;
 
-  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a" || e.key === "ф") {
-    current.x--;
-    if (collide(board, current)) current.x++;
-  }
-  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d" || e.key === "в") {
-    current.x++;
-    if (collide(board, current)) current.x--;
-  }
-  if (e.key === "ArrowDown" || e.key.toLowerCase() === "s" || e.key === "ы") {
-    playerDrop();
-  }
-  if (e.key === " " || e.key === "ArrowUp") {
-    const rotated = rotate(current.shape);
-    const oldShape = current.shape;
-    current.shape = rotated;
-    if (collide(board, current)) current.shape = oldShape;
-  }
+    const dt = time - lastTime;
+    dropCounter += dt;
+    lastTime = time;
+
+    if (dropCounter > dropInterval) drop();
+
+    draw();
+    requestAnimationFrame(update);
+}
+
+function drop() {
+    current.y++;
+    if (collide(board, current)) {
+        current.y--;
+        merge(board, current);
+        sweep();
+        current = next;
+        next = createPiece();
+
+        if (collide(board, current)) {
+            gameOver = true;
+            scrollBlock.unblock();
+            return;
+        }
+    }
+    dropCounter = 0;
+}
+
+// ===== УПРАВЛЕНИЕ КЛАВИАТУРОЙ =====
+document.addEventListener("keydown", e => {
+    if (gameOver) return;
+
+    if (e.key === "ArrowLeft") move(-1);
+    if (e.key === "ArrowRight") move(1);
+    if (e.key === "ArrowDown") drop();
+    if (e.key === " " || e.key === "ArrowUp") rotate();
 });
 
-// ===== Главное обновление =====
-function update(time = 0) {
-  if (isPaused) return;
-
-  const deltaTime = time - lastTime;
-  lastTime = time;
-  dropCounter += deltaTime;
-
-  if (dropCounter > dropInterval) playerDrop();
-  draw();
-
-  if (!gameOver) {
-    requestAnimationFrame(update);
-  } else {
-    ctx.fillStyle = "red";
-    ctx.font = "36px Arial";
-    ctx.fillText("GAME OVER", canvas.width / 2 - 100, canvas.height / 2);
-  }
+function move(dir) {
+    current.x += dir;
+    if (collide(board, current)) current.x -= dir;
 }
 
-// ===== Кнопки управления =====
+function rotate() {
+    const old = current.shape;
+    current.shape = old[0].map((_, i) => old.map(r => r[i]).reverse());
+    if (collide(board, current)) current.shape = old;
+}
+
+// ===== СВАЙПЫ =====
+let sx = 0, sy = 0;
+
+canvas.addEventListener("touchstart", e => {
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
+});
+
+canvas.addEventListener("touchend", e => {
+    const dx = e.changedTouches[0].clientX - sx;
+    const dy = e.changedTouches[0].clientY - sy;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 30) move(1);
+        if (dx < -30) move(-1);
+    } else {
+        if (dy > 30) drop();
+        if (dy < -30) rotate();
+    }
+});
+
+// ===== КНОПКИ САЙТА =====
 function startGame() {
-  if (gameOver) {
-    restartGame();
-    return;
-  }
-  isPaused = false;
-  update();
+    if (gameOver) restartGame();
+
+    isPaused = false;
+    scrollBlock.block();
+    lastTime = 0;
+    update();
 }
 
 function pauseGame() {
-  isPaused = !isPaused;
-  if (!isPaused) update();
+    isPaused = true;
+    scrollBlock.unblock();
 }
 
 function restartGame() {
-  board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-  current = createPiece();
-  next = createPiece();
-  score = 0;
-  gameOver = false;
-  isPaused = false;
-  update();
+    board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    current = createPiece();
+    next = createPiece();
+    score = 0;
+    level = 1;
+    clearedLines = 0;
+    gameOver = false;
+    isPaused = false;
+
+    scrollBlock.block();
+    update();
 }
 
-// ===== Подключение кнопок для телефона =====
-function handleTouchMove(e, action) {
-  e.preventDefault();
-  if (gameOver || isPaused) return;
-  action();
-}
-
-// Лево
-const btnLeft = document.getElementById("btnLeft");
-btnLeft?.addEventListener("touchstart", e => handleTouchMove(e, () => {
-  current.x--;
-  if (collide(board, current)) current.x++;
-}));
-
-// Право
-const btnRight = document.getElementById("btnRight");
-btnRight?.addEventListener("touchstart", e => handleTouchMove(e, () => {
-  current.x++;
-  if (collide(board, current)) current.x--;
-}));
-
-// Вниз
-const btnDown = document.getElementById("btnDown");
-btnDown?.addEventListener("touchstart", e => handleTouchMove(e, playerDrop));
-
-// Вращение
-const btnRotate = document.getElementById("btnRotate");
-btnRotate?.addEventListener("touchstart", e => handleTouchMove(e, () => {
-  const rotated = rotate(current.shape);
-  const oldShape = current.shape;
-  current.shape = rotated;
-  if (collide(board, current)) current.shape = oldShape;
-}));
-  const rotated = rotate(current.shape);
-  const oldShape = current.shape;
-  current.shape = rotated;
-  if (collide(board, current)) current.shape = oldShape;
-
-
-
-// ===== Глобальные вызовы =====
+// ===== ГЛОБАЛЬНО =====
 window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
 
-update();
+// стартовый рендер
+draw();
