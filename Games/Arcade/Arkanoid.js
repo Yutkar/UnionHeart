@@ -11,7 +11,26 @@ let brickW = 50, brickH = 20, brickPadding = 10, offsetTop = 30, offsetLeft = 30
 let rightPressed = false, leftPressed = false;
 let gameRunning = false;
 let gamePaused = false;
+let score = 0;
 
+// ====== Блокировка/разблокировка скролла ======
+function safeBlock() { window.scrollBlock?.block(); }
+function safeUnblock() { window.scrollBlock?.unblock(); }
+
+function hideGameOverMessage() {
+  const message = document.getElementById("gameOverMessage");
+  if (message) message.style.display = "none";
+}
+
+function showGameOverMessage() {
+  const message = document.getElementById("gameOverMessage");
+  if (message) {
+    message.textContent = "Игра окончена! Очки: " + score;
+    message.style.display = "block";
+  }
+}
+
+// ====== Инициализация кирпичей ======
 function initBricks() {
   bricks = [];
   for (let r = 0; r < rows; r++) {
@@ -23,6 +42,7 @@ function initBricks() {
 }
 initBricks();
 
+// ====== Управление ======
 document.addEventListener("keydown", e => {
   if (e.key === "ArrowRight") rightPressed = true;
   if (e.key === "ArrowLeft") leftPressed = true;
@@ -38,11 +58,12 @@ document.getElementById("leftBtn")?.addEventListener("touchend", () => leftPress
 document.getElementById("rightBtn")?.addEventListener("touchstart", () => rightPressed = true);
 document.getElementById("rightBtn")?.addEventListener("touchend", () => rightPressed = false);
 
-// Кнопки управления игрой
-document.getElementById("startBtn")?.addEventListener("click", () => { gameRunning = true; gamePaused = false; });
-document.getElementById("pauseBtn")?.addEventListener("click", () => { gamePaused = !gamePaused; });
-document.getElementById("restartBtn")?.addEventListener("click", () => restartGame());
+// ====== Кнопки управления игрой ======
+document.getElementById("startBtn")?.addEventListener("click", startGame);
+document.getElementById("pauseBtn")?.addEventListener("click", pauseGame);
+document.getElementById("restartBtn")?.addEventListener("click", restartGame);
 
+// ====== Перезапуск игры ======
 function restartGame() {
   gameRunning = false;
   gamePaused = false;
@@ -50,9 +71,13 @@ function restartGame() {
   balls = [{ x: canvas.width / 2, y: canvas.height - 30, dx: 3, dy: -3, r: 6 }];
   bonuses = [];
   initBricks();
+  score = 0;
+  hideGameOverMessage();
   gameRunning = true;
+  safeBlock();
 }
 
+// ====== Рисуем кирпичи ======
 function drawBricks() {
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -68,6 +93,7 @@ function drawBricks() {
   }
 }
 
+// ====== Рисуем бонусы ======
 function drawBonuses() {
   bonuses.forEach(b => {
     ctx.fillStyle = b.color;
@@ -92,27 +118,20 @@ function updateBonuses() {
 
 function applyBonus(type) {
   switch (type) {
-    case "expand":
-      paddle.w += 30;
-      break;
-    case "slow":
-      balls.forEach(ball => { ball.dx *= 0.7; ball.dy *= 0.7; });
-      break;
-    case "fast":
-      balls.forEach(ball => { ball.dx *= 1.3; ball.dy *= 1.3; });
-      break;
-    case "multi":
-      balls.push({ ...balls[0], dx: -balls[0].dx });
-      break;
+    case "expand": paddle.w += 30; break;
+    case "slow": balls.forEach(ball => { ball.dx *= 0.7; ball.dy *= 0.7; }); break;
+    case "fast": balls.forEach(ball => { ball.dx *= 1.3; ball.dy *= 1.3; }); break;
+    case "multi": balls.push({ ...balls[0], dx: -balls[0].dx }); break;
   }
 }
 
+// ====== Основная отрисовка ======
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   drawBricks();
   drawBonuses();
 
-  // Рисуем шарики
   balls.forEach(ball => {
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
@@ -122,36 +141,31 @@ function draw() {
     ball.x += ball.dx;
     ball.y += ball.dy;
 
-    if (ball.x + ball.dx > canvas.width - ball.r || ball.x + ball.dx < ball.r)
-      ball.dx = -ball.dx;
-    if (ball.y + ball.dy < ball.r)
-      ball.dy = -ball.dy;
+    if (ball.x + ball.dx > canvas.width - ball.r || ball.x + ball.dx < ball.r) ball.dx = -ball.dx;
+    if (ball.y + ball.dy < ball.r) ball.dy = -ball.dy;
     else if (ball.y + ball.dy > canvas.height - ball.r) {
-      if (ball.x > paddle.x && ball.x < paddle.x + paddle.w) {
-        ball.dy = -ball.dy;
-      } else {
+      if (ball.x > paddle.x && ball.x < paddle.x + paddle.w) ball.dy = -ball.dy;
+      else {
         balls.splice(balls.indexOf(ball), 1);
-        if (balls.length === 0) restartGame();
+        if (balls.length === 0) {
+          gameRunning = false;
+          safeUnblock();
+          showGameOverMessage();
+        }
       }
     }
 
+    // Коллизия с кирпичами
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         let b = bricks[r][c];
-        if (b.status === 1) {
-          if (ball.x > b.x && ball.x < b.x + brickW && ball.y > b.y && ball.y < b.y + brickH) {
-            ball.dy = -ball.dy;
-            b.status = 0;
-            if (Math.random() < 0.3) {
-              const types = ["expand", "slow", "fast", "multi"];
-              const type = types[Math.floor(Math.random() * types.length)];
-              bonuses.push({
-                x: b.x + brickW / 2, y: b.y, type,
-                color: type === "expand" ? "#0f0" :
-                        type === "slow" ? "#00f" :
-                        type === "fast" ? "#f00" : "#ff0"
-              });
-            }
+        if (b.status === 1 && ball.x > b.x && ball.x < b.x + brickW && ball.y > b.y && ball.y < b.y + brickH) {
+          ball.dy = -ball.dy;
+          b.status = 0;
+          if (Math.random() < 0.3) {
+            const types = ["expand","slow","fast","multi"];
+            const type = types[Math.floor(Math.random()*types.length)];
+            bonuses.push({ x: b.x + brickW/2, y: b.y, type, color: type==="expand"?"#0f0":type==="slow"?"#00f":type==="fast"?"#f00":"#ff0" });
           }
         }
       }
@@ -165,11 +179,37 @@ function draw() {
   if (leftPressed && paddle.x > 0) paddle.x -= paddle.speed;
 
   updateBonuses();
+
+  // Очки всегда сверху слева
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.fillText("Очки: " + score, 10, 25);
 }
 
+// ====== Игровой цикл ======
 function loop() {
   if (gameRunning && !gamePaused) draw();
   requestAnimationFrame(loop);
 }
 
+// ====== Кнопки ======
+function startGame() {
+  hideGameOverMessage();
+  gameRunning = true;
+  gamePaused = false;
+  safeBlock();
+}
+
+function pauseGame() {
+  gamePaused = !gamePaused;
+  if (!gamePaused) safeBlock();
+  else safeUnblock();
+}
+
+// ====== Глобальные вызовы ======
+window.startGame = startGame;
+window.pauseGame = pauseGame;
+window.restartGame = restartGame;
+
+// ====== Запуск цикла ======
 loop();

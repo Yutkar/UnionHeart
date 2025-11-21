@@ -267,6 +267,3 @@ canvas.addEventListener("touchend", e => {
 window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
-
-// ====== Изначально отображаем очки ======
-draw();
