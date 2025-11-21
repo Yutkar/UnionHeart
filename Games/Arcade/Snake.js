@@ -1,5 +1,6 @@
 import { saveScore } from "../../scores.js";
-import { scrollBlock } from "../../gameControls.js"; // убедись, что этот файл экспортирует объект scrollBlock
+// ❌ scrollBlock не импортируем — его нет в export
+// import { scrollBlock } from "../../gameControls.js";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -14,8 +15,8 @@ let gameInterval;
 let isPaused = false;
 
 // ====== Вспомогательные функции ======
-function safeBlock() { scrollBlock?.block(); }
-function safeUnblock() { scrollBlock?.unblock(); }
+function safeBlock() { window.scrollBlock?.block(); }
+function safeUnblock() { window.scrollBlock?.unblock(); }
 
 function hideGameOverMessage() {
     const message = document.getElementById("gameOverMessage");
@@ -72,13 +73,11 @@ function drawGame() {
     ctx.fillStyle = "#1e1e1e";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // змейка
     snake.forEach((seg, i) => {
         ctx.fillStyle = i === 0 ? "lime" : "green";
         ctx.fillRect(seg.x, seg.y, box, box);
     });
 
-    // еда
     ctx.fillStyle = "red";
     ctx.fillRect(food.x, food.y, box, box);
 
@@ -100,7 +99,7 @@ function drawGame() {
 
     const newHead = { x: snakeX, y: snakeY };
 
-    // проверка смерти
+    // смерть
     if (snakeX < 0 || snakeY < 0 || snakeX >= canvas.width || snakeY >= canvas.height || collision(newHead, snake)) {
         clearInterval(gameInterval);
         gameInterval = null;
@@ -113,7 +112,7 @@ function drawGame() {
 
         saveScore("snake", score);
 
-        // разблокировка скролла
+        // разблокировка скролла при проигрыше
         safeUnblock();
         return;
     }
