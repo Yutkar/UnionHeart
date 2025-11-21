@@ -1,4 +1,4 @@
-import { saveScore } from "../../scores.js"; // если нужна запись очков
+import { saveScore } from "../../scores.js";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -42,10 +42,10 @@ function hideGameOverMessage() {
   if (message) message.style.display = "none";
 }
 
-function showScore() {
+function showGameOverMessage() {
   const message = document.getElementById("gameOverMessage");
   if (message) {
-    message.textContent = "Очки: " + score;
+    message.textContent = "Игра окончена! Очки: " + score;
     message.style.display = "block";
   }
 }
@@ -68,6 +68,11 @@ function draw() {
 
   drawMatrix(board, { x: 0, y: 0 });
   drawMatrix(current, { x: current.x, y: current.y });
+
+  // Очки всегда в верхнем левом углу
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.fillText("Очки: " + score, 10, 25);
 }
 
 function drawMatrix(matrix, offset) {
@@ -125,7 +130,14 @@ function playerDrop() {
     sweep();
     current = next;
     next = createPiece();
-    if (collide(board, current)) gameOver = true;
+    if (collide(board, current)) {
+      gameOver = true;
+      clearInterval(gameInterval);
+      gameInterval = null;
+      saveScore("tetris", score);
+      showGameOverMessage();
+      safeUnblock(); // разблокировка скролла
+    }
   }
   dropCounter = 0;
 }
@@ -142,9 +154,9 @@ function sweep() {
   }
 }
 
-// ====== Игровой цикл через setInterval ======
+// ====== Игровой цикл ======
 function drawGame() {
-  if (gameOver) return;
+  if (gameOver || isPaused) return;
   const now = performance.now();
   const deltaTime = now - lastTime;
   lastTime = now;
@@ -152,7 +164,6 @@ function drawGame() {
 
   if (dropCounter > dropInterval) playerDrop();
   draw();
-  showScore();
 }
 
 // ====== Управление ======
@@ -178,7 +189,7 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// ====== Игровые функции для кнопок ======
+// ====== Кнопки ======
 function startGame() {
   hideGameOverMessage();
   if (gameInterval && !isPaused) return;
@@ -224,7 +235,7 @@ function restartGame() {
   startGame();
 }
 
-// ====== Свайпы для мобильных ======
+// ====== Свайпы ======
 let touchStartX = 0, touchStartY = 0;
 canvas.addEventListener("touchstart", e => {
   const touch = e.touches[0];
@@ -257,5 +268,5 @@ window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
 
-// ====== Изначально вывод очков ======
-showScore();
+// ====== Изначально отображаем очки ======
+draw();
