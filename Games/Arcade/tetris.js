@@ -31,8 +31,26 @@ let lastTime = 0;
 let score = 0;
 let gameOver = false;
 let isPaused = false;
+let gameInterval;
 
-// ===== Создание фигуры =====
+// ====== Вспомогательные функции ======
+function safeBlock() { window.scrollBlock?.block(); }
+function safeUnblock() { window.scrollBlock?.unblock(); }
+
+function hideGameOverMessage() {
+  const message = document.getElementById("gameOverMessage");
+  if (message) message.style.display = "none";
+}
+
+function showScore() {
+  const message = document.getElementById("gameOverMessage");
+  if (message) {
+    message.textContent = "Очки: " + score;
+    message.style.display = "block";
+  }
+}
+
+// ====== Создание фигуры ======
 function createPiece() {
   const type = Math.floor(Math.random() * 7) + 1;
   return {
@@ -43,17 +61,13 @@ function createPiece() {
   };
 }
 
-// ===== Отрисовка =====
+// ====== Отрисовка ======
 function draw() {
   ctx.fillStyle = "#1e1e1e";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   drawMatrix(board, { x: 0, y: 0 });
   drawMatrix(current, { x: current.x, y: current.y });
-
-  ctx.fillStyle = "white";
-  ctx.font = "20px Arial";
-  ctx.fillText("Очки: " + score, 10, 25);
 }
 
 function drawMatrix(matrix, offset) {
@@ -62,25 +76,15 @@ function drawMatrix(matrix, offset) {
     row.forEach((value, x) => {
       if (value) {
         ctx.fillStyle = COLORS[value];
-        ctx.fillRect(
-          (x + offset.x) * BLOCK_SIZE,
-          (y + offset.y) * BLOCK_SIZE,
-          BLOCK_SIZE,
-          BLOCK_SIZE
-        );
+        ctx.fillRect((x + offset.x) * BLOCK_SIZE, (y + offset.y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
         ctx.strokeStyle = "#111";
-        ctx.strokeRect(
-          (x + offset.x) * BLOCK_SIZE,
-          (y + offset.y) * BLOCK_SIZE,
-          BLOCK_SIZE,
-          BLOCK_SIZE
-        );
+        ctx.strokeRect((x + offset.x) * BLOCK_SIZE, (y + offset.y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
       }
     });
   });
 }
 
-// ===== Логика игры =====
+// ====== Логика игры ======
 function merge(board, piece) {
   piece.shape.forEach((row, y) => {
     row.forEach((value, x) => {
@@ -138,7 +142,20 @@ function sweep() {
   }
 }
 
-// ===== Управление =====
+// ====== Игровой цикл через setInterval ======
+function drawGame() {
+  if (gameOver) return;
+  const now = performance.now();
+  const deltaTime = now - lastTime;
+  lastTime = now;
+  dropCounter += deltaTime;
+
+  if (dropCounter > dropInterval) playerDrop();
+  draw();
+  showScore();
+}
+
+// ====== Управление ======
 document.addEventListener("keydown", (e) => {
   if (gameOver || isPaused) return;
 
@@ -161,61 +178,53 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// ===== Главное обновление =====
-function update(time = 0) {
-  if (isPaused) return;
-
-  const deltaTime = time - lastTime;
-  lastTime = time;
-  dropCounter += deltaTime;
-
-  if (dropCounter > dropInterval) playerDrop();
-  draw();
-
-  if (!gameOver) {
-    requestAnimationFrame(update);
-  } else {
-    ctx.fillStyle = "red";
-    ctx.font = "36px Arial";
-    ctx.fillText("GAME OVER", canvas.width / 2 - 100, canvas.height / 2);
-    saveScore("tetris", score); // запись очков
-    window.scrollBlock.unblock(); // разблокировка скролла
-  }
-}
-
-// ===== Кнопки управления =====
+// ====== Игровые функции для кнопок ======
 function startGame() {
-  if (gameOver) {
-    restartGame();
+  hideGameOverMessage();
+  if (gameInterval && !isPaused) return;
+
+  if (isPaused) {
+    gameInterval = setInterval(drawGame, 50);
+    isPaused = false;
+    safeBlock();
     return;
   }
-  isPaused = false;
-  window.scrollBlock.block();
-  update();
+
+  if (!gameInterval) {
+    gameInterval = setInterval(drawGame, 50);
+    isPaused = false;
+    safeBlock();
+  }
 }
 
 function pauseGame() {
-  isPaused = !isPaused;
-  if (!isPaused) {
-    window.scrollBlock.block();
-    update();
+  if (isPaused) {
+    gameInterval = setInterval(drawGame, 50);
+    isPaused = false;
+    safeBlock();
   } else {
-    window.scrollBlock.unblock();
+    clearInterval(gameInterval);
+    gameInterval = null;
+    isPaused = true;
+    safeUnblock();
   }
 }
 
 function restartGame() {
+  clearInterval(gameInterval);
+  gameInterval = null;
+  isPaused = false;
   board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
   current = createPiece();
   next = createPiece();
   score = 0;
   gameOver = false;
-  isPaused = false;
-  window.scrollBlock.block();
-  update();
+  hideGameOverMessage();
+  safeBlock();
+  startGame();
 }
 
-// ===== Свайпы для мобильных =====
+// ====== Свайпы для мобильных ======
 let touchStartX = 0, touchStartY = 0;
 canvas.addEventListener("touchstart", e => {
   const touch = e.touches[0];
@@ -243,10 +252,10 @@ canvas.addEventListener("touchend", e => {
   }
 });
 
-// ===== Глобальные вызовы =====
+// ====== Глобальный доступ ======
 window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
 
-// Изначально игра не стартует
-draw();
+// ====== Изначально вывод очков ======
+showScore();
