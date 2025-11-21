@@ -14,14 +14,14 @@ let gamePaused = false;
 let score = 0;
 
 // ====== Блокировка/разблокировка скролла ======
-function safeBlock() { window.scrollBlock?.block(); }
-function safeUnblock() { window.scrollBlock?.unblock(); }
+function safeBlock() { document.body.style.overflow = 'hidden'; }
+function safeUnblock() { document.body.style.overflow = ''; }
 
+// ====== Сообщение об окончании игры ======
 function hideGameOverMessage() {
   const message = document.getElementById("gameOverMessage");
   if (message) message.style.display = "none";
 }
-
 function showGameOverMessage() {
   const message = document.getElementById("gameOverMessage");
   if (message) {
@@ -52,11 +52,14 @@ document.addEventListener("keyup", e => {
   if (e.key === "ArrowLeft") leftPressed = false;
 });
 
-// Сенсорное управление
-document.getElementById("leftBtn")?.addEventListener("touchstart", () => leftPressed = true);
-document.getElementById("leftBtn")?.addEventListener("touchend", () => leftPressed = false);
-document.getElementById("rightBtn")?.addEventListener("touchstart", () => rightPressed = true);
-document.getElementById("rightBtn")?.addEventListener("touchend", () => rightPressed = false);
+// Сенсорное управление (телефон)
+const leftBtn = document.getElementById("leftBtn");
+const rightBtn = document.getElementById("rightBtn");
+
+leftBtn?.addEventListener("touchstart", e => { e.preventDefault(); leftPressed = true; });
+leftBtn?.addEventListener("touchend", e => { e.preventDefault(); leftPressed = false; });
+rightBtn?.addEventListener("touchstart", e => { e.preventDefault(); rightPressed = true; });
+rightBtn?.addEventListener("touchend", e => { e.preventDefault(); rightPressed = false; });
 
 // ====== Кнопки управления игрой ======
 document.getElementById("startBtn")?.addEventListener("click", startGame);
@@ -65,14 +68,13 @@ document.getElementById("restartBtn")?.addEventListener("click", restartGame);
 
 // ====== Перезапуск игры ======
 function restartGame() {
-  gameRunning = false;
-  gamePaused = false;
   paddle = { x: canvas.width / 2 - 40, y: canvas.height - 20, w: 80, h: 10, speed: 6 };
   balls = [{ x: canvas.width / 2, y: canvas.height - 30, dx: 3, dy: -3, r: 6 }];
   bonuses = [];
   initBricks();
   score = 0;
   hideGameOverMessage();
+  gamePaused = false;
   gameRunning = true;
   safeBlock();
 }
@@ -128,7 +130,6 @@ function applyBonus(type) {
 // ====== Основная отрисовка ======
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   drawBricks();
   drawBonuses();
 
@@ -162,6 +163,7 @@ function draw() {
         if (b.status === 1 && ball.x > b.x && ball.x < b.x + brickW && ball.y > b.y && ball.y < b.y + brickH) {
           ball.dy = -ball.dy;
           b.status = 0;
+          score += 10;
           if (Math.random() < 0.3) {
             const types = ["expand","slow","fast","multi"];
             const type = types[Math.floor(Math.random()*types.length)];
@@ -194,10 +196,13 @@ function loop() {
 
 // ====== Кнопки ======
 function startGame() {
-  hideGameOverMessage();
-  gameRunning = true;
-  gamePaused = false;
-  safeBlock();
+  if (!gameRunning) {
+    restartGame();
+  } else {
+    hideGameOverMessage();
+    gamePaused = false;
+    safeBlock();
+  }
 }
 
 function pauseGame() {
