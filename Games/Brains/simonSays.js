@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -132,6 +134,7 @@ function restartGame() {
     level = 0;
     drawButtons();
     addStep();
+    saveScore("simonSays", level);
     setTimeout(showSequence, 500);
 }
 

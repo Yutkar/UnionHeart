@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -154,7 +156,10 @@ function update() {
             b.y + b.height > player.y) {
             enemyBullets.splice(bi, 1);
             player.lives--;
-            if (player.lives <= 0) gameOver = true;
+            if (player.lives <= 0) {
+                gameOver = true;
+                saveScore("galaga", score);
+            }
         }
     });
 
@@ -238,6 +243,7 @@ function restartGame() {
     clearInterval(gameInterval);
     gameInterval = null;
     isPaused = false;
+    saveScore("galaga", score);
     score = 0;
     bullets = [];
     enemyBullets = [];

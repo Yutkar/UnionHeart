@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -86,6 +88,7 @@ function clickCard(x,y){
             firstCard = null;
             secondCard = null;
             if(checkWin()){
+                saveScore("memoryGame", moves);
                 setTimeout(()=>alert("Вы выиграли за "+moves+" ходов!"),100);
             }
         } else {

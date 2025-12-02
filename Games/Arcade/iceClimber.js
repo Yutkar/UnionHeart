@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -155,6 +157,7 @@ function updatePlayer() {
     });
 
     if (player.y > canvas.height) {
+        saveScore("iceClimber", score);
         alert("Game Over! Вы достигли уровня: " + score);
         restartGame();
     }

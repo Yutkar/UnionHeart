@@ -1,7 +1,7 @@
+import { saveScore } from "../../scores.js";
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-
-import { saveScore } from "../../scores.js";
 
 const tileSize = 20;
 const rows = 20;
@@ -192,6 +192,7 @@ function restartGame() {
     clearInterval(gameInterval);
     gameInterval = null;
     isPaused = false;
+    saveScore("pacman", score);
     score = 0;
     direction = "RIGHT";
     pacman = { x: 1, y: 1 };

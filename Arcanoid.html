@@ -62,9 +62,6 @@
   <p id="avgRating">Средняя оценка: —</p>
 </div>
 
-<script type="module" src="rating.js"></script>
-
-
   <footer>
     <div class="footer-links">
       <a href="oProecte.html">О проекте</a>
@@ -73,12 +70,12 @@
     <p>© 2025 Union Heart – Игры с душой</p>
   </footer>
 
-  <!-- Логика игры -->
-   <script type="module" src="firebase-init.js"></script>
+  <!-- Логика игры - правильный порядок -->
+  <script type="module" src="firebase-init.js"></script>
   <script type="module" src="auth.js"></script>
   <script type="module" src="scores.js"></script>
-  <script src="Games/Arcade/Arkanoid.js"></script>
-  <!-- Общие кнопки -->
+  <script type="module" src="rating.js"></script>
+  <script type="module" src="Games/Arcade/Arkanoid.js"></script>
   <script src="gameControls.js"></script>
 </body>
 </html>

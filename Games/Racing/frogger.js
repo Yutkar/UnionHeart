@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -131,6 +133,7 @@ function update() {
     }
 
     if (frog.y === 0) {
+        saveScore("frogger", score);
         alert("Вы выиграли!");
         resetFrog();
     }

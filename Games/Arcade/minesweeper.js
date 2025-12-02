@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -90,6 +92,7 @@ function revealCell(r,c){
     revealed[r][c]=true;
     if(board[r][c]===-1){
         gameOver=true;
+        saveScore("minesweeper", 0);
         alert("Вы проиграли!");
     } else if(board[r][c]===0){
         for(let dr=-1;dr<=1;dr++){
@@ -146,6 +149,7 @@ function checkWin(){
         }
     }
     if(safeCells===rows*cols-numMines && !gameOver){
+        saveScore("minesweeper", rows * cols - numMines);
         alert("Вы выиграли!");
         gameOver=true;
     }

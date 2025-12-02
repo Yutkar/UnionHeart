@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -64,6 +66,7 @@ function makeMove(row, col) {
     const winner = checkWinner();
     if (winner) {
         gameOver = true;
+        saveScore("xo", winner === "Draw" ? 0 : 1);
         setTimeout(() => alert(winner === "Draw" ? "Ничья!" : currentPlayer + " победил!"), 10);
     }
     currentPlayer = currentPlayer === "X" ? "O" : "X";

@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -125,6 +127,7 @@ function restartGame() {
     clearInterval(gameInterval);
     gameInterval = null;
     isPaused = false;
+    saveScore("catchFallingObjects", score);
     score = 0;
     objectSpeed = 3;
     objects = [];

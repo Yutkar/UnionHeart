@@ -32,6 +32,11 @@
       <canvas id="game" width="400" height="400"></canvas>
       <p id="gameOverMessage" class="game-over" style="display:none;"></p>
       <div class="controls">
+        <button id="difficultyEasyBtn">🟢 Легко (8x8 - 10 мин)</button>
+        <button id="difficultyMediumBtn">🟡 Средне (12x12 - 30 мин)</button>
+        <button id="difficultyHardBtn">🔴 Сложно (16x16 - 99 мин)</button>
+      </div>
+      <div class="controls">
         <button id="startBtn">▶ Старт</button>
         <button id="pauseBtn">⏸ Пауза</button>
         <button id="restartBtn">🔄 Перезапуск</button>
@@ -71,12 +76,12 @@
     <p>© 2025 Union Heart – Игры с душой</p>
   </footer>
 
-  <!-- Логика игры -->
+  <!-- Логика игры - правильный порядок -->
   <script type="module" src="firebase-init.js"></script>
   <script type="module" src="auth.js"></script>
   <script type="module" src="scores.js"></script>
-  <script src="Games/Arcade/minesweeper.js"></script>
-  <!-- Общие кнопки -->
+  <script type="module" src="rating.js"></script>
+  <script type="module" src="Games/Arcade/minesweeper.js"></script>
   <script src="gameControls.js"></script>
 </body>
 </html>
