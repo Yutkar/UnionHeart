@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 canvas.width = 600;
@@ -18,6 +20,10 @@ let attemptsLeft = maxAttempts;
 let gameInterval = null;
 let isPaused = false;
 let gameOver = false;
+
+// ====== Блокировка скролла ======
+function safeBlock() { window.scrollBlock?.block(); }
+function safeUnblock() { window.scrollBlock?.unblock(); }
 
 // ===== Выбор случайного слова =====
 function getRandomWord(){
@@ -130,11 +136,17 @@ function checkGameState(){
   if (attemptsLeft <= 0) {
     gameOver = true;
     clearInterval(gameInterval);
+    gameInterval = null;
     disableKeyboard();
+    saveScore("hangman", Math.max(0, attemptsLeft + 1));
+    safeUnblock();
   } else if (word.split("").every(char => guessedLetters.includes(char))) {
     gameOver = true;
     clearInterval(gameInterval);
+    gameInterval = null;
     disableKeyboard();
+    saveScore("hangman", attemptsLeft * 10);
+    safeUnblock();
   }
 }
 
@@ -143,6 +155,7 @@ function startGame() {
   if (!gameInterval) {
     drawGame();
     gameInterval = setInterval(() => {}, 1000);
+    safeBlock();
   }
 }
 
@@ -150,10 +163,12 @@ function pauseGame() {
   if (isPaused) {
     gameInterval = setInterval(() => {}, 1000);
     isPaused = false;
+    safeBlock();
   } else {
     clearInterval(gameInterval);
     gameInterval = null;
     isPaused = true;
+    safeUnblock();
   }
 }
 
@@ -167,8 +182,14 @@ function restartGame() {
   isPaused = false;
   enableKeyboard();
   drawGame();
+  safeBlock();
   startGame();
 }
+
+// ====== Глобальный доступ ======
+window.startGame = startGame;
+window.pauseGame = pauseGame;
+window.restartGame = restartGame;
 
 // ===== Клавиатура =====
 document.addEventListener("keydown", e => {

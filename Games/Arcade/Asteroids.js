@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 /** * Cross-browser wrapper for function "requestAnimationFrame" */
 window.requestAnimFrame = (function(){
   return  window.requestAnimationFrame       ||
@@ -503,6 +505,9 @@ var EngGameMessage = function (selector, score) {
     document.querySelector(selector).innerHTML = "Игра окончена! Счет: " + score;
     // Оставляем показ элемента #g-endgame
     document.querySelector("#g-endgame").style.display = "block";
+    // Сохраняем результат
+    saveScore("asteroids", score);
+    window.scrollBlock?.unblock();
 };
 
 /*
@@ -703,3 +708,30 @@ for (var i = 0; i < 4; i++) {
 
 /* Run game (УДАЛЕНА ЛОГИКА АВТОРИЗАЦИИ/КНОПКИ СТАРТА - ЗАПУСКАЕМ СРАЗУ) */
 game.Run();
+
+// ====== Вспомогательные функции скролла ======
+function safeBlock() { window.scrollBlock?.block(); }
+function safeUnblock() { window.scrollBlock?.unblock(); }
+
+let gameRunning = false;
+
+// ====== Экспорт функций для gameControls.js ======
+window.startGame = () => {
+  if (!gameRunning) {
+    gameRunning = true;
+    safeBlock();
+    game.Run();
+  }
+};
+
+window.pauseGame = () => {
+  gameRunning = false;
+  if (game.timer) clearTimeout(game.timer);
+  safeUnblock();
+};
+
+window.restartGame = () => {
+  gameRunning = false;
+  if (game.timer) clearTimeout(game.timer);
+  location.reload();
+};

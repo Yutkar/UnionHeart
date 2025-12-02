@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -11,6 +13,10 @@ let score = 0;
 let gameOver = false;
 let gameInterval = null;
 let isPaused = false;
+
+// ====== Блокировка скролла ======
+function safeBlock() { window.scrollBlock?.block(); }
+function safeUnblock() { window.scrollBlock?.unblock(); }
 
 // ===== Отрисовка =====
 function drawBoard() {
@@ -147,7 +153,13 @@ document.addEventListener("keydown", e => {
     if (e.key === "ArrowRight") moveRight();
     if (e.key === "ArrowUp") moveUp();
     if (e.key === "ArrowDown") moveDown();
-    if (!canMove()) gameOver = true;
+    if (!canMove()) {
+        gameOver = true;
+        clearInterval(gameInterval);
+        gameInterval = null;
+        saveScore("2048", score);
+        safeUnblock();
+    }
     drawBoard();
 });
 
@@ -167,7 +179,13 @@ canvas.addEventListener("touchend", e => {
         if (dy > 30) moveDown();
         else if (dy < -30) moveUp();
     }
-    if (!canMove()) gameOver = true;
+    if (!canMove()) {
+        gameOver = true;
+        clearInterval(gameInterval);
+        gameInterval = null;
+        saveScore("2048", score);
+        safeUnblock();
+    }
     drawBoard();
 });
 
@@ -175,6 +193,7 @@ canvas.addEventListener("touchend", e => {
 function startGame() {
     if (!gameInterval) {
         gameInterval = setInterval(drawBoard, 100);
+        safeBlock();
     }
 }
 
@@ -182,10 +201,12 @@ function pauseGame() {
     if (isPaused) {
         gameInterval = setInterval(drawBoard, 100);
         isPaused = false;
+        safeBlock();
     } else {
         clearInterval(gameInterval);
         gameInterval = null;
         isPaused = true;
+        safeUnblock();
     }
 }
 
@@ -199,6 +220,7 @@ function restartGame() {
     addTile();
     addTile();
     drawBoard();
+    safeBlock();
     startGame();
 }
 

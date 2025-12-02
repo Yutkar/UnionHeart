@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 class Game {
     SCREEN_WIDTH = 1800;
     SCREEN_HEIGHT = 1100;
@@ -173,6 +175,8 @@ class Game {
             this.gameOver = true;
             this.running = false;
             const showMenuScreen = this.showMenuScreen.bind(
+                    saveScore("pongcoop", this.playerA.getScore());
+                    this.safeUnblock?.();
                 this,
                 "Player B Wins!", // Победа Игрока B
                 this.resetGame
@@ -185,6 +189,8 @@ class Game {
 
     // ИЗМЕНЕНО: Обновленный метод listen для двух игроков
     listen() {
+                saveScore("pongcoop", this.playerB.getScore());
+                this.safeUnblock?.();
         document.addEventListener("keydown", ({ key }) => {
             const k = key.toLowerCase();
 
@@ -229,6 +235,40 @@ class Game {
     
     // ... (Методы resetTurn, isTurnDelayOver, getRandomColour остаются без изменений)
 }
+
+// ====== Вспомогательные функции скролла ======
+function safeBlock() { window.scrollBlock?.block(); }
+function safeUnblock() { window.scrollBlock?.unblock(); }
+
+let gameInstanceCoop;
+
+// ====== Инициализация игры ======
+document.addEventListener('DOMContentLoaded', () => {
+    gameInstanceCoop = new Game();
+});
+
+// ====== Экспорт функций для gameControls.js ======
+window.startGame = () => {
+  if (gameInstanceCoop) {
+    gameInstanceCoop.startGame();
+    safeBlock();
+  }
+};
+
+window.pauseGame = () => {
+  if (gameInstanceCoop) {
+    gameInstanceCoop.pauseGame();
+    safeUnblock();
+  }
+};
+
+window.restartGame = () => {
+  if (gameInstanceCoop) {
+    gameInstanceCoop.resetGame();
+    safeBlock();
+    gameInstanceCoop.startGame();
+  }
+};
 
 // Замените существующие методы Game на полные версии из исходного кода, 
 // но с изменениями в initialize, update и listen.

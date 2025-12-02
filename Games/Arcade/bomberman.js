@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 /**
  * Константы и конфигурация игры
  */
@@ -440,6 +442,8 @@ class BombermanGame {
             if (entity.type === 'explosion' && entity.row === this.player.row && entity.col === this.player.col) {
                 this.player.alive = false;
                 this.gameState = 'GAMEOVER';
+                saveScore("bomberman", this.score);
+                window.scrollBlock?.unblock();
                 break;
             }
         }
@@ -501,8 +505,36 @@ class BombermanGame {
 
 // Инициализация игры
 // Убедитесь, что в вашем HTML есть <canvas id="gameCanvas"></canvas>
+let gameInstance;
 document.addEventListener('DOMContentLoaded', () => {
     // Создаем экземпляр игры.
     // game теперь доступен глобально для управления кнопками: game.startGame(), game.pauseGame(), game.resetGame().
-    const game = new BombermanGame('gameCanvas'); 
+    gameInstance = new BombermanGame('gameCanvas');
 });
+
+// ====== Вспомогательные функции скролла ======
+function safeBlock() { window.scrollBlock?.block(); }
+function safeUnblock() { window.scrollBlock?.unblock(); }
+
+// ====== Экспорт функций для gameControls.js ======
+window.startGame = () => {
+  if (gameInstance) {
+    gameInstance.startGame();
+    safeBlock();
+  }
+};
+
+window.pauseGame = () => {
+  if (gameInstance) {
+    gameInstance.pauseGame();
+    safeUnblock();
+  }
+};
+
+window.restartGame = () => {
+  if (gameInstance) {
+    gameInstance.resetGame();
+    safeBlock();
+    gameInstance.startGame();
+  }
+};

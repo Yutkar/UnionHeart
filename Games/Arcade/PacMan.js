@@ -1,6 +1,8 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+import { saveScore } from "../../scores.js";
+
 const tileSize = 20;
 const rows = 20;
 const cols = 20;
@@ -11,8 +13,16 @@ let direction = "RIGHT";
 let score = 0;
 let gameInterval = null;
 let isPaused = false;
+let gameRunning = false;
 
-// призраки
+// ===== Вспомогательные функции =====
+function safeBlock() { window.scrollBlock?.block(); }
+function safeUnblock() { window.scrollBlock?.unblock(); }
+
+function hideGameOverMessage() {
+    const message = document.getElementById("gameOverMessage");
+    if (message) message.style.display = "none";
+}
 let ghosts = [
     { x: cols - 2, y: rows - 2, color: "red" },
     { x: cols - 2, y: 1, color: "pink" },

@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 //CARS
 var car = document.getElementById('car');
 car.init = function () { 
@@ -30,6 +32,8 @@ car.crash = function (d) {
     car.speed = 0.2;
     car.sx = d ? d : 0;
     game.audio.oscillator.frequency.value = 15;
+    saveScore("simpleracing", Math.floor(car.km));
+    window.scrollBlock?.unblock();
     setTimeout(function () {
       game.audio.oscillator.frequency.value = 60;
       car.crashed = false;
@@ -401,3 +405,46 @@ fog.toggle = function () {
 };
 //INIT
 game.init();
+
+// ====== Вспомогательные функции скролла ======
+function safeBlock() { window.scrollBlock?.block(); }
+function safeUnblock() { window.scrollBlock?.unblock(); }
+
+let gameRunning = false;
+let gamePaused = false;
+let gameInterval;
+
+// ====== Экспорт функций для gameControls.js ======
+window.startGame = () => {
+  if (!gameRunning) {
+    gameRunning = true;
+    gamePaused = false;
+    safeBlock();
+    gameInterval = setInterval(() => game.frame(), 50);
+  } else if (gamePaused) {
+    gamePaused = false;
+    safeBlock();
+    gameInterval = setInterval(() => game.frame(), 50);
+  }
+};
+
+window.pauseGame = () => {
+  if (gameRunning) {
+    gamePaused = !gamePaused;
+    if (gamePaused) {
+      clearInterval(gameInterval);
+      safeUnblock();
+    } else {
+      safeBlock();
+      gameInterval = setInterval(() => game.frame(), 50);
+    }
+  }
+};
+
+window.restartGame = () => {
+  gameRunning = false;
+  gamePaused = false;
+  if (gameInterval) clearInterval(gameInterval);
+  safeUnblock();
+  location.reload();
+};

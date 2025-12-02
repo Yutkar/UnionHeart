@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 const ROUNDS = [5, 5, 5, 4, 4, 4, 3, 3, 3, 1];
 const ROUND_COLOURS = [
   "#2C3E50", // Midnight Blue (Start/Default)
@@ -399,6 +401,8 @@ class Paddle {
       if (!this.hasNextRound()) {
         this.gameOver = true;
         this.running = false; // Остановка
+        saveScore("pong", this.playerA.getScore());
+        this.safeUnblock();
         const showMenuScreen = this.showMenuScreen.bind(
           this,
           "Winner!",
@@ -411,6 +415,8 @@ class Paddle {
     } else if (this.hasWonRound(this.playerB)) {
       this.gameOver = true;
       this.running = false; // Остановка
+      saveScore("pong", Math.max(0, this.playerA.getScore()));
+      this.safeUnblock();
       const showMenuScreen = this.showMenuScreen.bind(
         this,
         "Game Over!",
@@ -566,3 +572,24 @@ class Paddle {
   }
 }
 const game = new Game();
+
+// ====== Вспомогательные функции скролла ======
+function safeBlock() { window.scrollBlock?.block(); }
+function safeUnblock() { window.scrollBlock?.unblock(); }
+
+// ====== Экспорт функций для gameControls.js ======
+window.startGame = () => {
+  game.startGame();
+  safeBlock();
+};
+
+window.pauseGame = () => {
+  game.pauseGame();
+  safeUnblock();
+};
+
+window.restartGame = () => {
+  game.resetGame();
+  safeBlock();
+  game.startGame();
+};

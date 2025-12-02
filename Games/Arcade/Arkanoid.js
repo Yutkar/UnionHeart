@@ -1,6 +1,8 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+import { saveScore } from "../../scores.js";
+
 let paddle = { x: canvas.width / 2 - 40, y: canvas.height - 20, w: 80, h: 10, speed: 6 };
 let balls = [{ x: canvas.width / 2, y: canvas.height - 30, dx: 3, dy: -3, r: 6 }];
 let bricks = [];
@@ -11,13 +13,14 @@ let brickW = 50, brickH = 20, brickPadding = 10, offsetTop = 30, offsetLeft = 30
 let rightPressed = false, leftPressed = false;
 let gameRunning = false;
 let gamePaused = false;
+let gameInterval = null;
 let score = 0;
 
 let touchStartX = null;  // Для отслеживания свайпов
 
 // ====== Блокировка/разблокировка скролла ======
-function safeBlock() { document.body.style.overflow = 'hidden'; }
-function safeUnblock() { document.body.style.overflow = ''; }
+function safeBlock() { window.scrollBlock?.block(); }
+function safeUnblock() { window.scrollBlock?.unblock(); }
 
 // ====== Сообщение об окончании игры ======
 function hideGameOverMessage() {
@@ -94,17 +97,6 @@ function restartGame() {
   safeBlock();
 }
 
-// ====== Отправка рейтинга на сервер ======
-function sendScoreToServer() {
-  fetch('/save-score', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ score })
-  })
-  .then(res => console.log('Рейтинг сохранён'))
-  .catch(err => console.error('Ошибка при сохранении рейтинга', err));
-}
-
 // ====== Основная отрисовка ======
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -142,7 +134,7 @@ function draw() {
           gameRunning = false;
           safeUnblock();
           showGameOverMessage();
-          sendScoreToServer();
+          saveScore("arkanoid", score);
         }
       }
     }
@@ -180,8 +172,22 @@ function loop() {
 }
 
 // ====== Кнопки ======
-function startGame() { if (!gameRunning) restartGame(); else { hideGameOverMessage(); gamePaused=false; safeBlock(); } }
-function pauseGame() { gamePaused = !gamePaused; if (!gamePaused) safeBlock(); else safeUnblock(); }
+function startGame() { 
+  if (!gameRunning) { 
+    restartGame();
+  } else { 
+    hideGameOverMessage();
+    gamePaused = false;
+    safeBlock();
+  }
+}
+
+function pauseGame() { 
+  if (!gameRunning) return;
+  gamePaused = !gamePaused;
+  if (!gamePaused) safeBlock();
+  else safeUnblock();
+}
 
 // ====== Глобальные вызовы ======
 window.startGame = startGame;

@@ -1,3 +1,5 @@
+import { saveScore } from "../../scores.js";
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -6,9 +8,16 @@ canvas.height = 400;
 
 let gameInterval = null;
 let isPaused = false;
+let gameRunning = false;
 
-// ===== Игрок (прицел) =====
-const crosshair = { x: canvas.width / 2, y: canvas.height / 2, size: 20, speed: 5 };
+// ===== Вспомогательные функции =====
+function safeBlock() { window.scrollBlock?.block(); }
+function safeUnblock() { window.scrollBlock?.unblock(); }
+
+function hideGameOverMessage() {
+    const message = document.getElementById("gameOverMessage");
+    if (message) message.style.display = "none";
+}
 
 // ===== Цели =====
 let targets = [];
@@ -147,9 +156,22 @@ function gameLoop() {
 
 // ===== Управление игрой =====
 function startGame() {
+    hideGameOverMessage();
+    if (gameInterval && !isPaused) return;
+
+    if (isPaused) {
+        gameInterval = setInterval(gameLoop, 30);
+        isPaused = false;
+        gameRunning = true;
+        safeBlock();
+        return;
+    }
+
     if (!gameInterval) {
         gameInterval = setInterval(gameLoop, 30);
+        gameRunning = true;
         gameOver = false;
+        safeBlock();
     }
 }
 
@@ -157,10 +179,14 @@ function pauseGame() {
     if (isPaused) {
         gameInterval = setInterval(gameLoop, 30);
         isPaused = false;
+        gameRunning = true;
+        safeBlock();
     } else {
         clearInterval(gameInterval);
         gameInterval = null;
         isPaused = true;
+        gameRunning = false;
+        safeUnblock();
     }
 }
 
@@ -172,6 +198,10 @@ function restartGame() {
     targets = [];
     hitEffects = [];
     frameCount = 0;
+    gameOver = false;
+    gameRunning = false;
+    hideGameOverMessage();
+    safeBlock();
     startGame();
 }
 
@@ -180,10 +210,17 @@ function endGame() {
     clearInterval(gameInterval);
     gameInterval = null;
     isPaused = false;
+    gameRunning = false;
     gameOver = true;
-    alert("Игра завершена! Ваш счёт: " + score);
-    // Здесь можно отправить очки на сервер
-    uploadScore(score);
+    
+    const message = document.getElementById("gameOverMessage");
+    if (message) {
+        message.textContent = "Игра завершена! Очки: " + score;
+        message.style.display = "block";
+    }
+    
+    saveScore("shootingGallery", score);
+    safeUnblock();
 }
 
 // ===== Пример функции загрузки очков =====
@@ -197,6 +234,3 @@ window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
 window.endGame = endGame;
-
-// ===== Автозапуск =====
-startGame();
