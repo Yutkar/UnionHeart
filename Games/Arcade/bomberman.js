@@ -145,31 +145,46 @@ class Explosion {
 
 class BombermanGame {
     constructor(id) {
-        this.canvas = document.getElementById(id);
-        this.context = this.canvas.getContext("2d");
-        this.canvas.width = NUM_COLS * GRID_SIZE;
-        this.canvas.height = NUM_ROWS * GRID_SIZE;
+    this.canvas = document.getElementById(id);
+    this.context = this.canvas.getContext("2d");
 
-        this.cells = [];
-        this.entities = [];
-        this.player = new Player(1, 1);
+    // Логические размеры игры
+    this.canvas.width = NUM_COLS * GRID_SIZE;
+    this.canvas.height = NUM_ROWS * GRID_SIZE;
 
-        this.lastTime = 0;
-        this.gameState = "MENU";
+    /* === АВТОМАСШТАБИРОВАНИЕ ПОД ЭКРАН === */
+    const maxWidth = Math.min(window.innerWidth * 0.95, this.canvas.width);
+    const scale = maxWidth / this.canvas.width;
 
-        this.input = {
-            37: false,
-            38: false,
-            39: false,
-            40: false,
-            32: false
-        };
+    // CSS-уменьшение canvаs без изменения логики игры
+    this.canvas.style.width = maxWidth + "px";
+    this.canvas.style.height = (this.canvas.height * scale) + "px";
 
-        this.generateLevel();
-        this.setupEventListeners();
+    /* === Обрезка блюра и соблюдение пикселей === */
+    this.canvas.style.imageRendering = "pixelated";
 
-        requestAnimationFrame(this.loop.bind(this));
-    }
+    /* === Остальная логика === */
+    this.cells = [];
+    this.entities = [];
+    this.player = new Player(1, 1);
+
+    this.lastTime = 0;
+    this.gameState = "MENU";
+
+    this.input = {
+        37: false,
+        38: false,
+        39: false,
+        40: false,
+        32: false
+    };
+
+    this.generateLevel();
+    this.setupEventListeners();
+
+    requestAnimationFrame(this.loop.bind(this));
+}
+
 
     /** === Управление игрой === **/
 
