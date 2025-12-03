@@ -87,6 +87,8 @@ function GameEngine(canvasSelector) {
     for (const o of engine.objects) {
       if (typeof o.Update === "function") o.Update();
     }
+    autoSpawnAsteroids();
+
     // Render
     renderFrame();
 
@@ -396,6 +398,40 @@ function spawnAsteroids(count = 4) {
     game.objects.push(a);
   }
 }
+
+/* ---------- AUTO-SPAWN ASTEROIDS OVER TIME ---------- */
+let nextAsteroidTime = Date.now() + 7000; // first spawn after 7 sec
+
+function autoSpawnAsteroids() {
+    if (!gameRunning || gamePaused || window.gameOver) return;
+
+    const now = Date.now();
+    if (now >= nextAsteroidTime) {
+
+        // spawn ONE asteroid but far from ship
+        const rad = 35 + Math.floor(Math.random() * 30);
+        const a = new Asteroid(rad);
+
+        // choose safe spawn
+        let pos, attempts = 0;
+        const safeDist = 120;
+        do {
+            pos = {
+                x: Math.random() * game.canvas.width,
+                y: Math.random() * game.canvas.height
+            };
+            attempts++;
+        } while (ship && distance(pos, ship.position) < safeDist && attempts < 40);
+
+        a.position = pos;
+        if (typeof a.Start === "function") a.Start();
+        game.objects.push(a);
+
+        // schedule next spawn in 7–10 sec
+        nextAsteroidTime = now + 7000 + Math.random() * 3000;
+    }
+}
+
 
 /* ---------- Bootstrap / reset logic ---------- */
 function bootstrapGame() {
