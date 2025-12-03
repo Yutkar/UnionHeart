@@ -28,23 +28,24 @@ var GameEngine = function(canvasSelector) {
             forward: false
         },
         _running: false,
-        _tick: null,
         _rafId: null
     };
 
-    /* Input */
+    /* Input - keyboard (modern codes) */
     document.addEventListener("keydown", e => {
-        if (e.code === "Space") engine.input.fire = true;
-        if (e.code === "ArrowLeft" || e.code === "KeyA") engine.input.left = true;
-        if (e.code === "ArrowRight" || e.code === "KeyD") engine.input.right = true;
-        if (e.code === "ArrowUp" || e.code === "KeyW") engine.input.forward = true;
+        const code = e.code || e.key;
+        if (code === "Space" || code === "Spacebar") engine.input.fire = true;
+        if (code === "ArrowLeft" || code === "KeyA") engine.input.left = true;
+        if (code === "ArrowRight" || code === "KeyD") engine.input.right = true;
+        if (code === "ArrowUp" || code === "KeyW") engine.input.forward = true;
     });
 
     document.addEventListener("keyup", e => {
-        if (e.code === "Space") engine.input.fire = false;
-        if (e.code === "ArrowLeft" || e.code === "KeyA") engine.input.left = false;
-        if (e.code === "ArrowRight" || e.code === "KeyD") engine.input.right = false;
-        if (e.code === "ArrowUp" || e.code === "KeyW") engine.input.forward = false;
+        const code = e.code || e.key;
+        if (code === "Space" || code === "Spacebar") engine.input.fire = false;
+        if (code === "ArrowLeft" || code === "KeyA") engine.input.left = false;
+        if (code === "ArrowRight" || code === "KeyD") engine.input.right = false;
+        if (code === "ArrowUp" || code === "KeyW") engine.input.forward = false;
     });
 
     engine.eachByName = function(name, callback) {
@@ -53,18 +54,18 @@ var GameEngine = function(canvasSelector) {
     };
 
     engine.Load = function() {
-        this.canvas.width = Math.floor(this.canvas.clientWidth);
-        this.canvas.height = Math.floor(this.canvas.clientHeight);
+        // use client size to be responsive; fallback to fixed if 0
+        this.canvas.width = Math.max(100, Math.floor(this.canvas.clientWidth));
+        this.canvas.height = Math.max(100, Math.floor(this.canvas.clientHeight));
 
         for (let o of this.objects) if (typeof o.Start === "function") o.Start();
     };
 
     // single tick function
-    engine._tick = function(time) {
-        // safety binding
+    engine._tick = time => {
         const self = engine;
 
-        // If game is flagged as over -> render final frame and stop the loop
+        // If game is flagged as over -> final frame then stop
         if (window.gameOver) {
             // final render
             let ctx = self.context;
@@ -130,6 +131,7 @@ var GameEngine = function(canvasSelector) {
         this.Load();
         window.gameOver = false;
         this._running = true;
+        if (this._rafId) cancelAnimationFrame(this._rafId);
         this._rafId = requestAnimationFrame(this._tick);
     };
 
@@ -166,7 +168,7 @@ var Polygon = function(options) {
     p.Draw = function(ctx) {
         let g = game.canvas;
 
-        // draw wrapped copies
+        // draw wrapped copies for seamless wrap
         for (let dx of [0, -g.width, g.width]) {
             for (let dy of [0, -g.height, g.height]) {
                 ctx.save();
@@ -246,7 +248,7 @@ var Bullet = function() {
     });
 
     bul.Start = function() {
-        let dx = -Math.sin(ship.rotation * Math.PI / 180);
+        let dx = Math.sin(ship.rotation * Math.PI / 180);
         let dy = -Math.cos(ship.rotation * Math.PI / 180);
 
         this.position = {
@@ -254,7 +256,7 @@ var Bullet = function() {
             y: ship.position.y + dy * 20
         };
 
-        this.velocity = {x: dx * 5, y: dy * 5};
+        this.velocity = {x: dx * 6, y: dy * 6};
     };
 
     bul.Update = function() {
@@ -294,7 +296,6 @@ function asteroidVertices(count, rad) {
 }
 
 /* ---------- GLOBAL GAME DATA ---------- */
-/* Ensure #game canvas exists in HTML */
 var game = new GameEngine("#game");
 window.gamePaused = false;
 window.gameRunning = false;
@@ -320,7 +321,7 @@ function createShip() {
         this.velocity = {x: 0, y: 0};
         this.rotation = 0;
         this.rotationSpeed = 5;
-        this.speed = 0.15;
+        this.speed = 0.18;
         this.lastShot = 0;
     };
 
@@ -328,30 +329,40 @@ function createShip() {
 
         if (!gameRunning || gamePaused || window.gameOver) return;
 
+        // rotation
         if (game.input.left) this.rotation -= this.rotationSpeed;
         if (game.input.right) this.rotation += this.rotationSpeed;
 
+        // forward: accelerate in facing direction
         if (game.input.forward) {
-            this.velocity.x -= Math.sin(this.rotation * Math.PI / 180) * this.speed;
-            this.velocity.y -= Math.cos(this.rotation * Math.PI / 180) * this.speed;
+            let rad = this.rotation * Math.PI / 180;
+            this.velocity.x += Math.sin(rad) * this.speed;
+            this.velocity.y += -Math.cos(rad) * this.speed;
         }
 
-        if (game.input.fire && Date.now() - this.lastShot > 250) {
+        // shooting
+        if (game.input.fire && Date.now() - this.lastShot > 200) {
             let b = new Bullet();
             if (typeof b.Start === "function") b.Start();
             game.objects.push(b);
             this.lastShot = Date.now();
         }
 
+        // apply inertia
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
 
+        // friction to stabilize
+        this.velocity.x *= 0.995;
+        this.velocity.y *= 0.995;
+
+        // wrap
         if (this.position.x < 0) this.position.x += game.canvas.width;
         if (this.position.x > game.canvas.width) this.position.x -= game.canvas.width;
         if (this.position.y < 0) this.position.y += game.canvas.height;
         if (this.position.y > game.canvas.height) this.position.y -= game.canvas.height;
 
-        // collision
+        // collision with asteroids
         game.eachByName("asteroid", ast => {
             let dx = ast.position.x - this.position.x;
             let dy = ast.position.y - this.position.y;
@@ -377,8 +388,6 @@ function createShip() {
                 } catch (err) {
                     console.error("saveScore failed:", err);
                 }
-
-                // stop the engine loop (engine._tick will detect gameOver and stop)
             }
         });
     };
@@ -389,9 +398,8 @@ function createShip() {
 /* ---------- INITIAL ASTEROIDS ---------- */
 function spawnAsteroids(count = 4) {
     for (let i = 0; i < count; i++) {
-        let a = new Asteroid(70 - Math.floor(Math.random()*20));
+        let a = new Asteroid(60 + Math.floor(Math.random()*30));
         if (typeof a.Start === "function") a.Start();
-        // place asteroids not overlapping ship center
         a.position = {x: Math.random() * game.canvas.width, y: Math.random() * game.canvas.height};
         game.objects.push(a);
     }
@@ -399,6 +407,8 @@ function spawnAsteroids(count = 4) {
 
 /* ---------- BOOTSTRAP / START STATE ---------- */
 function bootstrapGame() {
+    // clear any running loop
+    try { game.Stop(); } catch(e){}
     game.objects = [];
     game.score = 0;
     window.gamePaused = false;
@@ -413,6 +423,77 @@ function bootstrapGame() {
 }
 bootstrapGame();
 
+/* ---------- MOBILE TOUCH CONTROLS (swipes & taps) ---------- */
+(function addTouchControls(){
+    const canvas = game.canvas;
+    if (!canvas) return;
+
+    let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+    const swipeThreshold = 30; // px
+    const tapMaxDist = 12; // px
+    const shortPressMax = 250; // ms
+    const tempDuration = 180; // ms for temporary input flag
+
+    canvas.addEventListener("touchstart", e => {
+        if (!e.touches || !e.touches[0]) return;
+        const t = e.touches[0];
+        touchStartX = t.clientX;
+        touchStartY = t.clientY;
+        touchStartTime = Date.now();
+    }, {passive:true});
+
+    canvas.addEventListener("touchend", e => {
+        const touch = e.changedTouches && e.changedTouches[0];
+        if (!touch) return;
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+        const dt = Date.now() - touchStartTime;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+
+        // Tap: fire
+        if (dist <= tapMaxDist && dt <= shortPressMax) {
+            // simulate quick fire
+            game.input.fire = true;
+            setTimeout(()=> game.input.fire = false, 120);
+            return;
+        }
+
+        // Swipe direction
+        if (Math.abs(dx) > Math.abs(dy)) {
+            // horizontal swipe -> rotate
+            if (Math.abs(dx) > swipeThreshold) {
+                if (dx > 0) {
+                    // swipe right -> rotate right briefly
+                    game.input.right = true;
+                    setTimeout(()=> game.input.right = false, tempDuration);
+                } else {
+                    game.input.left = true;
+                    setTimeout(()=> game.input.left = false, tempDuration);
+                }
+            }
+        } else {
+            // vertical swipe -> forward/back (use up swipe as forward)
+            if (Math.abs(dy) > swipeThreshold) {
+                if (dy < 0) {
+                    // swipe up -> forward
+                    game.input.forward = true;
+                    setTimeout(()=> game.input.forward = false, tempDuration);
+                } else {
+                    // swipe down -> no action (could be brakes)
+                }
+            }
+        }
+    }, {passive:true});
+
+    // Optional: two-finger tap -> restart (nice shortcut)
+    canvas.addEventListener("touchstart", e => {
+        if (e.touches && e.touches.length === 2) {
+            // restart quick
+            window.restartGame();
+        }
+    }, {passive:true});
+})();
+
 /* ---------- BUTTON HANDLERS ---------- */
 function safeBlock(){ window.scrollBlock?.block(); }
 function safeUnblock(){ window.scrollBlock?.unblock(); }
@@ -424,7 +505,7 @@ window.startGame = () => {
         safeBlock();
         game.Run();
     } else if (!gameRunning && window.gameOver) {
-        // If game was over, restart before start
+        // If game was over, restart then start
         window.restartGame();
     } else if (gamePaused) {
         gamePaused = false;
@@ -461,6 +542,12 @@ window.restartGame = () => {
     if (typeof ship.Start === "function") ship.Start();
     game.objects.push(ship);
     spawnAsteroids(4);
+
+    // ensure inputs cleared
+    game.input.fire = false;
+    game.input.left = false;
+    game.input.right = false;
+    game.input.forward = false;
 
     // start loop
     game.Run();
