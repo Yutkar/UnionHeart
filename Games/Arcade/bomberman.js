@@ -145,45 +145,53 @@ class Explosion {
 
 class BombermanGame {
     constructor(id) {
-    this.canvas = document.getElementById(id);
-    this.context = this.canvas.getContext("2d");
+        this.canvas = document.getElementById(id);
+        this.context = this.canvas.getContext("2d");
 
-    // Логические размеры игры
-    this.canvas.width = NUM_COLS * GRID_SIZE;
-    this.canvas.height = NUM_ROWS * GRID_SIZE;
+        // Логический размер (внутренний)
+        this.canvas.width = NUM_COLS * GRID_SIZE;
+        this.canvas.height = NUM_ROWS * GRID_SIZE;
 
-    /* === АВТОМАСШТАБИРОВАНИЕ ПОД ЭКРАН === */
-    const maxWidth = Math.min(window.innerWidth * 0.95, this.canvas.width);
-    const scale = maxWidth / this.canvas.width;
+        /* === АДАПТИВНОЕ МАСШТАБИРОВАНИЕ === */
 
-    // CSS-уменьшение canvаs без изменения логики игры
-    this.canvas.style.width = maxWidth + "px";
-    this.canvas.style.height = (this.canvas.height * scale) + "px";
+        const realWidth = this.canvas.width;
+        const realHeight = this.canvas.height;
 
-    /* === Обрезка блюра и соблюдение пикселей === */
-    this.canvas.style.imageRendering = "pixelated";
+        const availableWidth = window.innerWidth * 0.95;
+        const availableHeight = window.innerHeight * 0.80;
 
-    /* === Остальная логика === */
-    this.cells = [];
-    this.entities = [];
-    this.player = new Player(1, 1);
+        const scaleX = availableWidth / realWidth;
+        const scaleY = availableHeight / realHeight;
 
-    this.lastTime = 0;
-    this.gameState = "MENU";
+        const scale = Math.min(scaleX, scaleY, 1);
 
-    this.input = {
-        37: false,
-        38: false,
-        39: false,
-        40: false,
-        32: false
-    };
+        this.canvas.style.width = (realWidth * scale) + "px";
+        this.canvas.style.height = (realHeight * scale) + "px";
+        this.canvas.style.imageRendering = "pixelated";
 
-    this.generateLevel();
-    this.setupEventListeners();
+        /* === Остальная логика === */
+        this.cells = [];
+        this.entities = [];
+        this.player = new Player(1, 1);
 
-    requestAnimationFrame(this.loop.bind(this));
-}
+        this.lastTime = 0;
+        this.gameState = "MENU";
+
+        this.input = {
+            37: false,
+            38: false,
+            39: false,
+            40: false,
+            32: false
+        };
+
+        this.generateLevel();
+        this.setupEventListeners();
+
+        requestAnimationFrame(this.loop.bind(this));
+    }
+
+    
 
 
     /** === Управление игрой === **/
@@ -209,6 +217,8 @@ class BombermanGame {
         this.gameState = "MENU";
         window.scrollBlock?.block();
     }
+
+
 
     /** === LEVEL === **/
 
@@ -275,18 +285,54 @@ class BombermanGame {
     /** === Input === **/
 
     setupEventListeners() {
-        document.addEventListener("keydown", e => {
-            this.input[e.which] = true;
+    document.addEventListener("keydown", e => {
+        this.input[e.which] = true;
+        if (this.gameState === "RUNNING" && e.which === 32) {
+            this.placeBomb();
+        }
+    });
 
-            if (this.gameState === "RUNNING" && e.which === 32) {
-                this.placeBomb();
-            }
-        });
+    document.addEventListener("keyup", e => {
+        this.input[e.which] = false;
+    });
 
-        document.addEventListener("keyup", e => {
-            this.input[e.which] = false;
-        });
-    }
+    /* === МОБИЛЬНОЕ УПРАВЛЕНИЕ === */
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+
+    this.canvas.addEventListener("touchstart", e => {
+        const t = e.changedTouches[0];
+        touchStartX = t.screenX;
+        touchStartY = t.screenY;
+        touchStartTime = Date.now();
+    });
+
+    this.canvas.addEventListener("touchend", e => {
+        const t = e.changedTouches[0];
+        const dx = t.screenX - touchStartX;
+        const dy = t.screenY - touchStartY;
+        const absX = Math.abs(dx);
+        const absY = Math.abs(dy);
+        const dt = Date.now() - touchStartTime;
+
+        // TAP → поставить бомбу
+        if (dt < 200 && absX < 10 && absY < 10) {
+            this.placeBomb();
+            return;
+        }
+
+        // Свайпы
+        if (absX > absY) {
+            if (dx > 30) this.tryMove(0, 1);       // →
+            else if (dx < -30) this.tryMove(0, -1); // ←
+        } else {
+            if (dy > 30) this.tryMove(1, 0);        // ↓
+            else if (dy < -30) this.tryMove(-1, 0); // ↑
+        }
+    });
+}
+
 
     placeBomb() {
         if (!this.player.alive) return;
