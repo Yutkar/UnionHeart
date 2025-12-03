@@ -545,13 +545,12 @@ var ChangeGameColor = function (color) {
 };
 
 /**********************************************************************************/
-/* Making new game object */
+/* Creating new game object */
 var game = new GameEngine("#g-game", "#g-score");
 game.color = "";
-// УДАЛЕНИЕ ЛОГИКИ ИНИЦИАЛИЗАЦИИ ЦВЕТА ИЗ localStorage, ЗАМЕНА НА ПРЯМОЙ ВЫЗОВ КРАСНОГО
-ChangeGameColor(1); // Принудительно устанавливаем красный цвет
+ChangeGameColor(1); // По умолчанию красный цвет
 
-/* Adding ship */
+/* Добавляем корабль */
 var ship = new Polygon({
     points: [
       {x: 0, y: 0},
@@ -564,8 +563,8 @@ var ship = new Polygon({
     size: {x: 30, y: 45},
     base: {x: 15, y: 25}
 });
+
 ship.Start = function () {
-    // ... (остальной код ship.Start без изменений)
     this.position = {x: game.canvas.width/2, y: game.canvas.height/2};
     this.rotationSpeed = 7;
     this.speed = 0.2;
@@ -573,165 +572,166 @@ ship.Start = function () {
     this.inertiaMax = 0.99;
     this.shootDate = 0;
 };
+
 ship.Update = function () {
-    // ... (остальной код ship.Update без изменений)
-    // Rotate
-    if (game.input.left) {
-      this.rotation -= this.rotationSpeed;
-    }
-    if (game.input.right) {
-      this.rotation += this.rotationSpeed;
-    }
-    if (this.rotation >= 360) {
-      this.rotation -= 360;
-    }
-    if (this.rotation < 0) {
-      this.rotation += 360;
-    }
+    // Поворот
+    if (game.input.left) this.rotation -= this.rotationSpeed;
+    if (game.input.right) this.rotation += this.rotationSpeed;
 
-    // Change velocity vector when engine is on
+    if (this.rotation >= 360) this.rotation -= 360;
+    if (this.rotation < 0) this.rotation += 360;
+
+    // Движение вперёд
     if (game.input.forward) {
-      this.velocity.x -= Math.sin(-this.rotation*Math.PI/180) * this.speed;
-      this.velocity.y -= Math.cos(-this.rotation*Math.PI/180) * this.speed;
-      this.inertia = this.inertiaMax;
+        this.velocity.x -= Math.sin(-this.rotation * Math.PI/180) * this.speed;
+        this.velocity.y -= Math.cos(-this.rotation * Math.PI/180) * this.speed;
+        this.inertia = this.inertiaMax;
 
-      // Draw flame
-      this.points = [
-        {x: 0, y: 0},
-        {x: 10, y: 10},
-        {x: 0, y: -20},
-        {x: -10, y: 10},
-        {x: 0, y: 0},
-        {x: 3, y: 8},
-        {x: 0, y: 15},
-        {x: -3, y: 8}
-      ];
+        // Огонь двигателя
+        this.points = [
+          {x: 0, y: 0},
+          {x: 10, y: 10},
+          {x: 0, y: -20},
+          {x: -10, y: 10},
+          {x: 0, y: 0},
+          {x: 3, y: 8},
+          {x: 0, y: 15},
+          {x: -3, y: 8}
+        ];
     } else {
-      // Hide flame
-      this.points = [
-        {x: 0, y: 0},
-        {x: 10, y: 10},
-        {x: 0, y: -20},
-        {x: -10, y: 10}
-      ];
+        // Без огня
+        this.points = [
+          {x: 0, y: 0},
+          {x: 10, y: 10},
+          {x: 0, y: -20},
+          {x: -10, y: 10}
+        ];
     }
 
-    // fire
+    // Стрельба
     if (game.input.fire && Date.now() - this.shootDate > 300) {
-      var b = new Bullet();
-      b.Start();
-      game.objects.push(b);
-      this.shootDate = Date.now();
+        var b = new Bullet();
+        b.Start();
+        game.objects.push(b);
+        this.shootDate = Date.now();
     }
 
-    // Add inertia
+    // Движение с инерцией
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
     this.velocity.x *= this.inertia;
     this.velocity.y *= this.inertia;
 
-    // Teleporting
-    if (this.position.x > game.canvas.width) {
-      this.position.x -= game.canvas.width;
-    }
-    if (this.position.x < 0) {
-      this.position.x += game.canvas.width;
-    }
-    if (this.position.y > game.canvas.height) {
-      this.position.y -= game.canvas.height;
-    }
-    if (this.position.y < 0) {
-      this.position.y += game.canvas.height;
-    }
+    // Телепорт
+    if (this.position.x > game.canvas.width) this.position.x -= game.canvas.width;
+    if (this.position.x < 0) this.position.x += game.canvas.width;
+    if (this.position.y > game.canvas.height) this.position.y -= game.canvas.height;
+    if (this.position.y < 0) this.position.y += game.canvas.height;
 
-    // Check intersection with asteroid
+    // Проверка столкновения
     var pos = this.position;
     var verts = this.points;
+    var angle = this.rotation * Math.PI/180;
     var collision = false;
-    var base = this.base;
-    var angle = this.rotation*Math.PI/180;
     var asteroidCount = 0;
-    game.eachByName("asteroid", function(node, k){
-      asteroidCount++;
-      if (Math.sqrt( (node.position.x-pos.x)*(node.position.x-pos.x) + (node.position.y-pos.y)*(node.position.y-pos.y) ) < 130) {
-        for (var i = 0; i < verts.length; i++) {
-          var s1 = i;
-          var s2 = i+1 < verts.length ? i+1 : 0;
 
-          var rs1 = RotatePoint({x: verts[s1].x, y: verts[s1].y}, {x:0,y:0}, angle);
-          var rs2 = RotatePoint({x: verts[s2].x, y: verts[s2].y}, {x:0,y:0}, angle);
+    game.eachByName("asteroid", function(node){
+        asteroidCount++;
 
-          for (var j = 0; j < node.points.length; j++) {
-            var n1 = j;
-            var n2 = j+1 < node.points.length ? j+1 : 0;
+        // предварительная проверка дистанции (ускоряет)
+        if (Math.hypot(node.position.x - pos.x, node.position.y - pos.y) < 130) {
 
-            var rn1 = RotatePoint({x: node.points[n1].x, y: node.points[n1].y}, {x:0,y:0}, node.rotation*Math.PI/180);
-            var rn2 = RotatePoint({x: node.points[n2].x, y: node.points[n2].y}, {x:0,y:0}, node.rotation*Math.PI/180);
+            for (var i = 0; i < verts.length; i++) {
+                var s1 = i;
+                var s2 = (i+1)%verts.length;
 
-            if (CheckIntersection(
-                {x: rs1.x + pos.x, y: rs1.y + pos.y},
-                {x: rs2.x + pos.x, y: rs2.y + pos.y},
-                {x: rn1.x + node.position.x, y: rn1.y + node.position.y},
-                {x: rn2.x + node.position.x, y: rn2.y + node.position.y}
-              )) {
-              collision = true;
+                var rs1 = RotatePoint(verts[s1], {x:0,y:0}, angle);
+                var rs2 = RotatePoint(verts[s2], {x:0,y:0}, angle);
+
+                for (var j = 0; j < node.points.length; j++) {
+                    var n1 = j;
+                    var n2 = (j+1)%node.points.length;
+
+                    var rn1 = RotatePoint(node.points[n1], {x:0,y:0}, node.rotation*Math.PI/180);
+                    var rn2 = RotatePoint(node.points[n2], {x:0,y:0}, node.rotation*Math.PI/180);
+
+                    if (CheckIntersection(
+                        {x: rs1.x + pos.x, y: rs1.y + pos.y},
+                        {x: rs2.x + pos.x, y: rs2.y + pos.y},
+                        {x: rn1.x + node.position.x, y: rn1.y + node.position.y},
+                        {x: rn2.x + node.position.x, y: rn2.y + node.position.y}
+                    )) {
+                        collision = true;
+                    }
+                }
             }
-          }
         }
-      }
     });
+
     if (collision) {
-      this.delete = true;
-      var burst = new Burst({position: this.position, color: game.color});
-      game.objects.push(burst);
-      EngGameMessage("#g-leaderboard", game.score); // Вызываем упрощенное сообщение
-      // document.querySelector("#g-endgame").style.display = "block"; // Перенесено в EngGameMessage
+        this.delete = true;
+        var burst = new Burst({position: this.position, color: game.color});
+        game.objects.push(burst);
+
+        EngGameMessage("#g-leaderboard", game.score);
+        gameRunning = false;
     }
 
-    // Make new asteroids
+    // Спавн астероидов
     if (asteroidCount < 1) {
-      for (var i = 0; i < 4; i++) {
-        var rock = new Asteroid(80);
-        rock.Start();
-        game.objects.push(rock);
-      }
+        for (var i = 0; i < 4; i++) {
+            var rock = new Asteroid(80);
+            rock.Start();
+            game.objects.push(rock);
+        }
     }
 };
+
 game.objects.push(ship);
 
-/* Making procedural asteroids */
+/* Процедурные астероиды */
 for (var i = 0; i < 4; i++) {
-    var rock = new Asteroid(80);
-    rock.Start();
-    game.objects.push(rock);
+    var r = new Asteroid(80);
+    r.Start();
+    game.objects.push(r);
 }
 
-/* Run game (УДАЛЕНА ЛОГИКА АВТОРИЗАЦИИ/КНОПКИ СТАРТА - ЗАПУСКАЕМ СРАЗУ) */
-game.Run();
-
-// ====== Вспомогательные функции скролла ======
-function safeBlock() { window.scrollBlock?.block(); }
-function safeUnblock() { window.scrollBlock?.unblock(); }
+/* ———————————————— Управление игрой ———————————————— */
 
 let gameRunning = false;
+let paused = false;
 
-// ====== Экспорт функций для gameControls.js ======
+/* Блокировка скролла */
+function safeBlock(){ window.scrollBlock?.block(); }
+function safeUnblock(){ window.scrollBlock?.unblock(); }
+
+/* Старт */
 window.startGame = () => {
-  if (!gameRunning) {
-    gameRunning = true;
-    safeBlock();
-    game.Run();
-  }
+    if (!gameRunning) {
+        gameRunning = true;
+        paused = false;
+        safeBlock();
+        game.Run();
+    } else if (paused) {
+        paused = false;
+        safeBlock();
+    }
 };
 
+/* Пауза */
 window.pauseGame = () => {
-  gameRunning = false;
-  if (game.timer) clearTimeout(game.timer);
-  safeUnblock();
+    if (!gameRunning) return;
+
+    paused = !paused;
+    if (paused) safeUnblock();
+    else safeBlock();
+
+    // Пауза — просто пропуск Update()
+    game.updatePaused = paused;
 };
 
+/* Рестарт */
 window.restartGame = () => {
-  gameRunning = false;
-  if (game.timer) clearTimeout(game.timer);
-  location.reload();
+    safeUnblock();
+    location.reload();
 };
