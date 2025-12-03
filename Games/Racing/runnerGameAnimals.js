@@ -189,7 +189,7 @@ function gameOver() {
     safeUnblock();
 
     // Сохранение очков в Firebase
-    saveScore("runnerGameAnimals", score);
+    saveScore("RunnerGameAnimals", score);
 
 
     const msg = document.getElementById("gameOverMessage");
