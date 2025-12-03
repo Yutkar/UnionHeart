@@ -417,7 +417,7 @@ class BombermanGame {
 /** === Инициализация === **/
 
 let gameInstance;
-document.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("load", () => {
     gameInstance = new BombermanGame("game");
 });
 
