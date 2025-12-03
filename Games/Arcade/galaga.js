@@ -3,21 +3,15 @@ import { saveScore } from "../../scores.js";
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+// Строка под экраном (как в Snake.js)
+const statusLine = document.getElementById("game-status");
+statusLine.textContent = "";
+
 canvas.width = 400;
 canvas.height = 600;
 
 let gameInterval = null;
 let isPaused = false;
-
-// === Текст под игрой ===
-const statusText = document.createElement("div");
-statusText.style.textAlign = "center";
-statusText.style.fontSize = "26px";
-statusText.style.fontFamily = "Arial";
-statusText.style.marginTop = "10px";
-statusText.style.color = "red";
-statusText.textContent = ""; // пусто при старте
-canvas.after(statusText);
 
 // Игрок
 const player = {
@@ -71,6 +65,7 @@ document.addEventListener("keydown", e => {
     if (["d", "в"].includes(key)) player.dx = 5;
     if (key === " ") shoot();
 });
+
 document.addEventListener("keyup", e => {
     const key = e.key.toLowerCase();
     if (["a", "ф", "d", "в"].includes(key)) player.dx = 0;
@@ -78,19 +73,24 @@ document.addEventListener("keyup", e => {
 
 // ===== Управление телефоном =====
 let touchX = null;
+
 canvas.addEventListener("touchstart", e => {
     touchX = e.touches[0].clientX;
 });
+
 canvas.addEventListener("touchmove", e => {
     if (touchX !== null) {
         const delta = e.touches[0].clientX - touchX;
         player.x += delta;
+
         if (player.x < 0) player.x = 0;
         if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
         touchX = e.touches[0].clientX;
     }
 });
-canvas.addEventListener("touchend", e => {
+
+canvas.addEventListener("touchend", () => {
     shoot();
     touchX = null;
 });
@@ -118,15 +118,19 @@ function update() {
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
 
-    // Движение пуль игрока
+    // Снаряды игрока
     bullets.forEach(b => b.y -= 7);
     bullets = bullets.filter(b => b.y > 0);
 
-    // Движение врагов
+    // Враги
     enemies.forEach(e => {
         if (!e.alive) return;
+
         e.x += e.dx;
-        if (e.x + e.width > canvas.width || e.x < 0) e.dx *= -1;
+
+        if (e.x + e.width > canvas.width || e.x < 0)
+            e.dx *= -1;
+
         e.y += 0.2;
 
         e.shootCooldown--;
@@ -136,7 +140,7 @@ function update() {
         }
     });
 
-    // Движение пуль врагов
+    // Пули врагов
     enemyBullets.forEach(b => b.y += b.dy);
     enemyBullets = enemyBullets.filter(b => b.y < canvas.height);
 
@@ -169,12 +173,14 @@ function update() {
             if (player.lives <= 0) {
                 gameOver = true;
                 saveScore("galaga", score);
-                statusText.textContent = "GAME OVER";
+
+                // Вывод под канвасом
+                statusLine.textContent = "GAME OVER — ваш счёт: " + score;
             }
         }
     });
 
-    // Волна пройдена
+    // Новая волна
     if (enemies.every(e => !e.alive)) {
         createEnemies();
         enemySpeed += 0.3;
@@ -190,8 +196,9 @@ function draw() {
     ctx.shadowBlur = 10;
     ctx.fillRect(player.x, player.y, player.width, player.height);
 
-    // Пули игрока
     ctx.shadowBlur = 0;
+
+    // Пули игрока
     ctx.fillStyle = "yellow";
     bullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
 
@@ -205,8 +212,9 @@ function draw() {
         }
     });
 
-    // Пули врагов
     ctx.shadowBlur = 0;
+
+    // Пули врагов
     ctx.fillStyle = "white";
     enemyBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
 
@@ -217,18 +225,20 @@ function draw() {
     ctx.fillText("Lives: " + player.lives, canvas.width - 100, 30);
 }
 
-// ===== Game Loop =====
+// ===== Основной цикл =====
 function gameLoop() {
     update();
     draw();
 }
 
-// ===== Управление игрой =====
+// ===== Управление =====
 function startGame() {
-    statusText.textContent = ""; // убрать текст
     if (!gameInterval) {
         gameOver = false;
         player.lives = 3;
+
+        statusLine.textContent = ""; // очистить строку под игрой
+
         gameInterval = setInterval(gameLoop, 30);
     }
 }
@@ -249,9 +259,10 @@ function restartGame() {
     gameInterval = null;
     isPaused = false;
 
-    statusText.textContent = ""; // убрать текст
-
     saveScore("galaga", score);
+
+    statusLine.textContent = ""; // очистка
+
     score = 0;
     bullets = [];
     enemyBullets = [];
@@ -259,13 +270,14 @@ function restartGame() {
     player.x = canvas.width / 2 - 20;
     player.dx = 0;
     player.lives = 3;
+
     createEnemies();
     gameOver = false;
 
     startGame();
 }
 
-// Глобальный доступ
+// ===== Глобальный доступ =====
 window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
