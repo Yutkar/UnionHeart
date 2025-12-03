@@ -38,7 +38,7 @@
   if (randomBtn) {
     randomBtn.addEventListener("click", () => {
       const games = ["Snake.html", "tetris.html", "Arcanoid.html", "Asteroids.html", "Bomberman.html", "BubbleShooter.html", "FlappyBird.html", 
-        "galaga.html", "iceClimber.html", "minesweeper.html", "PacMan.html", "shootingGallery.html", "spaceInvaders.html", "2048.html", 
+        "galaga.html", "iceClimber.html", "minesweeper.html", "PacMan.html", "shootingGallery.html", "2048.html", 
         "catchFallingObjects.html", "hangman.html", "memoryGame.html", "simonSays.html", "xo.html", "frogger.html", "runnerGameAnimals.html", 
         "SimpleRacing.html", "Pong.html", "PonCoop.html", "hangmanRus.html" ];
       const randomIndex = Math.floor(Math.random() * games.length);
