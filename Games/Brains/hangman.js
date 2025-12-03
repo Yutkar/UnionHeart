@@ -5,7 +5,10 @@ const ctx = canvas.getContext("2d");
 canvas.width = 600;
 canvas.height = 300;
 
-const wordCategories = {
+// HTML-элемент для вывода результата под игрой
+const gameResult = document.getElementById("gameOverMessage");
+
+let wordCategories = {
   food: ["PIZZA","BURGER","SUSHI","PASTA","APPLE","BANANA","CHOCOLATE","BREAD","SALAD","STEAK"],
   school: ["BOOK","PENCIL","NOTEBOOK","TEACHER","CLASSROOM","EXAM","STUDENT","UNIVERSITY","LABORATORY","PROJECT"],
   animals: ["ELEPHANT","TIGER","DOG","CAT","MONKEY","KANGAROO","LION","GIRAFFE","PENGUIN","DOLPHIN"],
@@ -17,24 +20,24 @@ let word = "";
 let guessedLetters = [];
 let maxAttempts = 6;
 let attemptsLeft = maxAttempts;
-let gameInterval = null;
-let isPaused = false;
+
+let gameRunning = false;
 let gameOver = false;
 
-// ====== Блокировка скролла ======
+// Скролл-блок
 function safeBlock() { window.scrollBlock?.block(); }
 function safeUnblock() { window.scrollBlock?.unblock(); }
 
-// ===== Выбор случайного слова =====
-function getRandomWord(){
-  const categories = Object.keys(wordCategories);
-  const category = categories[Math.floor(Math.random()*categories.length)];
-  const words = wordCategories[category];
-  return words[Math.floor(Math.random()*words.length)];
+// ========== СЛУЧАЙНОЕ СЛОВО ==========
+function getRandomWord() {
+  let cats = Object.keys(wordCategories);
+  let cat = cats[Math.floor(Math.random()*cats.length)];
+  let arr = wordCategories[cat];
+  return arr[Math.floor(Math.random()*arr.length)];
 }
 
-// ===== Отрисовка =====
-function drawGame(){
+// ========== ОТРИСОВКА ИГРЫ ==========
+function drawGame() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "#f0f0f0";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -46,234 +49,165 @@ function drawGame(){
   ctx.font = "30px Arial";
   ctx.textAlign = "center";
 
-  let display = "";
-  for (let char of word) {
-    display += guessedLetters.includes(char) ? char + " " : "_ ";
-  }
-  ctx.fillText(display.trim(), canvas.width / 2, 100);
+  // слово
+  let display = word.split("").map(ch => guessedLetters.includes(ch) ? ch : "_").join(" ");
+  ctx.fillText(display, canvas.width / 2, 100);
 
   ctx.font = "20px Arial";
-  ctx.fillText("Угаданные буквы: " + guessedLetters.join(", "), canvas.width / 2, 150);
-  ctx.fillText("Осталось попыток: " + attemptsLeft, canvas.width / 2, 180);
-
-  if (gameOver) {
-    ctx.fillStyle = attemptsLeft === 0 ? "red" : "green";
-    ctx.font = "40px Arial";
-    ctx.fillText(
-      attemptsLeft === 0 ? "Вы проиграли!" : "Вы выиграли!",
-      canvas.width / 2,
-      230
-    );
-    ctx.font = "20px Arial";
-    ctx.fillText("Слово было: " + word, canvas.width / 2, 260);
-  }
+  ctx.fillText("Осталось попыток: " + attemptsLeft, canvas.width / 2, 160);
 }
 
-// ===== Виселица =====
-function drawGallows(){
+// Виселица
+function drawGallows() {
   ctx.strokeStyle = "#333";
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(100, 250);
-  ctx.lineTo(200, 250); // основание
+  ctx.lineTo(200, 250);
   ctx.moveTo(150, 250);
-  ctx.lineTo(150, 70); // стойка
-  ctx.lineTo(250, 70); // перекладина
-  ctx.lineTo(250, 100); // веревка
+  ctx.lineTo(150, 70);
+  ctx.lineTo(250, 70);
+  ctx.lineTo(250, 100);
   ctx.stroke();
 }
 
-// ===== Человечек =====
-function drawStickman(stage){
+// Человечек
+function drawStickman(stg) {
   ctx.strokeStyle = "#000";
   ctx.lineWidth = 2;
-  switch(stage){
-    case 1:
-      ctx.beginPath();
-      ctx.arc(250, 115, 15, 0, Math.PI * 2);
-      ctx.stroke();
-      break;
-    case 2:
-      drawStickman(1);
-      ctx.beginPath();
-      ctx.moveTo(250, 130);
-      ctx.lineTo(250, 180);
-      ctx.stroke();
-      break;
-    case 3:
-      drawStickman(2);
-      ctx.beginPath();
-      ctx.moveTo(250, 140);
-      ctx.lineTo(230, 160);
-      ctx.stroke();
-      break;
-    case 4:
-      drawStickman(3);
-      ctx.beginPath();
-      ctx.moveTo(250, 140);
-      ctx.lineTo(270, 160);
-      ctx.stroke();
-      break;
-    case 5:
-      drawStickman(4);
-      ctx.beginPath();
-      ctx.moveTo(250, 180);
-      ctx.lineTo(235, 210);
-      ctx.stroke();
-      break;
-    case 6:
-      drawStickman(5);
-      ctx.beginPath();
-      ctx.moveTo(250, 180);
-      ctx.lineTo(265, 210);
-      ctx.stroke();
-      break;
-  }
+
+  if (stg >= 1) { ctx.beginPath(); ctx.arc(250,115,15,0,Math.PI*2); ctx.stroke(); }
+  if (stg >= 2) { ctx.beginPath(); ctx.moveTo(250,130); ctx.lineTo(250,180); ctx.stroke(); }
+  if (stg >= 3) { ctx.beginPath(); ctx.moveTo(250,140); ctx.lineTo(230,160); ctx.stroke(); }
+  if (stg >= 4) { ctx.beginPath(); ctx.moveTo(250,140); ctx.lineTo(270,160); ctx.stroke(); }
+  if (stg >= 5) { ctx.beginPath(); ctx.moveTo(250,180); ctx.lineTo(235,210); ctx.stroke(); }
+  if (stg >= 6) { ctx.beginPath(); ctx.moveTo(250,180); ctx.lineTo(265,210); ctx.stroke(); }
 }
 
-// ===== Проверка состояния =====
-function checkGameState(){
+// ========== ПРОВЕРКА ИСХОДА ==========
+function checkGameState() {
   if (attemptsLeft <= 0) {
     gameOver = true;
-    clearInterval(gameInterval);
-    gameInterval = null;
-    disableKeyboard();
-    saveScore("hangman", Math.max(0, attemptsLeft + 1));
+    gameRunning = false;
     safeUnblock();
-  } else if (word.split("").every(char => guessedLetters.includes(char))) {
+    showMessage("Вы проиграли! Слово: " + word, "red");
+    saveScore("hangman", 0);
+  }
+  else if (word.split("").every(ch => guessedLetters.includes(ch))) {
     gameOver = true;
-    clearInterval(gameInterval);
-    gameInterval = null;
-    disableKeyboard();
-    saveScore("hangman", attemptsLeft * 10);
+    gameRunning = false;
     safeUnblock();
+    showMessage("Вы выиграли! 🎉 Слово: " + word, "green");
+    saveScore("hangman", attemptsLeft * 10);
   }
 }
 
-// ===== Управление =====
+// ========== СООБЩЕНИЕ ПОД ИГРОЙ ==========
+function showMessage(text, color="black") {
+  if (!gameResult) return;
+  gameResult.textContent = text;
+  gameResult.style.display = "block";
+  gameResult.style.color = color;
+}
+function hideMessage() {
+  if (gameResult) gameResult.style.display = "none";
+}
+
+// ========== УПРАВЛЕНИЕ ==========
 function startGame() {
-  if (!gameInterval) {
-    drawGame();
-    gameInterval = setInterval(() => {}, 1000);
-    safeBlock();
-  }
+  if (gameRunning) return;
+  restartGame();
 }
 
 function pauseGame() {
-  if (isPaused) {
-    gameInterval = setInterval(() => {}, 1000);
-    isPaused = false;
-    safeBlock();
-  } else {
-    clearInterval(gameInterval);
-    gameInterval = null;
-    isPaused = true;
-    safeUnblock();
-  }
+  gameRunning = !gameRunning;
+
+  if (gameRunning) safeBlock();
+  else safeUnblock();
 }
 
 function restartGame() {
-  clearInterval(gameInterval);
-  gameInterval = null;
+  hideMessage();
   guessedLetters = [];
   attemptsLeft = maxAttempts;
   word = getRandomWord();
   gameOver = false;
-  isPaused = false;
+  gameRunning = true;
   enableKeyboard();
-  drawGame();
   safeBlock();
-  startGame();
+  drawGame();
 }
 
-// ====== Глобальный доступ ======
+// ——— Глобальный доступ ———
 window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
 
+// ========== Обработка букв ==========
+function handleLetter(letter) {
+  if (!gameRunning || gameOver) return;
+  if (!/^[A-Z]$/.test(letter)) return;
+  if (guessedLetters.includes(letter)) return;
+
+  guessedLetters.push(letter);
+
+  const btn = document.querySelector(`.key[data-letter="${letter}"]`);
+  if (btn) btn.disabled = true;
+
+  if (!word.includes(letter)) attemptsLeft--;
+
+  checkGameState();
+  drawGame();
+}
+
 // ===== Клавиатура =====
 document.addEventListener("keydown", e => {
-  handleLetterInput(e.key.toUpperCase());
+  handleLetter(e.key.toUpperCase());
 });
 
-function handleLetterInput(letter){
-  if (gameOver || isPaused) return;
-  if (/^[A-ZА-ЯЁ]$/.test(letter) && !guessedLetters.includes(letter)) {
-    guessedLetters.push(letter);
-    const button = document.querySelector(`.key[data-letter="${letter}"]`);
-    if (button) button.disabled = true;
-
-    if (!word.includes(letter)) attemptsLeft--;
-    checkGameState();
-    drawGame();
-  }
-}
-
-function disableKeyboard(){
+function disableKeyboard() {
   document.querySelectorAll(".key").forEach(b => b.disabled = true);
 }
-function enableKeyboard(){
+function enableKeyboard() {
   document.querySelectorAll(".key").forEach(b => b.disabled = false);
 }
 
-// ===== Создаём виртуальную клавиатуру =====
-function createKeyboard(){
-  const keyboardContainer = document.createElement("div");
-  keyboardContainer.className = "keyboard";
-  keyboardContainer.style.display = "flex";
-  keyboardContainer.style.flexWrap = "wrap";
-  keyboardContainer.style.justifyContent = "center";
-  keyboardContainer.style.maxWidth = "600px";
-  keyboardContainer.style.margin = "20px auto";
+// ========== Создание виртуальной клавиатуры ВНУТРИ ИГРОВОГО БЛОКА ==========
+function createKeyboardInsideGame() {
+  const container = document.querySelector(".game-container");
+  if (!container) return;
+
+  const keyboardWrap = document.createElement("div");
+  keyboardWrap.className = "keyboard";
+  keyboardWrap.style.display = "flex";
+  keyboardWrap.style.flexWrap = "wrap";
+  keyboardWrap.style.justifyContent = "center";
+  keyboardWrap.style.maxWidth = "600px";
+  keyboardWrap.style.margin = "10px auto 0";
 
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
   letters.forEach(l => {
     const btn = document.createElement("button");
     btn.className = "key";
     btn.dataset.letter = l;
     btn.textContent = l;
-    btn.style.width = "40px";
-    btn.style.height = "40px";
-    btn.style.margin = "5px";
-    btn.style.fontSize = "18px";
-    btn.style.border = "none";
-    btn.style.background = "#ddd";
+
+    btn.style.width = "36px";
+    btn.style.height = "36px";
+    btn.style.margin = "3px";
+    btn.style.fontSize = "16px";
+    btn.style.border = "1px solid #888";
+    btn.style.background = "#eee";
     btn.style.borderRadius = "5px";
-    btn.style.cursor = "pointer";
-    btn.style.transition = "0.2s";
-    btn.addEventListener("click", () => handleLetterInput(l));
-    keyboardContainer.appendChild(btn);
+
+    btn.addEventListener("click", () => handleLetter(l));
+    keyboardWrap.appendChild(btn);
   });
 
-  document.body.appendChild(keyboardContainer);
+  container.appendChild(keyboardWrap);
 }
 
-// ===== Добавляем кнопки управления =====
-function createControls(){
-  const controls = document.createElement("div");
-  controls.className = "controls";
-  controls.style.marginTop = "20px";
-
-  const btnRestart = document.createElement("button");
-  btnRestart.textContent = "🔁 Новая игра";
-  btnRestart.onclick = restartGame;
-  btnRestart.style.margin = "5px";
-  btnRestart.style.padding = "10px 20px";
-  btnRestart.style.fontSize = "16px";
-
-  const btnPause = document.createElement("button");
-  btnPause.textContent = "⏸ Пауза";
-  btnPause.onclick = pauseGame;
-  btnPause.style.margin = "5px";
-  btnPause.style.padding = "10px 20px";
-  btnPause.style.fontSize = "16px";
-
-  controls.appendChild(btnRestart);
-  controls.appendChild(btnPause);
-  document.body.appendChild(controls);
-}
-
-// ===== Запуск =====
-createControls();
-createKeyboard();
-restartGame();
+// Инициализация
+createKeyboardInsideGame();
+drawGame();
