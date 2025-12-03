@@ -9,15 +9,24 @@ canvas.height = 400;
 let gameInterval = null;
 let isPaused = false;
 let gameRunning = false;
+let gameOver = false;
 
 // ===== Вспомогательные функции =====
 function safeBlock() { window.scrollBlock?.block(); }
 function safeUnblock() { window.scrollBlock?.unblock(); }
 
 function hideGameOverMessage() {
-    const message = document.getElementById("gameOverMessage");
-    if (message) message.style.display = "none";
+    const m = document.getElementById("gameOverMessage");
+    if (m) m.style.display = "none";
 }
+
+// ===== Прицел =====
+const crosshair = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    size: 12,
+    speed: 6
+};
 
 // ===== Цели =====
 let targets = [];
@@ -25,18 +34,18 @@ const targetWidth = 40;
 const targetHeight = 40;
 let targetSpeed = 2;
 
-// ===== Счёт =====
+// ===== Очки =====
 let score = 0;
-let gameOver = false;
 
 // ===== Эффекты попадания =====
 let hitEffects = [];
 
-// ===== Создание целей =====
+// ===== Создание цели =====
 function spawnTarget() {
-    const y = Math.random() * (canvas.height - targetHeight - 50);
+    const y = Math.random() * (canvas.height - targetHeight - 30);
     const direction = Math.random() < 0.5 ? 1 : -1;
     const x = direction === 1 ? -targetWidth : canvas.width;
+
     targets.push({
         x,
         y,
@@ -51,11 +60,11 @@ function spawnTarget() {
 function update() {
     if (gameOver) return;
 
-    // обновление целей
+    // движение целей
     targets.forEach(t => t.x += t.dx);
     targets = targets.filter(t => t.x + t.width > 0 && t.x < canvas.width);
 
-    // обновление эффектов попадания
+    // эффекты попадания
     hitEffects.forEach(e => e.alpha -= 0.05);
     hitEffects = hitEffects.filter(e => e.alpha > 0);
 }
@@ -82,7 +91,7 @@ function draw() {
     targets.forEach(t => {
         ctx.fillStyle = t.color;
         ctx.fillRect(t.x, t.y, t.width, t.height);
-        ctx.strokeStyle = "#000";
+        ctx.strokeStyle = "black";
         ctx.strokeRect(t.x, t.y, t.width, t.height);
     });
 
@@ -94,114 +103,117 @@ function draw() {
         ctx.fill();
     });
 
-    // счёт
+    // счёт на canvas
     ctx.fillStyle = "black";
     ctx.font = "20px Arial";
     ctx.fillText("Score: " + score, 10, 30);
 }
 
-// ===== Стрельба с учётом промаха =====
+// ===== Выстрел =====
 function shoot() {
     let hit = false;
+
     for (let i = targets.length - 1; i >= 0; i--) {
         const t = targets[i];
+
         if (
             crosshair.x > t.x &&
             crosshair.x < t.x + t.width &&
             crosshair.y > t.y &&
             crosshair.y < t.y + t.height
         ) {
+            // попадание
             score++;
             hitEffects.push({ x: crosshair.x, y: crosshair.y, size: 15, alpha: 1 });
             targets.splice(i, 1);
             hit = true;
         }
     }
+
     if (!hit) {
-        score = Math.max(0, score - 1); // уменьшение очков при промахе
+        score = Math.max(0, score - 1); // промах — минус очко
     }
 }
 
 // ===== Управление клавиатурой =====
 const keys = {};
+
 document.addEventListener("keydown", e => {
     keys[e.key.toLowerCase()] = true;
     if (e.code === "Space") shoot();
 });
+
 document.addEventListener("keyup", e => {
     keys[e.key.toLowerCase()] = false;
 });
 
 // ===== Движение прицела =====
 function moveCrosshair() {
-    if (keys['w'] || keys['ц']) crosshair.y -= crosshair.speed;
-    if (keys['s'] || keys['ы']) crosshair.y += crosshair.speed;
-    if (keys['a'] || keys['ф']) crosshair.x -= crosshair.speed;
-    if (keys['d'] || keys['в']) crosshair.x += crosshair.speed;
+    if (keys["w"] || keys["ц"]) crosshair.y -= crosshair.speed;
+    if (keys["s"] || keys["ы"]) crosshair.y += crosshair.speed;
+    if (keys["a"] || keys["ф"]) crosshair.x -= crosshair.speed;
+    if (keys["d"] || keys["в"]) crosshair.x += crosshair.speed;
 
-    // ограничения, чтобы прицел не выходил за экран
+    // ограничения
     crosshair.x = Math.max(crosshair.size, Math.min(canvas.width - crosshair.size, crosshair.x));
     crosshair.y = Math.max(crosshair.size, Math.min(canvas.height - crosshair.size, crosshair.y));
 }
 
 // ===== Основной цикл =====
 let frameCount = 0;
+
 function gameLoop() {
     frameCount++;
-    if (frameCount % 50 === 0) spawnTarget(); // чаще спавн
+    if (frameCount % 50 === 0) spawnTarget(); // частый спавн
+
     moveCrosshair();
     update();
     draw();
 }
 
-// ===== Управление игрой =====
+// ===== Управление — старт/пауза/рестарт =====
 function startGame() {
     hideGameOverMessage();
+
     if (gameInterval && !isPaused) return;
 
-    if (isPaused) {
-        gameInterval = setInterval(gameLoop, 30);
-        isPaused = false;
-        gameRunning = true;
-        safeBlock();
-        return;
-    }
+    gameRunning = true;
+    gameOver = false;
+    isPaused = false;
 
-    if (!gameInterval) {
-        gameInterval = setInterval(gameLoop, 30);
-        gameRunning = true;
-        gameOver = false;
-        safeBlock();
-    }
+    clearInterval(gameInterval);
+    gameInterval = setInterval(gameLoop, 30);
+    safeBlock();
 }
 
 function pauseGame() {
+    if (!gameInterval) return;
+
     if (isPaused) {
-        gameInterval = setInterval(gameLoop, 30);
-        isPaused = false;
-        gameRunning = true;
-        safeBlock();
-    } else {
-        clearInterval(gameInterval);
-        gameInterval = null;
-        isPaused = true;
-        gameRunning = false;
-        safeUnblock();
+        startGame();
+        return;
     }
+
+    clearInterval(gameInterval);
+    gameInterval = null;
+    isPaused = true;
+    safeUnblock();
 }
 
 function restartGame() {
     clearInterval(gameInterval);
     gameInterval = null;
+
     isPaused = false;
+    gameRunning = false;
+    gameOver = false;
+
     score = 0;
     targets = [];
     hitEffects = [];
     frameCount = 0;
-    gameOver = false;
-    gameRunning = false;
+
     hideGameOverMessage();
-    safeBlock();
     startGame();
 }
 
@@ -209,24 +221,20 @@ function restartGame() {
 function endGame() {
     clearInterval(gameInterval);
     gameInterval = null;
+
+    gameOver = true;
     isPaused = false;
     gameRunning = false;
-    gameOver = true;
-    
+
+    saveScore("shootingGallery", score);
+
     const message = document.getElementById("gameOverMessage");
     if (message) {
-        message.textContent = "Игра завершена! Очки: " + score;
+        message.textContent = "Игра окончена! Очки: " + score;
         message.style.display = "block";
     }
-    
-    saveScore("shootingGallery", score);
-    safeUnblock();
-}
 
-// ===== Пример функции загрузки очков =====
-function uploadScore(finalScore) {
-    console.log("Отправка очков на сервер: " + finalScore);
-    // fetch('/upload', { method: 'POST', body: JSON.stringify({ score: finalScore }) });
+    safeUnblock();
 }
 
 // ===== Глобальный доступ =====
