@@ -120,63 +120,45 @@ var GameEngine = function(canvasSelector, scoreSelector) {
       }
     };
 
-    /* Basic engine functions */
-    var Load = function() {
-      engine.canvas.width = Math.max(document.documentElement.clientWidth, window.innerWidth || w);
-      engine.canvas.height = Math.max(document.documentElement.clientHeight, window.innerHeight || h)-48;
+    engine.Load = function () {
+    this.canvas.width = this.canvas.clientWidth;
+    this.canvas.height = this.canvas.clientHeight;
 
-      for (var i = 0; i < engine.objects.length; i++) {
-        engine.objects[i].Start();
-      }
-      
-      // ИНИЦИАЛИЗАЦИЯ ЦВЕТА (чтобы избежать undefined)
-      if (engine.color === "") {
-        ChangeGameColor(1); // Устанавливаем красный цвет при загрузке
-      }
-    };
-    var Update = function() {
-      var prevScore = engine.score;
+    for (let obj of this.objects) obj.Start();
 
-      // Clear canvas
-      // Установка фона канваса в белый
-      engine.context.fillStyle = "#FFF"; 
-      engine.context.fillRect(0, 0, engine.canvas.width, engine.canvas.height);
+    if (!this.color) ChangeGameColor(1);
+};
 
-      // Delete unused objects
-      for (var i = 0; i < engine.objects.length; i++) {
-        if (engine.objects[i].delete) {
-          engine.objects.splice(i, 1);
-        }
-      }
+engine.Update = function () {
 
-      // Update objects
-      for (var j = 0; j < engine.objects.length; j++) {
-        engine.objects[j].Update();
-        engine.objects[j].Draw(engine.context);
-      }
+    if (window.gamePaused) {
+        requestAnimFrame(() => this.Update());
+        return;
+    }
 
-      // Update score (в верхнем левом углу)
-      if (scr) { // Проверяем, существует ли элемент для счета
-        // Вместо innerHTML, просто выводим счет
-        // scr.innerHTML = engine.score;
-        // Добавляем вывод счета в верхний левый угол канваса для контроля
-        engine.context.font = "20px Arial";
-        engine.context.fillStyle = "#F00"; // Красный цвет текста
-        engine.context.fillText("Score: " + engine.score, 10, 30);
-      } else if (engine.score > prevScore) {
-         // Если scr существует, обновляем его (как было в оригинале, но его расположение задается HTML/CSS)
-         // Мы оставляем только scr.innerHTML = engine.score; если элемент существует
-         scr.innerHTML = engine.score;
-      }
+    let ctx = this.context;
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
+    this.objects = this.objects.filter(o => !o.delete);
 
-      // Game loop
-      window.requestAnimFrame(Update);
-    };
-    engine.Run = function() {
-      Load();
-      Update();
-    };
+    for (let obj of this.objects) {
+        obj.Update();
+        obj.Draw(ctx);
+    }
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "20px Arial";
+    ctx.fillText("Score: " + this.score, 10, 30);
+
+    requestAnimFrame(() => this.Update());
+};
+
+engine.Run = function () {
+    this.Load();
+    this.Update();
+};
+
 
     return engine;
 };
@@ -553,51 +535,6 @@ ChangeGameColor(1);
 /* Флаги управления */
 let gameRunning = false;
 let gamePaused = false;
-
-/* Исправленный Load() — больше НЕ растягивает canvas */
-game.Load = function () {
-    this.canvas.width = this.canvas.clientWidth;
-    this.canvas.height = this.canvas.clientHeight;
-
-    for (let obj of this.objects) obj.Start();
-
-    if (!this.color) ChangeGameColor(1);
-};
-
-/* Исправленный Update() — уважает паузу */
-game.Update = function () {
-
-    if (gamePaused) {
-        requestAnimFrame(() => this.Update());
-        return;
-    }
-
-    let ctx = this.context;
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-    // удаляем ненужные объекты
-    this.objects = this.objects.filter(o => !o.delete);
-
-    // обновление
-    for (let obj of this.objects) {
-        obj.Update();
-        obj.Draw(ctx);
-    }
-
-    // отображение очков
-    ctx.fillStyle = "#fff";
-    ctx.font = "20px Arial";
-    ctx.fillText("Score: " + this.score, 10, 30);
-
-    requestAnimFrame(() => this.Update());
-};
-
-/* Правильный запуск игры */
-game.Run = function () {
-    this.Load();
-    this.Update();
-};
 
 /* Корабль */
 var ship = new Polygon({
