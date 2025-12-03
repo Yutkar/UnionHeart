@@ -249,3 +249,72 @@ footer a:hover {
   font-size: 13px;
   margin-left: 8px;
 }
+
+/* Hangman keyboard styles */
+.hangman-keyboard {
+  box-sizing: border-box;
+  margin: 8px auto 0;
+  padding: 8px;
+  width: 100%;
+  max-width: 620px; /* aligns with canvas width 600 + padding */
+  display: grid;
+  grid-template-columns: repeat(10, 1fr); /* will be overridden by rows */
+  gap: 8px;
+  justify-items: center;
+  background: transparent;
+}
+
+/* Use rows container inside for nicer control */
+.hangman-keyboard .row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Button common */
+.hangman-keyboard button.key-btn {
+  min-width: 40px;
+  height: 44px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: linear-gradient(180deg,#ffffff,#f2f2f2);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.03), inset 0 -1px 0 rgba(0,0,0,0.02);
+  font-weight: 600;
+  font-size: 16px;
+  color: #111;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .08s ease, background .12s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* pressed/active state */
+.hangman-keyboard button.key-btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: none;
+}
+
+/* disabled state */
+.hangman-keyboard button.key-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+}
+
+/* controls row (start/pause/restart) */
+.hangman-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* smaller screens */
+@media (max-width: 520px) {
+  .hangman-keyboard .row { gap: 6px; }
+  .hangman-keyboard button.key-btn { min-width: 32px; height: 38px; font-size: 14px; border-radius:6px; }
+  .hangman-keyboard { padding: 6px; gap: 6px; }
+}
