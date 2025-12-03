@@ -165,77 +165,57 @@ import { saveScore } from "../../scores.js";
 
   // keyboard
   function createKeyboardInsideContainer() {
-  // remove existing keyboard
+  // remove existing
   const existing = container.querySelector(".hangman-keyboard");
   if (existing) existing.remove();
 
   keyboardContainer = document.createElement("div");
   keyboardContainer.className = "hangman-keyboard";
+  keyboardContainer.style.display = "flex";
+  keyboardContainer.style.flexWrap = "wrap";
+  keyboardContainer.style.justifyContent = "center";
+  keyboardContainer.style.gap = "6px";
+  keyboardContainer.style.maxWidth = canvas.width + "px";
+  keyboardContainer.style.margin = "10px auto 0";
+  keyboardContainer.style.padding = "10px 5px";
+  keyboardContainer.style.background = "transparent";
 
-  // rows for English layout (QWERTY-like). If you want straight A-Z, use single row.
-  const rows = [
-    ["Q","W","E","R","T","Y","U","I","O","P"],
-    ["A","S","D","F","G","H","J","K","L"],
-    ["Z","X","C","V","B","N","M"]
+  // English letters (split into 3 even rows)
+  const letters = [
+    "A","B","C","D","E","F","G","H","I",
+    "J","K","L","M","N","O","P","Q","R",
+    "S","T","U","V","W","X","Y","Z"
   ];
 
-  rows.forEach(rowArr => {
-    const row = document.createElement("div");
-    row.className = "row";
-    rowArr.forEach(ch => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "key-btn";
-      b.dataset.letter = ch;
-      b.textContent = ch;
-      b.addEventListener("click", () => handleLetter(ch));
-      row.appendChild(b);
-    });
-    keyboardContainer.appendChild(row);
+  letters.forEach(ch => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.dataset.letter = ch;
+    b.textContent = ch;
+    b.className = "key-btn";
+
+    b.style.width = "40px";
+    b.style.height = "40px";
+    b.style.fontSize = "18px";
+    b.style.fontWeight = "600";
+    b.style.borderRadius = "6px";
+    b.style.border = "1px solid #aaa";
+    b.style.background = "#ffffff";
+    b.style.cursor = "pointer";
+    b.style.transition = "0.1s";
+
+    b.onmousedown = () => (b.style.transform = "scale(0.92)");
+    b.onmouseup = () => (b.style.transform = "scale(1)");
+    b.onmouseleave = () => (b.style.transform = "scale(1)");
+
+    b.addEventListener("click", () => handleLetter(ch));
+
+    keyboardContainer.appendChild(b);
   });
 
-  // optional: add controls row under keyboard if page doesn't have buttons
-  const startBtnExists = !!document.getElementById("startBtn");
-  const pauseBtnExists = !!document.getElementById("pauseBtn");
-  const restartBtnExists = !!document.getElementById("restartBtn");
-
-  if (!startBtnExists && !pauseBtnExists && !restartBtnExists) {
-    const ctrlRow = document.createElement("div");
-    ctrlRow.className = "hangman-controls";
-
-    const s = document.createElement("button");
-    s.type = "button";
-    s.className = "key-btn";
-    s.textContent = "Start";
-    s.addEventListener("click", startGame);
-
-    const p = document.createElement("button");
-    p.type = "button";
-    p.className = "key-btn";
-    p.textContent = "Pause";
-    p.addEventListener("click", togglePause);
-
-    const r = document.createElement("button");
-    r.type = "button";
-    r.className = "key-btn";
-    r.textContent = "Restart";
-    r.addEventListener("click", restartGame);
-
-    ctrlRow.appendChild(s);
-    ctrlRow.appendChild(p);
-    ctrlRow.appendChild(r);
-    keyboardContainer.appendChild(ctrlRow);
-  }
-
-  // append keyboard right after canvas (keeps layout predictable)
   canvas.insertAdjacentElement("afterend", keyboardContainer);
-
-  // small helper: set pointer-events and focus behavior
-  keyboardContainer.addEventListener("touchstart", e => {
-    // prevent page scroll when tapping keys
-    e.preventDefault();
-  }, { passive: false });
 }
+
 
 
   function enableKeyboardUI(){
