@@ -9,6 +9,16 @@ canvas.height = 600;
 let gameInterval = null;
 let isPaused = false;
 
+// === Текст под игрой ===
+const statusText = document.createElement("div");
+statusText.style.textAlign = "center";
+statusText.style.fontSize = "26px";
+statusText.style.fontFamily = "Arial";
+statusText.style.marginTop = "10px";
+statusText.style.color = "red";
+statusText.textContent = ""; // пусто при старте
+canvas.after(statusText);
+
 // Игрок
 const player = {
     x: canvas.width / 2 - 20,
@@ -27,7 +37,6 @@ let enemies = [];
 const enemyWidth = 30;
 const enemyHeight = 30;
 let enemySpeed = 1;
-let frameCount = 0;
 
 // Вражеские пули
 let enemyBullets = [];
@@ -103,14 +112,13 @@ function enemyShoot(e) {
 
 function update() {
     if (gameOver) return;
-    frameCount++;
 
     // Движение игрока
     player.x += player.dx;
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
 
-    // Движение снарядов игрока
+    // Движение пуль игрока
     bullets.forEach(b => b.y -= 7);
     bullets = bullets.filter(b => b.y > 0);
 
@@ -121,7 +129,6 @@ function update() {
         if (e.x + e.width > canvas.width || e.x < 0) e.dx *= -1;
         e.y += 0.2;
 
-        // Враги стреляют
         e.shootCooldown--;
         if (e.shootCooldown <= 0) {
             enemyShoot(e);
@@ -133,7 +140,7 @@ function update() {
     enemyBullets.forEach(b => b.y += b.dy);
     enemyBullets = enemyBullets.filter(b => b.y < canvas.height);
 
-    // Проверка попаданий по врагам
+    // Попадание по врагам
     bullets.forEach((b, bi) => {
         enemies.forEach(e => {
             if (e.alive &&
@@ -141,6 +148,7 @@ function update() {
                 b.x + b.width > e.x &&
                 b.y < e.y + e.height &&
                 b.y + b.height > e.y) {
+
                 e.alive = false;
                 bullets.splice(bi, 1);
                 score += 10;
@@ -148,22 +156,25 @@ function update() {
         });
     });
 
-    // Проверка попаданий по игроку
+    // Попадание по игроку
     enemyBullets.forEach((b, bi) => {
         if (b.x < player.x + player.width &&
             b.x + b.width > player.x &&
             b.y < player.y + player.height &&
             b.y + b.height > player.y) {
+
             enemyBullets.splice(bi, 1);
             player.lives--;
+
             if (player.lives <= 0) {
                 gameOver = true;
                 saveScore("galaga", score);
+                statusText.textContent = "GAME OVER";
             }
         }
     });
 
-    // Проверка конца волны
+    // Волна пройдена
     if (enemies.every(e => !e.alive)) {
         createEnemies();
         enemySpeed += 0.3;
@@ -179,7 +190,7 @@ function draw() {
     ctx.shadowBlur = 10;
     ctx.fillRect(player.x, player.y, player.width, player.height);
 
-    // Снаряды игрока
+    // Пули игрока
     ctx.shadowBlur = 0;
     ctx.fillStyle = "yellow";
     bullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
@@ -204,16 +215,9 @@ function draw() {
     ctx.font = "20px Arial";
     ctx.fillText("Score: " + score, 10, 30);
     ctx.fillText("Lives: " + player.lives, canvas.width - 100, 30);
-
-    // Game Over
-    if (gameOver) {
-        ctx.fillStyle = "red";
-        ctx.font = "40px Arial";
-        ctx.fillText("GAME OVER", canvas.width / 2 - 120, canvas.height / 2);
-    }
 }
 
-// ===== Основной цикл =====
+// ===== Game Loop =====
 function gameLoop() {
     update();
     draw();
@@ -221,6 +225,7 @@ function gameLoop() {
 
 // ===== Управление игрой =====
 function startGame() {
+    statusText.textContent = ""; // убрать текст
     if (!gameInterval) {
         gameOver = false;
         player.lives = 3;
@@ -243,6 +248,9 @@ function restartGame() {
     clearInterval(gameInterval);
     gameInterval = null;
     isPaused = false;
+
+    statusText.textContent = ""; // убрать текст
+
     saveScore("galaga", score);
     score = 0;
     bullets = [];
@@ -253,10 +261,11 @@ function restartGame() {
     player.lives = 3;
     createEnemies();
     gameOver = false;
+
     startGame();
 }
 
-// ===== Глобальный доступ =====
+// Глобальный доступ
 window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
