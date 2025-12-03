@@ -18,6 +18,7 @@ let frameCount = 0;
 let isPaused = false;
 let gameRunning = false;
 
+// блокировка скролла
 function safeBlock() { window.scrollBlock?.block(); }
 function safeUnblock() { window.scrollBlock?.unblock(); }
 
@@ -29,28 +30,36 @@ function spawnObstacle() {
     if (r < 0.4) {
         obstacle = { x: canvas.width, y: canvas.height - 40, width: 40, height: 40, type: "stone" };
     } else if (r < 0.8) {
-        obstacle = { x: canvas.width, y: canvas.height - 35, width: 50, height: 35, type: "grass" };
+        obstacle = { x: canvas.width, y: canvas.height - 35, width: 60, height: 35, type: "grass" };
     } else {
-        obstacle = { x: canvas.width, y: 50 + Math.random() * 50, width: 50, height: 40, type: "eagle" };
+        obstacle = { x: canvas.width, y: 40 + Math.random() * 50, width: 50, height: 30, type: "eagle" };
     }
 
     obstacles.push(obstacle);
 }
 
-// ---------- РИСОВАНИЕ ОБЪЕКТОВ ----------
+// ---------- ОТРИСОВКА ОБЪЕКТОВ ----------
 function drawPlayer() {
-    ctx.fillStyle = "white";
+    // тело
+    ctx.fillStyle = "#ffffff";
     ctx.beginPath();
-    ctx.arc(player.x + 20, player.y + 20, 20, 0, Math.PI * 2);
+    ctx.arc(player.x + 20, player.y + 20, 18, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = "pink";
-    ctx.fillRect(player.x + 12, player.y + 5, 8, 20);
-    ctx.fillRect(player.x + 22, player.y + 5, 8, 20);
+    // уши
+    ctx.fillStyle = "#ffb0d0";
+    ctx.fillRect(player.x + 12, player.y - 5, 6, 18);
+    ctx.fillRect(player.x + 22, player.y - 5, 6, 18);
+
+    // глаз
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.arc(player.x + 27, player.y + 18, 3, 0, Math.PI * 2);
+    ctx.fill();
 }
 
 function drawStone(o) {
-    ctx.fillStyle = "#555";
+    ctx.fillStyle = "#444";
     ctx.beginPath();
     ctx.moveTo(o.x, o.y + o.height);
     ctx.lineTo(o.x + o.width, o.y + o.height);
@@ -61,7 +70,7 @@ function drawStone(o) {
 }
 
 function drawGrass(o) {
-    ctx.fillStyle = "#2ecc71";
+    ctx.fillStyle = "#3ad13a";
     ctx.beginPath();
     ctx.moveTo(o.x, o.y + o.height);
     ctx.lineTo(o.x + o.width, o.y + o.height);
@@ -69,16 +78,34 @@ function drawGrass(o) {
     ctx.lineTo(o.x + o.width * 0.2, o.y);
     ctx.closePath();
     ctx.fill();
+
+    // травинки
+    ctx.fillStyle = "#2faa2f";
+    for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.moveTo(o.x + i * (o.width / 4), o.y + o.height);
+        ctx.lineTo(o.x + i * (o.width / 4) + 4, o.y + o.height - 10);
+        ctx.lineTo(o.x + i * (o.width / 4) + 8, o.y + o.height);
+        ctx.fill();
+    }
 }
 
 function drawEagle(o) {
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.moveTo(o.x, o.y + o.height * 0.5);
-    ctx.lineTo(o.x + o.width * 0.5, o.y);
-    ctx.lineTo(o.x + o.width, o.y + o.height * 0.5);
-    ctx.lineTo(o.x + o.width * 0.5, o.y + o.height);
+    ctx.moveTo(o.x, o.y + o.height / 2);
+    ctx.lineTo(o.x + o.width / 2, o.y);
+    ctx.lineTo(o.x + o.width, o.y + o.height / 2);
+    ctx.lineTo(o.x + o.width / 2, o.y + o.height);
     ctx.closePath();
+    ctx.fill();
+
+    // клюв
+    ctx.fillStyle = "yellow";
+    ctx.beginPath();
+    ctx.moveTo(o.x + o.width / 2, o.y + o.height / 2);
+    ctx.lineTo(o.x + o.width / 2 + 8, o.y + o.height / 2 + 3);
+    ctx.lineTo(o.x + o.width / 2, o.y + o.height / 2 + 6);
     ctx.fill();
 }
 
@@ -86,6 +113,7 @@ function drawEagle(o) {
 function update() {
     if (!gameRunning || isPaused) return;
 
+    // физика прыжка
     player.dy += GRAVITY;
     player.y += player.dy;
 
@@ -95,9 +123,11 @@ function update() {
         player.jumping = false;
     }
 
+    // движение препятствий
     obstacles.forEach(o => o.x -= speed);
     obstacles = obstacles.filter(o => o.x + o.width > 0);
 
+    // столкновения
     for (let o of obstacles) {
         if (
             player.x < o.x + o.width &&
@@ -131,7 +161,7 @@ function draw() {
 
     ctx.fillStyle = "black";
     ctx.font = "20px Arial";
-    ctx.fillText("Score: " + score, 10, 30);
+    ctx.fillText("Очки: " + score, 10, 28);
 }
 
 // ---------- ЛУП ----------
@@ -169,12 +199,12 @@ function resetGame() {
     player.dy = 0;
     player.jumping = false;
 
-    isPaused = false;
-    gameRunning = false;
-
     speed = 5;
     score = 0;
     frameCount = 0;
+
+    isPaused = false;
+    gameRunning = false;
 
     const msg = document.getElementById("gameOverMessage");
     if (msg) msg.style.display = "none";
@@ -185,6 +215,7 @@ function resetGame() {
 // ---------- УПРАВЛЕНИЕ ----------
 function startGame() {
     if (!gameRunning) {
+        resetGame();
         gameRunning = true;
         isPaused = false;
         safeBlock();
@@ -225,5 +256,5 @@ window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
 
-// ---------- ПЕРВЫЙ РИСУНОК ----------
+// ---------- ПЕРВЫЙ КАДР ----------
 draw();
