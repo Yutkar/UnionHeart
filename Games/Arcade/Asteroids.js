@@ -400,7 +400,7 @@ function spawnAsteroids(count = 4) {
 }
 
 /* ---------- AUTO-SPAWN ASTEROIDS OVER TIME ---------- */
-let nextAsteroidTime = Date.now() + 7000; // first spawn after 7 sec
+let nextAsteroidTime = Date.now() + 70; // first spawn after 7 sec
 
 function autoSpawnAsteroids() {
     if (!gameRunning || gamePaused || window.gameOver) return;
