@@ -1,3 +1,6 @@
+import { saveScore } from "../../scores.js";
+
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -184,6 +187,10 @@ function gameOver() {
     gameRunning = false;
     isPaused = false;
     safeUnblock();
+
+    // Сохранение очков в Firebase
+    saveScore("runnerGameAnimals", score);
+
 
     const msg = document.getElementById("gameOverMessage");
     if (msg) {
