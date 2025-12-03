@@ -1,215 +1,319 @@
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-canvas.width = 600;
-canvas.height = 300;
+// hangmanEnglish.js
+import { saveScore } from "../../scores.js";
 
-const gameResult = document.getElementById("gameOverMessage");
-const gameContainer = document.querySelector(".game-container");
+(function(){
+  // DOM
+  const canvas = document.getElementById("game");
+  if (!canvas) throw new Error("Canvas #game not found");
+  const container = canvas.closest(".game-container") || document.body;
+  const gameOverEl = document.getElementById("gameOverMessage");
 
-let keyboardLayer;
+  const ctx = canvas.getContext("2d");
+  canvas.width = 600;
+  canvas.height = 300;
 
-const wordCategories = {
-    food: ["PIZZA", "BURGER", "SUSHI", "PASTA", "APPLE", "BANANA", "CHOCOLATE", "BREAD", "SALAD", "STEAK"],
-    school: ["BOOK", "PENCIL", "NOTEBOOK", "TEACHER", "CLASSROOM", "EXAM", "STUDENT", "UNIVERSITY", "LABORATORY", "PROJECT"],
-    animals: ["ELEPHANT", "TIGER", "DOG", "CAT", "MONKEY", "KANGAROO", "LION", "GIRAFFE", "PENGUIN", "DOLPHIN"],
-    tech: ["COMPUTER", "KEYBOARD", "INTERNET", "SOFTWARE", "PROGRAMMING", "ROBOT", "SMARTPHONE", "NETWORK", "APPLICATION", "DATABASE"],
-    countries: ["CANADA", "FRANCE", "BRAZIL", "JAPAN", "CHINA", "AUSTRALIA", "EGYPT", "RUSSIA", "INDIA", "SPAIN"]
-};
+  // English word categories
+  const wordCategories = {
+    food: ["PIZZA","BURGER","SUSHI","PASTA","APPLE","BANANA","STEAK","SALAD","BREAD","CHOCOLATE"],
+    school: ["BOOK","PENCIL","NOTEBOOK","TEACHER","CLASSROOM","STUDENT","UNIVERSITY","PROJECT","EXAM","LAB"],
+    animals: ["ELEPHANT","TIGER","DOG","CAT","MONKEY","KANGAROO","LION","GIRAFFE","PENGUIN","DOLPHIN"],
+    tech: ["COMPUTER","KEYBOARD","INTERNET","PROGRAM","ROBOT","PHONE","NETWORK","SOFTWARE","DATABASE","PROCESSOR"],
+    countries: ["USA","CANADA","FRANCE","BRAZIL","JAPAN","CHINA","AUSTRALIA","EGYPT","INDIA","SPAIN"]
+  };
 
-let word = "";
-let guessedLetters = [];
-let maxAttempts = 6;
-let attemptsLeft = maxAttempts;
-let gameRunning = false;
-let gameOver = false;
+  // state
+  let word = "";
+  let guessedLetters = [];
+  const maxAttempts = 6;
+  let attemptsLeft = maxAttempts;
+  let gameRunning = false;
+  let isPaused = false;
+  let gameOver = false;
 
-function safeBlock() { window.scrollBlock?.block(); }
-function safeUnblock() { window.scrollBlock?.unblock(); }
+  // keyboard
+  let keyboardContainer = null;
 
-function getRandomWord() {
+  // utils
+  function safeBlock(){ window.scrollBlock?.block(); }
+  function safeUnblock(){ window.scrollBlock?.unblock(); }
+
+  function getRandomWord(){
     const keys = Object.keys(wordCategories);
-    const cat = keys[Math.floor(Math.random() * keys.length)];
-    const list = wordCategories[cat];
-    return list[Math.floor(Math.random() * list.length)];
-}
+    const cat = keys[Math.floor(Math.random()*keys.length)];
+    return wordCategories[cat][Math.floor(Math.random()*wordCategories[cat].length)];
+  }
 
-// ===================== РИСОВАНИЕ =====================
-function drawGame() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // drawing
+  function clearCanvas(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = "#f6f6f6";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+  }
 
-    ctx.fillStyle = "#f0f0f0";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    drawGallows();
-    drawStickman(maxAttempts - attemptsLeft);
-
-    ctx.fillStyle = "black";
-    ctx.font = "30px Arial";
-    ctx.textAlign = "center";
-
-    const display = word.split("").map(ch => guessedLetters.includes(ch) ? ch : "_").join(" ");
-    ctx.fillText(display, canvas.width / 2, 90);
-
-    ctx.font = "20px Arial";
-    ctx.fillText("Осталось попыток: " + attemptsLeft, canvas.width / 2, 130);
-}
-
-function drawGallows() {
+  function drawGallows(){
     ctx.strokeStyle = "#333";
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(100, 250); ctx.lineTo(200, 250);
-    ctx.moveTo(150, 250); ctx.lineTo(150, 70); ctx.lineTo(250, 70); ctx.lineTo(250, 100);
+    ctx.moveTo(100, 250);
+    ctx.lineTo(200, 250);
+    ctx.moveTo(150, 250);
+    ctx.lineTo(150, 70);
+    ctx.lineTo(250, 70);
+    ctx.lineTo(250, 100);
     ctx.stroke();
-}
+  }
 
-function drawStickman(stage) {
+  function drawStickman(stage){
     ctx.strokeStyle = "#000";
     ctx.lineWidth = 2;
-
-    if (stage >= 1) { ctx.beginPath(); ctx.arc(250, 115, 15, 0, Math.PI * 2); ctx.stroke(); }
-    if (stage >= 2) { ctx.beginPath(); ctx.moveTo(250, 130); ctx.lineTo(250, 180); ctx.stroke(); }
-    if (stage >= 3) { ctx.beginPath(); ctx.moveTo(250, 140); ctx.lineTo(230, 160); ctx.stroke(); }
-    if (stage >= 4) { ctx.beginPath(); ctx.moveTo(250, 140); ctx.lineTo(270, 160); ctx.stroke(); }
-    if (stage >= 5) { ctx.beginPath(); ctx.moveTo(250, 180); ctx.lineTo(235, 210); ctx.stroke(); }
-    if (stage >= 6) { ctx.beginPath(); ctx.moveTo(250, 180); ctx.lineTo(265, 210); ctx.stroke(); }
-}
-
-// ===================== СТАТУС ИГРЫ =====================
-function showMessage(text, color = "black") {
-    gameResult.textContent = text;
-    gameResult.style.color = color;
-    gameResult.style.display = "block";
-}
-
-function hideMessage() {
-    gameResult.style.display = "none";
-}
-
-function checkState() {
-    if (attemptsLeft <= 0) {
-        gameOver = true;
-        gameRunning = false;
-        showMessage("Вы проиграли! Слово: " + word, "red");
-        safeUnblock();
-        disableKeyboard();
-        return;
+    if (stage >= 1){
+      ctx.beginPath();
+      ctx.arc(250,115,15,0,Math.PI*2);
+      ctx.stroke();
     }
-
-    if (word.split("").every(ch => guessedLetters.includes(ch))) {
-        gameOver = true;
-        gameRunning = false;
-        showMessage("Вы выиграли! 🎉 Слово: " + word, "green");
-        safeUnblock();
-        disableKeyboard();
+    if (stage >= 2){
+      ctx.beginPath();
+      ctx.moveTo(250,130);
+      ctx.lineTo(250,180);
+      ctx.stroke();
     }
-}
+    if (stage >= 3){
+      ctx.beginPath();
+      ctx.moveTo(250,140);
+      ctx.lineTo(230,160);
+      ctx.stroke();
+    }
+    if (stage >= 4){
+      ctx.beginPath();
+      ctx.moveTo(250,140);
+      ctx.lineTo(270,160);
+      ctx.stroke();
+    }
+    if (stage >= 5){
+      ctx.beginPath();
+      ctx.moveTo(250,180);
+      ctx.lineTo(235,210);
+      ctx.stroke();
+    }
+    if (stage >= 6){
+      ctx.beginPath();
+      ctx.moveTo(250,180);
+      ctx.lineTo(265,210);
+      ctx.stroke();
+    }
+  }
 
-// ===================== УПРАВЛЕНИЕ =====================
-function startGame() {
-    if (gameRunning) return;
-    restartGame();
-}
+  function drawWordAndUI(){
+    clearCanvas();
+    drawGallows();
+    const stage = Math.min(maxAttempts, maxAttempts - attemptsLeft);
+    drawStickman(stage);
 
-function pauseGame() {
-    gameRunning = !gameRunning;
-    if (gameRunning) safeBlock(); else safeUnblock();
-}
+    ctx.fillStyle = "#111";
+    ctx.font = "26px Arial";
+    ctx.textAlign = "center";
 
-function restartGame() {
-    guessedLetters = [];
-    attemptsLeft = maxAttempts;
-    word = getRandomWord();
-    gameOver = false;
-    gameRunning = true;
-    hideMessage();
+    let display = "";
+    for (let ch of word){
+      display += (guessedLetters.includes(ch) ? ch : "_") + " ";
+    }
+    ctx.fillText(display.trim(), canvas.width/2, 100);
 
-    createKeyboard();
-    enableKeyboard();
+    ctx.font = "16px Arial";
+    ctx.fillText("Guessed: " + (guessedLetters.length ? guessedLetters.join(", ") : "—"), canvas.width/2, 140);
+    ctx.fillText("Attempts left: " + attemptsLeft, canvas.width/2, 170);
 
-    safeBlock();
-    drawGame();
-}
+    if (gameOver){
+      ctx.font = "34px Arial";
+      ctx.fillStyle = attemptsLeft > 0 ? "green" : "red";
+      ctx.fillText(attemptsLeft > 0 ? "You Win!" : "You Lose!", canvas.width/2, 220);
+      ctx.font = "18px Arial";
+      ctx.fillStyle = "#000";
+      ctx.fillText("Word: " + word, canvas.width/2, 250);
+    }
+  }
 
-window.startGame = startGame;
-window.pauseGame = pauseGame;
-window.restartGame = restartGame;
+  // game logic
+  function checkGameState(){
+    if (attemptsLeft <= 0){
+      endGame(false);
+      return;
+    }
+    const solved = Array.from(word).every(ch => guessedLetters.includes(ch));
+    if (solved){
+      endGame(true);
+    }
+  }
 
-// ===================== ОБРАБОТКА БУКВ =====================
-document.addEventListener("keydown", e => {
-    handleLetter(e.key.toUpperCase());
-});
-
-function handleLetter(letter) {
-    if (!gameRunning || gameOver) return;
+  function handleLetter(letter){
+    if (!gameRunning || gameOver || isPaused) return;
+    letter = letter.toUpperCase();
     if (!/^[A-Z]$/.test(letter)) return;
     if (guessedLetters.includes(letter)) return;
 
     guessedLetters.push(letter);
 
-    const btn = document.querySelector(`.key[data-letter="${letter}"]`);
+    const btn = keyboardContainer?.querySelector(`button[data-letter="${letter}"]`);
     if (btn) btn.disabled = true;
 
-    if (!word.includes(letter)) attemptsLeft--;
+    if (!word.includes(letter)){
+      attemptsLeft = Math.max(0, attemptsLeft - 1);
+    }
+    drawWordAndUI();
+    checkGameState();
+  }
 
-    checkState();
-    drawGame();
-}
+  // keyboard
+  function createKeyboardInsideContainer(){
+    const existing = container.querySelector(".hangman-keyboard");
+    if (existing) existing.remove();
 
-function enableKeyboard() {
-    document.querySelectorAll(".key").forEach(b => b.disabled = false);
-}
-
-function disableKeyboard() {
-    document.querySelectorAll(".key").forEach(b => b.disabled = true);
-}
-
-// ===================== ВИРТУАЛЬНАЯ КЛАВИАТУРА =====================
-function createKeyboard() {
-    if (keyboardLayer) keyboardLayer.remove();
-
-    keyboardLayer = document.createElement("div");
-    keyboardLayer.className = "keyboard-layer";
-
-    keyboardLayer.style.position = "absolute";
-    keyboardLayer.style.left = "0";
-    keyboardLayer.style.bottom = "0";
-    keyboardLayer.style.width = "100%";
-    keyboardLayer.style.height = "120px";
-    keyboardLayer.style.display = "flex";
-    keyboardLayer.style.flexWrap = "wrap";
-    keyboardLayer.style.justifyContent = "center";
-    keyboardLayer.style.alignItems = "center";
-    keyboardLayer.style.padding = "5px";
-    keyboardLayer.style.background = "rgba(255,255,255,0.8)";
-    keyboardLayer.style.backdropFilter = "blur(4px)";
+    keyboardContainer = document.createElement("div");
+    keyboardContainer.className = "hangman-keyboard";
+    keyboardContainer.style.display = "flex";
+    keyboardContainer.style.flexWrap = "wrap";
+    keyboardContainer.style.justifyContent = "center";
+    keyboardContainer.style.gap = "6px";
+    keyboardContainer.style.maxWidth = canvas.width + "px";
+    keyboardContainer.style.margin = "8px auto 0";
+    keyboardContainer.style.padding = "8px";
 
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-    letters.forEach(l => {
-        const btn = document.createElement("button");
-        btn.className = "key";
-        btn.dataset.letter = l;
-        btn.textContent = l;
-
-        btn.style.width = "34px";
-        btn.style.height = "34px";
-        btn.style.margin = "3px";
-        btn.style.fontSize = "16px";
-        btn.style.border = "1px solid #444";
-        btn.style.borderRadius = "4px";
-        btn.style.background = "#fff";
-        btn.style.cursor = "pointer";
-
-        btn.addEventListener("click", () => handleLetter(l));
-
-        keyboardLayer.appendChild(btn);
+    letters.forEach(ch => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.dataset.letter = ch;
+      b.textContent = ch;
+      b.style.width = "40px";
+      b.style.height = "40px";
+      b.style.borderRadius = "6px";
+      b.style.border = "1px solid #bbb";
+      b.style.background = "#fff";
+      b.style.cursor = "pointer";
+      b.style.fontSize = "16px";
+      b.addEventListener("click", () => handleLetter(ch));
+      keyboardContainer.appendChild(b);
     });
 
-    gameContainer.style.position = "relative";
-    gameContainer.appendChild(keyboardLayer);
-}
+    canvas.insertAdjacentElement("afterend", keyboardContainer);
+  }
 
-// Авто-инициализация
-createKeyboard();
-drawGame();
+  function disableKeyboardUI(){
+    keyboardContainer?.querySelectorAll("button").forEach(b => b.disabled = true);
+  }
+  function enableKeyboardUI(){
+    keyboardContainer?.querySelectorAll("button").forEach(b => b.disabled = false);
+  }
+
+  // controls
+  function setupControls(){
+    const startBtn = document.getElementById("startBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    if (startBtn) startBtn.addEventListener("click", startGame);
+    if (pauseBtn) pauseBtn.addEventListener("click", togglePause);
+    if (restartBtn) restartBtn.addEventListener("click", () => restartGame());
+  }
+
+  // game flow
+  function startGame(){
+    if (gameRunning && !isPaused) return;
+    if (!gameRunning){
+      if (!word){
+        word = getRandomWord();
+        guessedLetters = [];
+        attemptsLeft = maxAttempts;
+        gameOver = false;
+      }
+      gameRunning = true;
+    }
+    isPaused = false;
+    if (gameOver) return;
+    drawWordAndUI();
+    safeBlock();
+    enableKeyboardUI();
+    canvas.tabIndex = 0;
+    canvas.focus();
+    updateGameOverElement();
+  }
+
+  function togglePause(){
+    if (!gameRunning) return;
+    isPaused = !isPaused;
+    updateGameOverElement();
+    if (!isPaused){
+      canvas.focus();
+    }
+  }
+
+  function restartGame(){
+    word = getRandomWord();
+    guessedLetters = [];
+    attemptsLeft = maxAttempts;
+    gameRunning = false;
+    isPaused = false;
+    gameOver = false;
+    if (gameOverEl){
+      gameOverEl.style.display = "none";
+      gameOverEl.textContent = "";
+    }
+    enableKeyboardUI();
+    drawWordAndUI();
+    safeBlock();
+  }
+
+  function endGame(won){
+    gameOver = true;
+    gameRunning = false;
+    disableKeyboardUI();
+
+    if (gameOverEl){
+      gameOverEl.style.display = "block";
+      gameOverEl.textContent = won ?
+        `You Win! Score: ${attemptsLeft * 10}` :
+        `You Lose! Word: ${word}`;
+    }
+
+    try {
+      saveScore("hangmanEng", won ? attemptsLeft * 10 : 0);
+    } catch(e){
+      console.error("saveScore error", e);
+    }
+
+    safeUnblock();
+    drawWordAndUI();
+  }
+
+  function updateGameOverElement(){
+    if (!gameOverEl) return;
+    if (gameOver) return;
+    if (isPaused){
+      gameOverEl.style.display = "block";
+      gameOverEl.textContent = "PAUSED";
+    } else {
+      gameOverEl.style.display = "none";
+      gameOverEl.textContent = "";
+    }
+  }
+
+  // keyboard events
+  document.addEventListener("keydown", e => {
+    if (!gameRunning || gameOver || isPaused) return;
+    const key = e.key.toUpperCase();
+    if (/^[A-Z]$/.test(key)){
+      handleLetter(key);
+    }
+  });
+
+  // init
+  createKeyboardInsideContainer();
+  setupControls();
+  restartGame();
+
+  window.startGame = startGame;
+  window.pauseGame = togglePause;
+  window.restartGame = restartGame;
+
+})();
