@@ -418,7 +418,7 @@ class BombermanGame {
 
 let gameInstance;
 document.addEventListener("DOMContentLoaded", () => {
-    gameInstance = new BombermanGame("gameCanvas");
+    gameInstance = new BombermanGame("game");
 });
 
 /** === Глобальные функции как у Snake.js === **/
