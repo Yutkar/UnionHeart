@@ -9,18 +9,16 @@ canvas.height = 400;
 let gameInterval = null;
 let isPaused = false;
 let gameRunning = false;
-let gameOver = false;
 
-// ===== Вспомогательные функции =====
+// ===== Вспомогательные =====
 function safeBlock() { window.scrollBlock?.block(); }
 function safeUnblock() { window.scrollBlock?.unblock(); }
-
 function hideGameOverMessage() {
-    const m = document.getElementById("gameOverMessage");
-    if (m) m.style.display = "none";
+    const message = document.getElementById("gameOverMessage");
+    if (message) message.style.display = "none";
 }
 
-// ===== Прицел =====
+// ===== ПРИЦЕЛ =====
 const crosshair = {
     x: canvas.width / 2,
     y: canvas.height / 2,
@@ -30,29 +28,27 @@ const crosshair = {
 
 // ===== Цели =====
 let targets = [];
+let hitEffects = [];
+let score = 0;
+let gameOver = false;
+
 const targetWidth = 40;
 const targetHeight = 40;
 let targetSpeed = 2;
 
-// ===== Очки =====
-let score = 0;
-
-// ===== Эффекты попадания =====
-let hitEffects = [];
-
-// ===== Создание цели =====
+// ===== Спавн цели =====
 function spawnTarget() {
-    const y = Math.random() * (canvas.height - targetHeight - 30);
-    const direction = Math.random() < 0.5 ? 1 : -1;
-    const x = direction === 1 ? -targetWidth : canvas.width;
+    const y = Math.random() * (canvas.height - targetHeight - 50);
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    const x = dir === 1 ? -targetWidth : canvas.width;
 
     targets.push({
         x,
         y,
         width: targetWidth,
         height: targetHeight,
-        dx: direction * (targetSpeed + Math.random() * 2),
-        color: `hsl(${Math.random() * 360}, 70%, 50%)`
+        dx: dir * (targetSpeed + Math.random() * 3),
+        color: `hsl(${Math.random() * 360}, 70%, 55%)`
     });
 }
 
@@ -60,11 +56,9 @@ function spawnTarget() {
 function update() {
     if (gameOver) return;
 
-    // движение целей
     targets.forEach(t => t.x += t.dx);
     targets = targets.filter(t => t.x + t.width > 0 && t.x < canvas.width);
 
-    // эффекты попадания
     hitEffects.forEach(e => e.alpha -= 0.05);
     hitEffects = hitEffects.filter(e => e.alpha > 0);
 }
@@ -73,8 +67,7 @@ function update() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // фон
-    ctx.fillStyle = "#e0f7fa";
+    ctx.fillStyle = "#ddf7ff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // прицел
@@ -103,26 +96,23 @@ function draw() {
         ctx.fill();
     });
 
-    // счёт на canvas
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "#000";
     ctx.font = "20px Arial";
     ctx.fillText("Score: " + score, 10, 30);
 }
 
-// ===== Выстрел =====
+// ===== Стрельба =====
 function shoot() {
     let hit = false;
 
     for (let i = targets.length - 1; i >= 0; i--) {
         const t = targets[i];
-
         if (
-            crosshair.x > t.x &&
-            crosshair.x < t.x + t.width &&
-            crosshair.y > t.y &&
-            crosshair.y < t.y + t.height
+            crosshair.x >= t.x &&
+            crosshair.x <= t.x + t.width &&
+            crosshair.y >= t.y &&
+            crosshair.y <= t.y + t.height
         ) {
-            // попадание
             score++;
             hitEffects.push({ x: crosshair.x, y: crosshair.y, size: 15, alpha: 1 });
             targets.splice(i, 1);
@@ -130,9 +120,7 @@ function shoot() {
         }
     }
 
-    if (!hit) {
-        score = Math.max(0, score - 1); // промах — минус очко
-    }
+    if (!hit) score = Math.max(0, score - 1);
 }
 
 // ===== Управление клавиатурой =====
@@ -159,65 +147,72 @@ function moveCrosshair() {
     crosshair.y = Math.max(crosshair.size, Math.min(canvas.height - crosshair.size, crosshair.y));
 }
 
-// ===== Основной цикл =====
+// ===== Главный цикл =====
 let frameCount = 0;
 
 function gameLoop() {
     frameCount++;
-    if (frameCount % 50 === 0) spawnTarget(); // частый спавн
+
+    if (frameCount % 45 === 0) spawnTarget();
 
     moveCrosshair();
     update();
     draw();
 }
 
-// ===== Управление — старт/пауза/рестарт =====
+// ===== Управление игрой =====
 function startGame() {
     hideGameOverMessage();
 
-    if (gameInterval && !isPaused) return;
+    if (!gameInterval) {
+        score = 0;
+        gameOver = false;
+        targets = [];
+        hitEffects = [];
+        frameCount = 0;
 
-    gameRunning = true;
-    gameOver = false;
-    isPaused = false;
+        gameRunning = true;
+        isPaused = false;
 
-    clearInterval(gameInterval);
-    gameInterval = setInterval(gameLoop, 30);
-    safeBlock();
+        gameInterval = setInterval(gameLoop, 30);
+        safeBlock();
+    }
 }
 
 function pauseGame() {
     if (!gameInterval) return;
 
     if (isPaused) {
-        startGame();
-        return;
+        gameInterval = setInterval(gameLoop, 30);
+        isPaused = false;
+        safeBlock();
+    } else {
+        clearInterval(gameInterval);
+        gameInterval = null;
+        isPaused = true;
+        safeUnblock();
     }
-
-    clearInterval(gameInterval);
-    gameInterval = null;
-    isPaused = true;
-    safeUnblock();
 }
 
 function restartGame() {
     clearInterval(gameInterval);
     gameInterval = null;
 
-    isPaused = false;
-    gameRunning = false;
-    gameOver = false;
-
     score = 0;
     targets = [];
     hitEffects = [];
     frameCount = 0;
+    gameOver = false;
+
+    isPaused = false;
+    gameRunning = false;
 
     hideGameOverMessage();
+    safeBlock();
+
     startGame();
 }
 
-// ===== Завершение игры =====
 function endGame() {
     clearInterval(gameInterval);
     gameInterval = null;
@@ -226,18 +221,17 @@ function endGame() {
     isPaused = false;
     gameRunning = false;
 
-    saveScore("shootingGallery", score);
-
     const message = document.getElementById("gameOverMessage");
     if (message) {
-        message.textContent = "Игра окончена! Очки: " + score;
+        message.textContent = "Игра завершена! Очки: " + score;
         message.style.display = "block";
     }
 
+    saveScore("shootingGallery", score);
     safeUnblock();
 }
 
-// ===== Глобальный доступ =====
+// ===== Экспорт =====
 window.startGame = startGame;
 window.pauseGame = pauseGame;
 window.restartGame = restartGame;
