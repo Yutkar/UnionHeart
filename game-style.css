@@ -250,3 +250,53 @@ footer a:hover {
   margin-left: 8px;
 }
 
+
+
+
+
+
+
+/* game-style.css - styles for SimpleRacing */
+
+/* Reset-ish for this file */
+.game-container { max-width: 980px; margin: 24px auto; padding: 12px; font-family: Inter, Arial, sans-serif; }
+.game-container h1 { margin: 0 0 8px; font-size: 28px; }
+.game-container p { margin: 0 0 12px; color: #333; }
+
+/* Layers */
+#sky { height: 80px; width: 100%; background: linear-gradient(#73a7ff, #5aa0ff); border-radius: 6px; margin-bottom: -8px; position: relative; z-index: 1; }
+#mountains { height: 60px; width: 200%; background: linear-gradient(#3a6, #2a4); position: relative; left: -20%; top: -40px; opacity: 0.25; z-index: 0; }
+#terrain { height: 24px; width: 100%; background: linear-gradient(#154, #0b2); margin-top: -20px; z-index: 0; }
+
+/* Game stage */
+#game { position: relative; width: 100%; max-width: 640px; margin: 18px auto; background: linear-gradient(#111, #222); border-radius: 8px; padding: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.25); }
+#road { display: block; width: 100%; height: 260px; background: linear-gradient(#2b2b2b, #111); border-radius: 6px; }
+
+/* Car and cars layers: single .car elements are positioned absolutely */
+#car { position: absolute; bottom: 40px; left: 120px; width: 60px; height: 28px; background: linear-gradient(#f55,#c33); border-radius: 6px; z-index: 40; box-shadow: 0 4px 6px rgba(0,0,0,0.4); transform-origin: center; }
+#cars .car { position: absolute; width: 56px; height: 28px; border-radius: 6px; z-index: 30; }
+
+/* fog element (optional) */
+#fog { position: absolute; inset: 0; pointer-events: none; z-index: 35; opacity: 0.5; background-image: linear-gradient(rgba(255,255,255,0.02), rgba(0,0,0,0.04)); }
+.hidden { display: none !important; }
+
+/* HUD */
+#hud { position: relative; display: flex; gap: 12px; justify-content: space-between; margin-top: 8px; }
+.hud-block { background: rgba(255,255,255,0.03); color: #fff; padding: 6px 10px; border-radius: 6px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.hud .label { opacity: 0.8; margin-right: 6px; }
+.hud .digits span { display:inline-block; width: 18px; text-align: center; font-weight:700; }
+
+/* Controls */
+.controls { display:flex; gap:8px; justify-content:center; margin-top:12px; }
+.controls button { padding: 8px 14px; border-radius:8px; border: none; background: linear-gradient(#fff,#e6e6e6); cursor:pointer; font-weight:700; }
+
+/* Game over message */
+.game-over { margin-top: 10px; text-align:center; font-size:18px; font-weight:700; }
+
+/* Small screens */
+@media (max-width:640px){
+  #game { padding: 8px; }
+  #car { left: 80px; width: 44px; height: 22px; bottom: 36px; }
+  #road { height: 220px; }
+  .hud { flex-wrap:wrap; gap:8px; }
+}

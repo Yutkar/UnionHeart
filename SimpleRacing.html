@@ -1,10 +1,9 @@
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Union Heart</title>
-  <link rel="apple-touch-icon" href="images/favicon.png">
-  <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Union Heart — Simple Racing</title>
   <link rel="stylesheet" href="game-style.css">
 </head>
 <body>
@@ -25,75 +24,64 @@
 
   <main>
     <div class="game-container">
-      <h1>🚗💨 Простые гонки  </h1>
-      <p>
-         Игрок управляет машиной, соревнуясь на трассе и избегая аварий.
-        </p>
-      <div id="sky"></div>
-<div id="terrain"></div>
+      <h1>🚗💨 Простые гонки</h1>
+      <p>Игрок управляет машиной, соревнуясь на трассе и избегая аварий.</p>
 
-<div id="fog" class="hidden"></div>
+      <!-- Visual layers -->
+      <div id="sky" class="layer"></div>
+      <div id="mountains" class="layer"></div>
+      <div id="terrain" class="layer"></div>
 
-<div id="mountains"></div>
+      <!-- Game stage (required elements for JS) -->
+      <div id="game">
+        <div id="car" class="car"></div>
+        <div id="cars"></div>
+        <canvas id="road" width="600" height="260"></canvas>
+        <div id="fog" class="hidden"></div>
 
-<canvas id="road"></canvas>
+        <div id="hud">
+          <div id="km" class="hud-block">
+            <span class="label">KM</span>
+            <span class="digits"><span>0</span><span>0</span><span>0</span><span>0</span></span>
+          </div>
 
-<div id="cars"></div>
-<div id="car"></div>
+          <div id="position" class="hud-block">
+            <span class="label">POS</span>
+            <span class="digits"><span>0</span><span>0</span><span>0</span></span>
+          </div>
 
-<div id="hud">
-  <div id="km">
-    <span>K</span><span>0</span><span>0</span><span>0</span>
-  </div>
+          <div id="lap" class="hud-block">1</div>
+        </div>
+      </div>
 
-  <div id="position">
-    <span>P</span><span>2</span><span>0</span><span>0</span>
-  </div>
-
-  <div id="lap">1</div>
-</div>
-
-<div id="mobileControls">
-  <button id="left">←</button>
-  <button id="up">↑</button>
-  <button id="right">→</button>
-</div>
-
-<button id="click" class="racing-start">Click to Start!</button>
+      <p id="gameOverMessage" class="game-over" style="display:none;"></p>
 
       <div class="controls">
         <button id="startBtn">▶ Старт</button>
         <button id="pauseBtn">⏸ Пауза</button>
         <button id="restartBtn">🔄 Перезапуск</button>
       </div>
+
       <div class="game-info">
         <h2>Управление</h2>
         <ul>
-          <li>A — перемещение влево</li>
-          <li>D — перемещение вправо</li>
-          <li>S — перемещение вниз</li>
-          <li>W — перемещение вверх</li>
-          <li>📱 На телефоне: свайпы для движения.</li>
+          <li>A — влево</li>
+          <li>D — вправо</li>
+          <li>W/Space — газ</li>
+          <li>📱 На телефоне: сенсорные кнопки (если добавлены)</li>
         </ul>
       </div>
     </div>
+
+    <div class="rating-section" data-game-id="simpleracing">
+      <h2>⭐ Рейтинг игры</h2>
+      <div class="stars">
+        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+      </div>
+      <p id="userRating">Ваша оценка: —</p>
+      <p id="avgRating">Средняя оценка: —</p>
+    </div>
   </main>
-
-  <div class="rating-section" data-game-id="SimpleRacing">
-  <h2>⭐ Рейтинг игры</h2>
-  <div class="stars">
-    <span>★</span>
-    <span>★</span>
-    <span>★</span>
-    <span>★</span>
-    <span>★</span>
-  </div>
-  <p id="userRating">Ваша оценка: —</p>
-  <p id="avgRating">Средняя оценка: —</p>
-</div>
-
-<script type="module" src="rating.js"></script>
-
 
   <footer>
     <div class="footer-links">
@@ -103,12 +91,16 @@
     <p>© 2025 Union Heart – Игры с душой</p>
   </footer>
 
-  <!-- Логика игры - правильный порядок -->
+  <!-- Core modules (keep order) -->
   <script type="module" src="firebase-init.js"></script>
   <script type="module" src="auth.js"></script>
   <script type="module" src="scores.js"></script>
   <script type="module" src="rating.js"></script>
+
+  <!-- Controls (must be plain script, not module) -->
   <script src="gameControls.js"></script>
+
+  <!-- Game logic (module) -->
   <script type="module" src="Games/Racing/SimpleRacing.js"></script>
 </body>
 </html>
