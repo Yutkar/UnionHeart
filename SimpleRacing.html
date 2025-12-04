@@ -1,106 +1,70 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Union Heart — Simple Racing</title>
-  <link rel="stylesheet" href="game-style.css">
+  <meta charset="UTF-8">
+  <title>Simple Racing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="simple-racing.css">
 </head>
 <body>
-  <header>
-    <div class="logo">❤ UNION HEART</div>
-    <nav>
-      <a href="index.html">Главная</a>
-      <a href="Katalog.html">Каталог</a>
-      <a href="oProecte.html">О проекте</a>
-    </nav>
-    <div id="user-panel">
-      <span id="userInfo"></span>
-      <button id="loginBtn">Войти через Google</button>
-      <button id="logoutBtn" style="display:none;">Выйти</button>
-      <span id="authMessage"></span>
-    </div>
-  </header>
 
-  <main>
-    <div class="game-container">
-      <h1>🚗💨 Простые гонки</h1>
-      <p>Игрок управляет машиной, соревнуясь на трассе и избегая аварий.</p>
+<div class="game-wrapper">
 
-      <!-- Visual layers -->
-      <div id="sky" class="layer"></div>
-      <div id="mountains" class="layer"></div>
-      <div id="terrain" class="layer"></div>
-
-      <!-- Game stage (required elements for JS) -->
-      <div id="game">
-        <div id="car" class="car"></div>
-        <div id="cars"></div>
-        <canvas id="road" width="600" height="260"></canvas>
-        <div id="fog" class="hidden"></div>
-
-        <div id="hud">
-          <div id="km" class="hud-block">
-            <span class="label">KM</span>
-            <span class="digits"><span>0</span><span>0</span><span>0</span><span>0</span></span>
-          </div>
-
-          <div id="position" class="hud-block">
-            <span class="label">POS</span>
-            <span class="digits"><span>0</span><span>0</span><span>0</span></span>
-          </div>
-
-          <div id="lap" class="hud-block">1</div>
-        </div>
-      </div>
-
-      <p id="gameOverMessage" class="game-over" style="display:none;"></p>
-
-      <div class="controls">
-        <button id="startBtn">▶ Старт</button>
-        <button id="pauseBtn">⏸ Пауза</button>
-        <button id="restartBtn">🔄 Перезапуск</button>
-      </div>
-
-      <div class="game-info">
-        <h2>Управление</h2>
-        <ul>
-          <li>A — влево</li>
-          <li>D — вправо</li>
-          <li>W/Space — газ</li>
-          <li>📱 На телефоне: сенсорные кнопки (если добавлены)</li>
-        </ul>
+  <div class="hud">
+    <div class="hud-block">
+      <label>KM</label>
+      <div id="km" class="digits">
+        <span>0</span><span>0</span><span>0</span><span>0</span>
       </div>
     </div>
 
-    <div class="rating-section" data-game-id="simpleracing">
-      <h2>⭐ Рейтинг игры</h2>
-      <div class="stars">
-        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+    <div class="hud-block">
+      <label>Position</label>
+      <div id="position" class="digits">
+        <span>2</span><span>0</span><span>0</span>
       </div>
-      <p id="userRating">Ваша оценка: —</p>
-      <p id="avgRating">Средняя оценка: —</p>
     </div>
-  </main>
 
-  <footer>
-    <div class="footer-links">
-      <a href="oProecte.html">О проекте</a>
-      <a href="#">Соцсети</a>
+    <div class="hud-block">
+      <label>Lap</label>
+      <div id="lap">1</div>
     </div>
-    <p>© 2025 Union Heart – Игры с душой</p>
-  </footer>
+  </div>
 
-  <!-- Core modules (keep order) -->
-  <script type="module" src="firebase-init.js"></script>
-  <script type="module" src="auth.js"></script>
-  <script type="module" src="scores.js"></script>
-  <script type="module" src="rating.js"></script>
+  <!-- дорога -->
+  <canvas id="road"></canvas>
 
-  <!-- Controls (must be plain script, not module) -->
-  <script src="gameControls.js"></script>
+  <!-- машины соперников -->
+  <div id="cars"></div>
 
-  <!-- Game logic (module) -->
-  <script type="module" src="Games/Racing/SimpleRacing.js"></script>
+  <!-- машина игрока -->
+  <div id="car"></div>
+
+  <!-- горы -->
+  <div id="mountains"></div>
+
+  <!-- туман (управляется скриптом) -->
+  <input id="fog" type="range" min="0.01" max="0.2" step="0.01" class="hidden">
+
+  <p id="gameOverMessage" class="game-over" style="display:none;"></p>
+
+  <div class="controls">
+    <button id="startBtn">Старт</button>
+    <button id="pauseBtn">Пауза</button>
+    <button id="restartBtn">Перезапуск</button>
+  </div>
+
+  <!-- кнопки управления -->
+  <div class="touch-controls">
+    <button id="left">◀</button>
+    <button id="up">▲</button>
+    <button id="right">▶</button>
+  </div>
+
+</div>
+
+<script src="gameControls.js"></script>
+<script type="module" src="Games/Racing/SimpleRacing.js"></script>
+
 </body>
 </html>
