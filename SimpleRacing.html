@@ -4,57 +4,56 @@
   <meta charset="UTF-8">
   <title>Simple Racing</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="simple-racing.css">
+
+  <link rel="stylesheet" href="SimpleRacing.css">
 </head>
 <body>
 
 <div class="game-wrapper">
 
+  <!-- Горизонт (фон) — не обязателен, но красиво -->
+  <div id="sky"></div>
+  <div id="terrain"></div>
+
+  <!-- Горы -->
+  <div id="mountains"></div>
+
+  <!-- Дорога (canvas) -->
+  <canvas id="road"></canvas>
+
+  <!-- Противники -->
+  <div id="cars"></div>
+
+  <!-- Машина игрока -->
+  <div id="car"></div>
+
+  <!-- HUD -->
   <div class="hud">
     <div class="hud-block">
-      <label>KM</label>
+      <div>KM</div>
       <div id="km" class="digits">
         <span>0</span><span>0</span><span>0</span><span>0</span>
       </div>
     </div>
-
     <div class="hud-block">
-      <label>Position</label>
+      <div>POSITION</div>
       <div id="position" class="digits">
         <span>2</span><span>0</span><span>0</span>
       </div>
     </div>
-
     <div class="hud-block">
-      <label>Lap</label>
+      <div>LAP</div>
       <div id="lap">1</div>
     </div>
   </div>
 
-  <!-- дорога -->
-  <canvas id="road"></canvas>
+  <!-- Туман -->
+  <div id="fog" class="hidden"></div>
 
-  <!-- машины соперников -->
-  <div id="cars"></div>
+  <!-- Сообщение game over -->
+  <div id="gameOverMessage" class="hidden">CRASH!</div>
 
-  <!-- машина игрока -->
-  <div id="car"></div>
-
-  <!-- горы -->
-  <div id="mountains"></div>
-
-  <!-- туман (управляется скриптом) -->
-  <input id="fog" type="range" min="0.01" max="0.2" step="0.01" class="hidden">
-
-  <p id="gameOverMessage" class="game-over" style="display:none;"></p>
-
-  <div class="controls">
-    <button id="startBtn">Старт</button>
-    <button id="pauseBtn">Пауза</button>
-    <button id="restartBtn">Перезапуск</button>
-  </div>
-
-  <!-- кнопки управления -->
+  <!-- Мобильные кнопки -->
   <div class="touch-controls">
     <button id="left">◀</button>
     <button id="up">▲</button>
@@ -63,8 +62,13 @@
 
 </div>
 
-<script src="gameControls.js"></script>
-<script type="module" src="Games/Racing/SimpleRacing.js"></script>
+<!-- Панель управления -->
+<div class="controls">
+  <button onclick="startGame()">Старт</button>
+  <button onclick="pauseGame()">Пауза</button>
+  <button onclick="restartGame()">Рестарт</button>
+</div>
 
+<script type="module" src="SimpleRacing.js"></script>
 </body>
 </html>

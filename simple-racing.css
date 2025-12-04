@@ -1,12 +1,13 @@
 body {
   margin: 0;
-  background: #222;
+  background: #111;
   font-family: Arial, sans-serif;
-  color: white;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
+/* Игровое окно */
 .game-wrapper {
   position: relative;
   width: 360px;
@@ -14,33 +15,56 @@ body {
   background: #000;
   overflow: hidden;
   border: 2px solid #333;
+  margin-top: 10px;
 }
 
-#road {
+/* Горизонт */
+#sky {
   position: absolute;
-  width: 360px;
-  height: 640px;
   top: 0;
-  left: 0;
+  width: 100%;
+  height: 120px;
+  background: #228;
+  z-index: 1;
 }
 
+#terrain {
+  position: absolute;
+  top: 120px;
+  width: 100%;
+  height: 70px;
+  background: #040;
+  z-index: 1;
+}
+
+/* Горы */
 #mountains {
   position: absolute;
-  top: 30px;
+  top: 0;
   left: 0;
-  width: 200%;
-  height: 120px;
-  background: url("mountains.png") repeat-x;
-  opacity: 0.4;
-  pointer-events: none;
+  width: 500%;
+  height: 180px;
+  background: linear-gradient(#555,#222);
+  opacity: 0.3;
+  z-index: 2;
 }
 
+/* Дорога */
+#road {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+}
+
+/* Противники и игрок */
 #cars .car {
   position: absolute;
   width: 40px;
   height: 70px;
-  background: url("car_enemy.png") no-repeat center/cover;
-  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 9;
 }
 
 #car {
@@ -49,17 +73,20 @@ body {
   height: 90px;
   bottom: 40px;
   left: 150px;
-  background: url("car_player.png") no-repeat center/cover;
+  background-size: cover;
+  background-position: center;
   z-index: 10;
 }
 
+/* HUD */
 .hud {
   position: absolute;
   top: 5px;
   width: 100%;
   display: flex;
   justify-content: space-around;
-  pointer-events: none;
+  color: white;
+  z-index: 20;
 }
 
 .hud-block {
@@ -68,52 +95,62 @@ body {
 
 .digits span {
   display: inline-block;
-  width: 12px;
-  text-align: center;
+  width: 14px;
   font-size: 20px;
 }
 
-.controls {
+/* Туман */
+#fog {
   position: absolute;
-  bottom: 10px;
+  width: 100%;
+  height: 100%;
+  background: rgba(200,200,200,0.15);
+  z-index: 25;
+}
+.hidden { display: none; }
+
+/* Сообщение CRASH */
+#gameOverMessage {
+  position: absolute;
+  top: 50%;
   width: 100%;
   text-align: center;
+  font-size: 32px;
+  color: red;
+  z-index: 30;
 }
 
-.controls button {
-  margin: 4px;
-  padding: 10px 16px;
-  font-size: 18px;
-  border: none;
-  border-radius: 6px;
-  background: #444;
-  color: white;
-}
-
+/* Мобильные кнопки */
 .touch-controls {
   position: absolute;
-  bottom: 70px;
+  bottom: 20px;
   width: 100%;
   display: flex;
   justify-content: space-around;
+  z-index: 50;
 }
 
 .touch-controls button {
   width: 70px;
   height: 70px;
+  font-size: 30px;
+  background: #222;
+  color: white;
   border: none;
   border-radius: 50%;
-  background: #333;
+}
+
+/* Нижняя панель */
+.controls {
+  margin-top: 15px;
+}
+
+.controls button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 0 8px;
+  background: #444;
   color: white;
-  font-size: 28px;
+  border: none;
+  border-radius: 6px;
 }
-
-.game-over {
-  position: absolute;
-  top: 50%;
-  width: 100%;
-  text-align: center;
-  font-size: 24px;
-}
-
-.hidden { display: none; }
